@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Apple Pay 测试</title>
+</head>
+<body>
+    <h2>Apple Pay 测试页面</h2>
+    
+    <div id="status"></div>
+    <button id="applePayBtn" style="display:none; padding:15px; background:black; color:white;">
+        🍏 使用 Apple Pay 支付
+    </button>
+    
+    <div id="result" style="margin-top:20px;"></div>
+
+    <script>
+        const statusDiv = document.getElementById('status');
+        const resultDiv = document.getElementById('result');
+        const applePayBtn = document.getElementById('applePayBtn');
+        
+        // 1. 检查环境
+        function checkEnvironment() {
+            const isSecure = window.location.protocol === 'https:' || 
+                            window.location.hostname === 'localhost' ||
+                            window.location.hostname === '127.0.0.1';
+            
+            if (!isSecure) {
+                statusDiv.innerHTML = `
+                    <div style="background:#fff3cd; padding:15px; border:1px solid #ffeaa7;">
+                        <h3>⚠️ 环境警告</h3>
+                        <p>当前不是 HTTPS 环境，Apple Pay 可能无法工作</p>
+                        <p>建议访问：<a href="https://localhost:3000">https://localhost:3000</a></p>
+                    </div>
+                `;
+                return false;
+            }
+            return true;
+        }
+        
+        // 2. 检查 Apple Pay 支持
+        async function checkApplePaySupport() {
+            if (!window.PaymentRequest) {
+                statusDiv.innerHTML = '<p style="color:red">❌ 浏览器不支持 Payment Request API</p>';
+                return false;
+            }
+            
+            try {
+                // 创建 Apple Pay 支付方式
+                const applePayMethod = {
+                    supportedMethods: "https://apple.com/apple-pay",
+                    data: {
+                        version: 3,
+                        merchantIdentifier: "merchant.com.example.test", // 测试用
+                        merchantCapabilities: ["supports3DS"],
+                        supportedNetworks: ["visa", "mastercard", "amex"],
+                        countryCode: "US"
+                    }
+                };
+                
+                const paymentRequest = new PaymentRequest(
+                    [applePayMethod],
+                    {
+                        total: {
+                            label: "测试商品",
+                            amount: { currency: "USD", value: "1.00" }
+                        }
+                    }
+                );
+                
+                // 检查是否支持
+                const canMakePayment = await paymentRequest.canMakePayment();
+                
+                if (canMakePayment) {
+                    applePayBtn.style.display = 'block';
+                    statusDiv.innerHTML = '<p style="color:green">✅ 支持 Apple Pay</p>';
+                    return true;
+                } else {
+                    statusDiv.innerHTML = '<p style="color:orange">⚠️ 不支持 Apple Pay</p>';
+                    return false;
+                }
+                
+            } catch (error) {
+                statusDiv.innerHTML = `<p style="color:red">❌ 检查失败: ${error.message}</p>`;
+                return false;
+            }
+        }
+        
+        // 3. 初始化
+        async function initialize() {
+            if (!checkEnvironment()) return;
+            
+            resultDiv.innerHTML = '<p>正在检查 Apple Pay 支持...</p>';
+            const supported = await checkApplePaySupport();
+            
+            if (supported) {
+                applePayBtn.onclick = processApplePay;
+            }
+        }
+        
+        // 4. 处理 Apple Pay 支付
+        async function processApplePay() {
+            resultDiv.innerHTML = '<p>正在启动 Apple Pay...</p>';
+            
+            try {
+                const applePayMethod = {
+                    supportedMethods: "https://apple.com/apple-pay",
+                    data: {
+                        version: 3,
+                        merchantIdentifier: "merchant.com.example.test",
+                        merchantCapabilities: ["supports3DS", "supportsCredit", "supportsDebit"],
+                        supportedNetworks: ["visa", "mastercard", "amex", "discover"],
+                        countryCode: "US"
+                    }
+                };
+                
+                const paymentDetails = {
+                    total: {
+                        label: "我的商店",
+                        amount: { currency: "USD", value: "19.99" }
+                    },
+                    displayItems: [
+                        {
+                            label: "商品价格",
+                            amount: { currency: "USD", value: "17.99" }
+                        },
+                        {
+                            label: "运费",
+                            amount: { currency: "USD", value: "2.00" }
+                        }
+                    ]
+                };
+                
+                const paymentRequest = new PaymentRequest(
+                    [applePayMethod],
+                    paymentDetails,
+                    {
+                        requestPayerName: true,
+                        requestPayerEmail: true,
+                        requestPayerPhone: false,
+                        requestShipping: false
+                    }
+                );
+                
+                // 显示 Apple Pay 界面
+                const paymentResponse = await paymentRequest.show();
+                
+                // 这里应该发送到你的服务器验证
+                resultDiv.innerHTML = '<p>正在验证支付...</p>';
+                
+                // 模拟服务器验证
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                // 完成支付
+                await paymentResponse.complete('success');
+                
+                resultDiv.innerHTML = `
+                    <div style="background:#d4edda; padding:20px; border:1px solid #c3e6cb;">
+                        <h3 style="color:#155724">✅ 支付成功！</h3>
+                        <p>金额：$19.99 USD</p>
+                        <p>方式：Apple Pay</p>
+                        <p>时间：${new Date().toLocaleString()}</p>
+                    </div>
+                `;
+                
+            } catch (error) {
+                if (error.name === 'AbortError') {
+                    resultDiv.innerHTML = '<p style="color:blue">用户取消了支付</p>';
+                } else {
+                    resultDiv.innerHTML = `<p style="color:red">❌ 支付失败: ${error.message}</p>`;
+                    console.error('Apple Pay 错误:', error);
+                }
+            }
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('load', initialize);
+    </script>
+</body>
+</html>
