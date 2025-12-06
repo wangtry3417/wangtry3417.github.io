@@ -1,179 +1,1107 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-HK">
 <head>
-    <title>Apple Pay 测试</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>會員訂閱 - PayPal 支付系統</title>
+    <!-- 動態加載 PayPal SDK -->
+    <script>
+        // 配置 - 在這裡設置你的 PayPal 憑證
+        const PAYPAL_CONFIG = {
+            sandbox: {
+                clientId: 'ASK8RjfrdCzGvCQRDvnfa321S_5OBGMK4KDGac5PreKf6NU-0d0MUPPrYe_S-fq4tcoHN22P8Nz4xZs3',  // 替換為你的 Sandbox Client ID
+                secret: 'EB1-tdfv74XcCxkdDWjueV19ePB4Wf8uMKwdhE2robSWQF21i6nC6pm57zzVARTzJ03ah6X4ARc1GhBQ',       // 替換為你的 Sandbox Secret
+                environment: 'sandbox'
+            },
+            live: {
+                clientId: 'AZsh7JUNnTOO2eYLuwhfwMltWUUCcDS--qf2TzNVDCvlDK20lhbUrbRXYfZgfJEaDskmPi5nmssIQWme',     // 替換為你的 Live Client ID
+                secret: 'ELlPg1idvYkNyzL1nBip5r2qL-fLBhHUpuz_aFQUD6OC7D1AlYj7qxPislk8_0igdkcp0afgPw2O5K0a',          // 替換為你的 Live Secret
+                environment: 'production'
+            }
+        };
+        
+        // 全局配置
+        let currentEnv = 'sandbox';
+        let useAuthorize = true;
+        let accessToken = null;
+        
+        // 動態加載 PayPal SDK
+        function loadPayPalSDK() {
+            const script = document.createElement('script');
+            const clientId = PAYPAL_CONFIG[currentEnv].clientId;
+            const intent = useAuthorize ? 'authorize' : 'capture';
+            
+            script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=HKD&intent=${intent}&vault=true`;
+            script.async = true;
+            
+            script.onload = () => {
+                console.log('✅ PayPal SDK 加載成功');
+                initPayPalButtons();
+            };
+            
+            script.onerror = () => {
+                console.error('❌ PayPal SDK 加載失敗');
+                showError('無法加載 PayPal 服務');
+            };
+            
+            document.head.appendChild(script);
+        }
+        
+        // 頁面加載時執行
+        window.onload = function() {
+            loadPayPalSDK();
+            setupEventListeners();
+            showTestCredentials();
+        };
+    </script>
+    <style>
+        :root {
+            --primary: #003087;
+            --secondary: #009cde;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #343a40;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 992px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* 會員方案卡片 */
+        .plans-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-title {
+            color: var(--primary);
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .plan-card {
+            border: 2px solid #e9ecef;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .plan-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-color: var(--secondary);
+        }
+        
+        .plan-card.popular {
+            border-color: var(--secondary);
+            transform: scale(1.02);
+        }
+        
+        .plan-card.popular::before {
+            content: '熱門選擇';
+            position: absolute;
+            top: 15px;
+            right: -30px;
+            background: var(--secondary);
+            color: white;
+            padding: 5px 30px;
+            transform: rotate(45deg);
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .plan-header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light);
+        }
+        
+        .plan-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .plan-price {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 5px;
+        }
+        
+        .plan-price span {
+            font-size: 1.2rem;
+            color: var(--dark);
+            font-weight: 400;
+        }
+        
+        .plan-period {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .plan-features {
+            list-style: none;
+            margin-bottom: 25px;
+            min-height: 200px;
+        }
+        
+        .plan-features li {
+            padding: 8px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .plan-features li::before {
+            content: '✓';
+            color: var(--success);
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .select-btn {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .select-btn:hover {
+            background: #002366;
+            transform: translateY(-2px);
+        }
+        
+        .select-btn i {
+            font-size: 1.2rem;
+        }
+        
+        /* 支付面板 */
+        .payment-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 20px;
+        }
+        
+        .selected-plan-info {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .selected-plan-info h3 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .selected-plan-info p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+        
+        .payment-details {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .detail-row:last-child {
+            border-bottom: none;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+        
+        /* PayPal 按鈕容器 */
+        #paypal-button-container {
+            margin: 25px 0;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 支付結果 */
+        .result-container {
+            display: none;
+            margin-top: 25px;
+            padding: 25px;
+            border-radius: 10px;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .result-container.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            display: block;
+        }
+        
+        .result-container.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            display: block;
+        }
+        
+        .result-container.info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            display: block;
+        }
+        
+        .result-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        /* 加載遮罩 */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* 控制面板 */
+        .control-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+        
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        
+        .control-content {
+            display: none;
+        }
+        
+        .control-content.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .env-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .env-btn {
+            padding: 12px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .env-btn.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+        
+        .mode-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .mode-selector input[type="radio"] {
+            transform: scale(1.2);
+        }
+        
+        .info-box {
+            background: #e8f4f8;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            border-left: 4px solid var(--secondary);
+        }
+        
+        .info-box h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+        
+        .info-box ul {
+            padding-left: 20px;
+        }
+        
+        .info-box li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+        
+        /* 響應式調整 */
+        @media (max-width: 768px) {
+            .plans-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .plan-card.popular {
+                transform: none;
+            }
+            
+            .plan-card.popular::before {
+                top: 10px;
+                right: -25px;
+                font-size: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h2>Apple Pay 测试页面</h2>
+    <div class="container">
+        <header>
+            <h1>🎯 專業會員訂閱服務</h1>
+            <p>選擇適合您的方案，開啟專屬會員體驗</p>
+        </header>
+        
+        <div class="content">
+            <!-- 左側：會員方案選擇 -->
+            <div class="plans-section">
+                <h2 class="section-title">📋 選擇會員方案</h2>
+                
+                <div class="plans-grid">
+                    <!-- 基本會員方案 -->
+                    <div class="plan-card">
+                        <div class="plan-header">
+                            <div class="plan-name">基本會員</div>
+                            <div class="plan-price">HK$99<span>/月</span></div>
+                            <div class="plan-period">每月自動續訂</div>
+                        </div>
+                        <ul class="plan-features">
+                            <li>完整內容存取權限</li>
+                            <li>標準客戶支援</li>
+                            <li>每月100個使用點數</li>
+                            <li>基礎數據分析</li>
+                            <li>Email 技術支援</li>
+                            <li>社群討論區存取</li>
+                        </ul>
+                        <button class="select-btn" onclick="selectPlan('basic', 99, '基本會員')">
+                            <i>✓</i> 選擇此方案
+                        </button>
+                    </div>
+                    
+                    <!-- 專業會員方案（熱門） -->
+                    <div class="plan-card popular">
+                        <div class="plan-header">
+                            <div class="plan-name">專業會員</div>
+                            <div class="plan-price">HK$199<span>/月</span></div>
+                            <div class="plan-period">每月自動續訂</div>
+                        </div>
+                        <ul class="plan-features">
+                            <li>所有進階功能存取</li>
+                            <li>優先客戶支援</li>
+                            <li>無限使用點數</li>
+                            <li>進階數據分析</li>
+                            <li>專屬客服經理</li>
+                            <li>API 存取權限</li>
+                            <li>客製化報告</li>
+                            <li>定期培訓課程</li>
+                        </ul>
+                        <button class="select-btn" onclick="selectPlan('pro', 199, '專業會員')">
+                            <i>🚀</i> 選擇此方案
+                        </button>
+                    </div>
+                    
+                    <!-- 企業會員方案 -->
+                    <div class="plan-card">
+                        <div class="plan-header">
+                            <div class="plan-name">企業會員</div>
+                            <div class="plan-price">HK$499<span>/月</span></div>
+                            <div class="plan-period">每月自動續訂</div>
+                        </div>
+                        <ul class="plan-features">
+                            <li>所有專業版功能</li>
+                            <li>專屬客戶經理</li>
+                            <li>團隊成員帳號（10個）</li>
+                            <li>客製化解決方案</li>
+                            <li>完整 API 存取</li>
+                            <li>企業級安全性</li>
+                            <li>專屬培訓課程</li>
+                            <li>24/7 技術支援</li>
+                            <li>SLA 服務保證</li>
+                        </ul>
+                        <button class="select-btn" onclick="selectPlan('enterprise', 499, '企業會員')">
+                            <i>🏢</i> 選擇此方案
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="info-box">
+                    <h4>💡 訂閱說明</h4>
+                    <ul>
+                        <li>所有方案均為每月自動續訂</li>
+                        <li>可隨時取消，取消後服務持續至當期結束</li>
+                        <li>支持多種支付方式，由 PayPal 安全處理</li>
+                        <li>首次訂閱享 14 天無條件退款保證</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 右側：支付面板 -->
+            <div class="payment-panel">
+                <div class="selected-plan-info" id="selectedPlanInfo" style="display: none;">
+                    <h3 id="selectedPlanName">專業會員</h3>
+                    <p id="selectedPlanPrice">HK$199/月</p>
+                    <p id="selectedPlanId" style="font-size: 0.9rem; color: #888; margin-top: 5px;"></p>
+                </div>
+                
+                <div class="payment-details" id="paymentDetails" style="display: none;">
+                    <h4>訂閱詳情</h4>
+                    <div class="detail-row">
+                        <span>方案名稱</span>
+                        <span id="detailPlanName">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>月費金額</span>
+                        <span id="detailPrice">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>支付模式</span>
+                        <span id="detailMode">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>訂閱週期</span>
+                        <span>每月自動續訂</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>支付環境</span>
+                        <span id="detailEnv">-</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>總計</span>
+                        <span id="detailTotal">-</span>
+                    </div>
+                </div>
+                
+                <!-- PayPal 按鈕容器 -->
+                <div id="paypal-button-container">
+                    <p style="color: #666; text-align: center;">請先選擇會員方案</p>
+                </div>
+                
+                <!-- 支付結果顯示 -->
+                <div id="paymentResult" class="result-container"></div>
+            </div>
+        </div>
+        
+        <!-- 控制面板 -->
+        <div class="control-panel">
+            <div class="control-header" onclick="toggleControlPanel()">
+                <h3 style="color: var(--primary);">⚙️ 開發者設定</h3>
+                <span id="controlToggleIcon">▼</span>
+            </div>
+            
+            <div class="control-content" id="controlContent">
+                <div class="env-selector">
+                    <button class="env-btn active" onclick="setEnvironment('sandbox')">Sandbox 測試</button>
+                    <button class="env-btn" onclick="setEnvironment('live')">Live 生產</button>
+                </div>
+                
+                <div class="mode-selector">
+                    <label>
+                        <input type="radio" name="paymentMode" value="authorize" checked onclick="setPaymentMode('authorize')">
+                        預授權模式 (Authorize)
+                    </label>
+                    <label>
+                        <input type="radio" name="paymentMode" value="capture" onclick="setPaymentMode('capture')">
+                        立即收款模式 (Capture)
+                    </label>
+                </div>
+                
+                <div class="info-box">
+                    <h4>🔐 安全說明</h4>
+                    <ul>
+                        <li><strong>預授權模式</strong>: 先授權支付，稍後再請款（適合訂閱服務）</li>
+                        <li><strong>立即收款模式</strong>: 直接完成支付並請款</li>
+                        <li><strong>Sandbox</strong>: 測試環境，使用測試賬戶和信用卡</li>
+                        <li><strong>Live</strong>: 生產環境，真實交易</li>
+                    </ul>
+                </div>
+                
+                <div id="testCredentials" style="display: none; margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border: 1px solid #ffeaa7;">
+                    <h4 style="color: #856404;">🧪 測試憑證</h4>
+                    <p style="color: #856404; margin: 10px 0;">請將以下憑證替換為你自己的：</p>
+                    <div style="background: white; padding: 10px; border-radius: 5px; font-family: monospace; font-size: 0.9rem;">
+                        <div>Sandbox Client ID: <span style="color: var(--primary);">YOUR_SANDBOX_CLIENT_ID</span></div>
+                        <div>Sandbox Secret: <span style="color: var(--primary);">YOUR_SANDBOX_SECRET</span></div>
+                        <div>Live Client ID: <span style="color: var(--primary);">YOUR_LIVE_CLIENT_ID</span></div>
+                        <div>Live Secret: <span style="color: var(--primary);">YOUR_LIVE_SECRET</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     
-    <div id="status"></div>
-    <button id="applePayBtn" style="display:none; padding:15px; background:black; color:white;">
-        🍏 使用 Apple Pay 支付
-    </button>
-    
-    <div id="result" style="margin-top:20px;"></div>
+    <!-- 加載遮罩 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h3 id="loadingMessage">處理中...</h3>
+            <p id="loadingSubtext" style="color: #666; margin-top: 10px;"></p>
+        </div>
+    </div>
 
     <script>
-        const statusDiv = document.getElementById('status');
-        const resultDiv = document.getElementById('result');
-        const applePayBtn = document.getElementById('applePayBtn');
+        // 全局變量
+        let selectedPlan = null;
+        let selectedPlanPrice = 0;
+        let selectedPlanName = '';
+        let paypalButtons = null;
         
-        // 1. 检查环境
-        function checkEnvironment() {
-            const isSecure = window.location.protocol === 'https:' || 
-                            window.location.hostname === 'localhost' ||
-                            window.location.hostname === '127.0.0.1';
-            
-            if (!isSecure) {
-                statusDiv.innerHTML = `
-                    <div style="background:#fff3cd; padding:15px; border:1px solid #ffeaa7;">
-                        <h3>⚠️ 环境警告</h3>
-                        <p>当前不是 HTTPS 环境，Apple Pay 可能无法工作</p>
-                        <p>建议访问：<a href="https://localhost:3000">https://localhost:3000</a></p>
-                    </div>
-                `;
-                return false;
-            }
-            return true;
+        // 顯示/隱藏加載遮罩
+        function showLoading(message = '處理中...', subtext = '') {
+            document.getElementById('loadingMessage').textContent = message;
+            document.getElementById('loadingSubtext').textContent = subtext;
+            document.getElementById('loadingOverlay').style.display = 'flex';
         }
         
-        // 2. 检查 Apple Pay 支持
-        async function checkApplePaySupport() {
-            if (!window.PaymentRequest) {
-                statusDiv.innerHTML = '<p style="color:red">❌ 浏览器不支持 Payment Request API</p>';
-                return false;
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+        
+        // 顯示支付結果
+        function showPaymentResult(message, type = 'info') {
+            const resultDiv = document.getElementById('paymentResult');
+            resultDiv.className = `result-container ${type}`;
+            resultDiv.innerHTML = message;
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // 顯示錯誤
+        function showError(message) {
+            showPaymentResult(`
+                <div class="result-icon">❌</div>
+                <h3>操作失敗</h3>
+                <p>${message}</p>
+                <button class="select-btn" onclick="retryPayment()" style="margin-top: 15px; background: var(--danger);">
+                    重試
+                </button>
+            `, 'error');
+        }
+        
+        // 選擇會員方案
+        function selectPlan(planId, price, planName) {
+            selectedPlan = planId;
+            selectedPlanPrice = price;
+            selectedPlanName = planName;
+            
+            // 更新顯示
+            document.getElementById('selectedPlanInfo').style.display = 'block';
+            document.getElementById('selectedPlanName').textContent = planName;
+            document.getElementById('selectedPlanPrice').textContent = `HK$${price}/月`;
+            document.getElementById('selectedPlanId').textContent = `方案代碼: ${planId}`;
+            
+            // 更新支付詳情
+            updatePaymentDetails();
+            
+            // 重新初始化 PayPal 按鈕
+            initPayPalButtons();
+            
+            console.log(`📝 已選擇方案: ${planName}, 價格: HK$${price}`);
+        }
+        
+        // 更新支付詳情
+        function updatePaymentDetails() {
+            if (!selectedPlan) return;
+            
+            document.getElementById('paymentDetails').style.display = 'block';
+            
+            document.getElementById('detailPlanName').textContent = selectedPlanName;
+            document.getElementById('detailPrice').textContent = `HK$${selectedPlanPrice}.00`;
+            document.getElementById('detailMode').textContent = useAuthorize ? '預授權 (Authorize)' : '立即收款 (Capture)';
+            document.getElementById('detailEnv').textContent = currentEnv === 'sandbox' ? '測試環境' : '生產環境';
+            document.getElementById('detailTotal').textContent = `HK$${selectedPlanPrice}.00/月`;
+        }
+        
+        // 初始化 PayPal 按鈕
+        function initPayPalButtons() {
+            if (!selectedPlan) {
+                document.getElementById('paypal-button-container').innerHTML = 
+                    '<p style="color: #666; text-align: center;">請先選擇會員方案</p>';
+                return;
             }
             
+            if (!window.paypal) {
+                console.error('PayPal SDK 未加載');
+                document.getElementById('paypal-button-container').innerHTML = 
+                    '<p style="color: #dc3545; text-align: center;">PayPal 服務加載中...</p>';
+                return;
+            }
+            
+            const container = document.getElementById('paypal-button-container');
+            container.innerHTML = '<p style="color: #666; text-align: center;">正在初始化 PayPal...</p>';
+            
             try {
-                // 创建 Apple Pay 支付方式
-                const applePayMethod = {
-                    supportedMethods: "https://apple.com/apple-pay",
-                    data: {
-                        version: 3,
-                        merchantIdentifier: "merchant.com.apple.test", // 测试用
-                        merchantCapabilities: ["supports3DS"],
-                        supportedNetworks: ["visa", "mastercard", "amex"],
-                        countryCode: "US"
-                    }
-                };
-                
-                const paymentRequest = new PaymentRequest(
-                    [applePayMethod],
-                    {
-                        total: {
-                            label: "测试商品",
-                            amount: { currency: "USD", value: "1.00" }
-                        }
-                    }
-                );
-                
-                // 检查是否支持
-                const canMakePayment = await paymentRequest.canMakePayment();
-                
-                if (canMakePayment) {
-                    applePayBtn.style.display = 'block';
-                    statusDiv.innerHTML = '<p style="color:green">✅ 支持 Apple Pay</p>';
-                    return true;
-                } else {
-                    statusDiv.innerHTML = '<p style="color:orange">⚠️ 不支持 Apple Pay</p>';
-                    return false;
+                // 如果已有按鈕，先清理
+                if (paypalButtons) {
+                    paypalButtons.close();
                 }
                 
-            } catch (error) {
-                statusDiv.innerHTML = `<p style="color:red">❌ 检查失败: ${error.message}</p>`;
-                return false;
-            }
-        }
-        
-        // 3. 初始化
-        async function initialize() {
-            if (!checkEnvironment()) return;
-            
-            resultDiv.innerHTML = '<p>正在检查 Apple Pay 支持...</p>';
-            const supported = await checkApplePaySupport();
-            
-            if (supported) {
-                applePayBtn.onclick = processApplePay;
-            }
-        }
-        
-        // 4. 处理 Apple Pay 支付
-        async function processApplePay() {
-            resultDiv.innerHTML = '<p>正在启动 Apple Pay...</p>';
-            
-            try {
-                const applePayMethod = {
-                    supportedMethods: "https://apple.com/apple-pay",
-                    data: {
-                        version: 3,
-                        merchantIdentifier: "merchant.com.example.test",
-                        merchantCapabilities: ["supports3DS", "supportsCredit", "supportsDebit"],
-                        supportedNetworks: ["visa", "mastercard", "amex", "discover"],
-                        countryCode: "US"
-                    }
-                };
-                
-                const paymentDetails = {
-                    total: {
-                        label: "我的商店",
-                        amount: { currency: "USD", value: "19.99" }
+                // 創建新的 PayPal 按鈕
+                paypalButtons = paypal.Buttons({
+                    style: {
+                        layout: 'vertical',
+                        color: 'blue',
+                        shape: 'rect',
+                        label: 'paypal',
+                        height: 55,
+                        tagline: false
                     },
-                    displayItems: [
-                        {
-                            label: "商品价格",
-                            amount: { currency: "USD", value: "17.99" }
-                        },
-                        {
-                            label: "运费",
-                            amount: { currency: "USD", value: "2.00" }
+                    
+                    // 創建訂單
+                    createOrder: function(data, actions) {
+                        const orderData = {
+                            intent: useAuthorize ? 'AUTHORIZE' : 'CAPTURE',
+                            purchase_units: [{
+                                reference_id: `MEMBERSHIP_${selectedPlan}_${Date.now()}`,
+                                description: `${selectedPlanName} 會員訂閱`,
+                                custom_id: selectedPlan,
+                                invoice_id: `INV-${Date.now()}`,
+                                amount: {
+                                    value: selectedPlanPrice.toFixed(2),
+                                    currency_code: 'HKD',
+                                    breakdown: {
+                                        item_total: {
+                                            currency_code: 'HKD',
+                                            value: selectedPlanPrice.toFixed(2)
+                                        }
+                                    }
+                                },
+                                items: [{
+                                    name: selectedPlanName,
+                                    description: '每月自動續訂服務',
+                                    quantity: '1',
+                                    unit_amount: {
+                                        currency_code: 'HKD',
+                                        value: selectedPlanPrice.toFixed(2)
+                                    },
+                                    category: 'DIGITAL_GOODS'
+                                }]
+                            }],
+                            application_context: {
+                                brand_name: '會員訂閱服務',
+                                locale: 'zh-HK',
+                                landing_page: 'BILLING',
+                                user_action: 'SUBSCRIBE_NOW',
+                                payment_method: {
+                                    payer_selected: 'PAYPAL',
+                                    payee_preferred: 'IMMEDIATE_PAYMENT_REQUIRED'
+                                },
+                                shipping_preference: 'NO_SHIPPING'
+                            }
+                        };
+                        
+                        console.log('📦 創建訂單:', orderData);
+                        return actions.order.create(orderData);
+                    },
+                    
+                    // 批准訂單
+                    onApprove: async function(data, actions) {
+                        showLoading('正在處理 PayPal 支付...', '請勿關閉頁面');
+                        
+                        try {
+                            let result;
+                            
+                            if (useAuthorize) {
+                                // Authorize 模式：先授權
+                                console.log('🔒 執行授權...');
+                                result = await actions.order.authorize();
+                                
+                                // 這裡應該發送到你的服務器處理授權
+                                await handleAuthorizedPayment(result);
+                            } else {
+                                // Capture 模式：直接請款
+                                console.log('💰 執行請款...');
+                                result = await actions.order.capture();
+                                
+                                // 這裡應該發送到你的服務器處理
+                                await handleCapturedPayment(result);
+                            }
+                            
+                        } catch (error) {
+                            hideLoading();
+                            console.error('支付處理錯誤:', error);
+                            showError(`支付失敗: ${error.message}`);
                         }
-                    ]
-                };
-                
-                const paymentRequest = new PaymentRequest(
-                    [applePayMethod],
-                    paymentDetails,
-                    {
-                        requestPayerName: true,
-                        requestPayerEmail: true,
-                        requestPayerPhone: false,
-                        requestShipping: false
+                    },
+                    
+                    // 處理錯誤
+                    onError: function(err) {
+                        console.error('PayPal 按鈕錯誤:', err);
+                        showError(`支付錯誤: ${err.message}`);
+                    },
+                    
+                    // 取消支付
+                    onCancel: function(data) {
+                        console.log('用戶取消了支付');
+                        showPaymentResult(`
+                            <div class="result-icon">ℹ️</div>
+                            <h3>支付已取消</h3>
+                            <p>您可以隨時重新選擇方案進行支付</p>
+                        `, 'info');
                     }
-                );
+                });
                 
-                // 显示 Apple Pay 界面
-                const paymentResponse = await paymentRequest.show();
-                
-                // 这里应该发送到你的服务器验证
-                resultDiv.innerHTML = '<p>正在验证支付...</p>';
-                
-                // 模拟服务器验证
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
-                // 完成支付
-                await paymentResponse.complete('success');
-                
-                resultDiv.innerHTML = `
-                    <div style="background:#d4edda; padding:20px; border:1px solid #c3e6cb;">
-                        <h3 style="color:#155724">✅ 支付成功！</h3>
-                        <p>金额：$19.99 USD</p>
-                        <p>方式：Apple Pay</p>
-                        <p>时间：${new Date().toLocaleString()}</p>
-                    </div>
-                `;
+                // 渲染按鈕
+                if (paypalButtons.isEligible()) {
+                    container.innerHTML = '';
+                    paypalButtons.render('#paypal-button-container');
+                    console.log('✅ PayPal 按鈕初始化成功');
+                } else {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <p style="color: #dc3545; margin-bottom: 15px;">PayPal 支付暫不可用</p>
+                            <button class="select-btn" onclick="retryPayPal()" style="max-width: 200px;">
+                                重試
+                            </button>
+                        </div>
+                    `;
+                }
                 
             } catch (error) {
-                if (error.name === 'AbortError') {
-                    resultDiv.innerHTML = '<p style="color:blue">用户取消了支付</p>';
-                } else {
-                    resultDiv.innerHTML = `<p style="color:red">❌ 支付失败: ${error.message}</p>`;
-                    console.error('Apple Pay 错误:', error);
-                }
+                console.error('初始化 PayPal 按鈕錯誤:', error);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <p style="color: #dc3545; margin-bottom: 15px;">PayPal 初始化失敗</p>
+                        <button class="select-btn" onclick="retryPayPal()" style="max-width: 200px;">
+                            重新加載
+                        </button>
+                    </div>
+                `;
             }
         }
         
-        // 页面加载时初始化
-        window.addEventListener('load', initialize);
+        // 處理授權支付
+        async function handleAuthorizedPayment(authorization) {
+            try {
+                const authId = authorization.purchase_units[0].payments.authorizations[0].id;
+                const authAmount = authorization.purchase_units[0].payments.authorizations[0].amount.value;
+                
+                // 模擬服務器處理（實際應發送到你的服務器）
+                await simulateServerProcessing();
+                
+                hideLoading();
+                
+                showPaymentResult(`
+                    <div class="result-icon">🔒</div>
+                    <h3>預授權成功！</h3>
+                    <p>您的 ${selectedPlanName} 會員訂閱已啟動</p>
+                    
+                    <div style="margin-top: 20px; background: white; padding: 15px; border-radius: 8px;">
+                        <h4>📋 交易詳情</h4>
+                        <div class="detail-row">
+                            <span>授權編號</span>
+                            <span style="font-family: monospace; font-size: 0.9rem;">${authId.substring(0, 20)}...</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>訂閱方案</span>
+                            <span>${selectedPlanName}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>授權金額</span>
+                            <span>HK$${authAmount}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>授權狀態</span>
+                            <span style="color: #ff9800; font-weight: bold;">已預授權</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>授權時間</span>
+                            <span>${new Date().toLocaleString('zh-HK')}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 8px;">
+                        <h4 style="color: #856404;">💡 重要提示</h4>
+                        <p style="color: #856404; margin: 10px 0;">
+                            款項已預留，請在24小時內到 PayPal 後台完成請款操作。
+                            如需幫助，請聯繫客服。
+                        </p>
+                    </div>
+                `, 'success');
+                
+                console.log('🎉 授權處理完成:', authorization);
+                
+            } catch (error) {
+                hideLoading();
+                throw error;
+            }
+        }
+        
+        // 處理捕獲支付
+        async function handleCapturedPayment(capture) {
+            try {
+                const captureId = capture.purchase_units[0].payments.captures[0].id;
+                const captureAmount = capture.purchase_units[0].payments.captures[0].amount.value;
+                
+                // 模擬服務器處理
+                await simulateServerProcessing();
+                
+                hideLoading();
+                
+                showPaymentResult(`
+                    <div class="result-icon">🎉</div>
+                    <h3>訂閱成功！</h3>
+                    <p>您的 ${selectedPlanName} 會員訂閱已生效</p>
+                    
+                    <div style="margin-top: 20px; background: white; padding: 15px; border-radius: 8px;">
+                        <h4>📋 交易詳情</h4>
+                        <div class="detail-row">
+                            <span>交易編號</span>
+                            <span style="font-family: monospace; font-size: 0.9rem;">${captureId.substring(0, 20)}...</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>訂閱方案</span>
+                            <span>${selectedPlanName}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>支付金額</span>
+                            <span>HK$${captureAmount}</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>支付狀態</span>
+                            <span style="color: #28a745; font-weight: bold;">已完成</span>
+                        </div>
+                        <div class="detail-row">
+                            <span>完成時間</span>
+                            <span>${new Date().toLocaleString('zh-HK')}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: #d4edda; border-radius: 8px;">
+                        <h4 style="color: #155724;">✨ 歡迎加入！</h4>
+                        <p style="color: #155724; margin: 10px 0;">
+                            您現在可以開始使用所有會員功能。
+                            如有任何問題，請隨時聯繫客服。
+                        </p>
+                    </div>
+                `, 'success');
+                
+                console.log('🎉 支付處理完成:', capture);
+                
+            } catch (error) {
+                hideLoading();
+                throw error;
+            }
+        }
+        
+        // 模擬服務器處理
+        async function simulateServerProcessing() {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    console.log('✅ 服務器處理完成');
+                    resolve();
+                }, 2000);
+            });
+        }
+        
+        // 設置環境
+        function setEnvironment(env) {
+            if (currentEnv === env) return;
+            
+            currentEnv = env;
+            
+            // 更新按鈕狀態
+            document.querySelectorAll('.env-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // 重新加載 PayPal SDK
+            loadPayPalSDK();
+            
+            // 更新顯示
+            updatePaymentDetails();
+            
+            console.log(`🌍 切換到 ${env} 環境`);
+        }
+        
+        // 設置支付模式
+        function setPaymentMode(mode) {
+            useAuthorize = (mode === 'authorize');
+            
+            // 重新加載 PayPal SDK
+            loadPayPalSDK();
+            
+            // 更新顯示
+            updatePaymentDetails();
+            
+            console.log(`💰 切換到 ${mode} 模式`);
+        }
+        
+        // 重試支付
+        function retryPayment() {
+            initPayPalButtons();
+        }
+        
+        // 重試 PayPal
+        function retryPayPal() {
+            loadPayPalSDK();
+        }
+        
+        // 切換控制面板
+        function toggleControlPanel() {
+            const content = document.getElementById('controlContent');
+            const icon = document.getElementById('controlToggleIcon');
+            
+            content.classList.toggle('show');
+            icon.textContent = content.classList.contains('show') ? '▲' : '▼';
+        }
+        
+        // 設置事件監聽器
+        function setupEventListeners() {
+            // 添加其他事件監聽器
+        }
+        
+        // 顯示測試憑證提示
+        function showTestCredentials() {
+            const sandboxId = PAYPAL_CONFIG.sandbox.clientId;
+            const liveId = PAYPAL_CONFIG.live.clientId;
+            
+            if (sandboxId.includes('YOUR_') || liveId.includes('YOUR_')) {
+                document.getElementById('testCredentials').style.display = 'block';
+            }
+        }
     </script>
 </body>
 </html>
