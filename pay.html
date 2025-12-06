@@ -820,13 +820,9 @@
                             }],
                             application_context: {
                                 brand_name: '會員訂閱服務',
-                                locale: 'zh-HK',
+                                locale: 'zh_HK',
                                 landing_page: 'BILLING',
-                                user_action: 'SUBSCRIBE_NOW',
-                                payment_method: {
-                                    payer_selected: 'PAYPAL',
-                                    payee_preferred: 'IMMEDIATE_PAYMENT_REQUIRED'
-                                },
+                                user_action: useAuthorize ? "CONTINUE" : "PAY_NOW",
                                 shipping_preference: 'NO_SHIPPING'
                             }
                         };
