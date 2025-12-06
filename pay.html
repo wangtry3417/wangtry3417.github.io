@@ -1053,16 +1053,48 @@
         
         // 設置支付模式
         function setPaymentMode(mode) {
-            useAuthorize = (mode === 'authorize');
-            
-            // 重新加載 PayPal SDK
-            loadPayPalSDK();
-            
-            // 更新顯示
-            updatePaymentDetails();
-            
-            console.log(`💰 切換到 ${mode} 模式`);
-        }
+    useAuthorize = (mode === 'authorize');
+    
+    console.log(`💰 切換到 ${mode} 模式`);
+    
+    // 1. 清除現有 PayPal 按鈕
+    const container = document.getElementById('paypal-button-container');
+    container.innerHTML = '<p style="color: #666; text-align: center;">正在重新初始化支付...</p>';
+    
+    // 2. 移除現有 SDK 腳本
+    const oldScript = document.querySelector('script[src*="paypal.com"]');
+    if (oldScript) {
+        oldScript.remove();
+    }
+    
+    // 3. 清除 PayPal 全局對象
+    if (window.paypal) {
+        delete window.paypal;
+    }
+    
+    // 4. 重置 selectedPlan 強制重新選擇
+    selectedPlan = null;
+    selectedPlanPrice = 0;
+    selectedPlanName = '';
+    
+    // 5. 重置顯示
+    document.getElementById('selectedPlanInfo').style.display = 'none';
+    document.getElementById('paymentDetails').style.display = 'none';
+    document.getElementById('paymentResult').innerHTML = '';
+    
+    // 6. 清除瀏覽器表單自動填充
+    document.querySelectorAll('input').forEach(input => {
+        input.value = '';
+    });
+    
+    // 7. 重新加載 SDK
+    loadPayPalSDK();
+    
+    // 8. 提示用戶重新選擇方案
+    setTimeout(() => {
+        alert('請重新選擇會員方案開始新的支付流程');
+    }, 500);
+}
         
         // 重試支付
         function retryPayment() {
