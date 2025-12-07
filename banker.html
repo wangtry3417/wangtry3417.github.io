@@ -16,6 +16,12 @@
             --card-bg: #1a2238;
             --text-color: #ffffff;
             --text-secondary: #8a94ad;
+            --player-color: #3498db;
+            --banker-color: #e74c3c;
+            --tie-color: #f39c12;
+            --road-red: #e74c3c;
+            --road-blue: #3498db;
+            --road-green: #2ecc71;
         }
 
         * {
@@ -30,13 +36,14 @@
             color: var(--text-color);
             min-height: 100vh;
             padding: 20px;
+            overflow-x: hidden;
         }
 
         .container {
-            max-width: 1600px;
+            max-width: 1800px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 1fr 400px;
+            grid-template-columns: 1fr 420px;
             gap: 25px;
         }
 
@@ -72,6 +79,36 @@
         .logo-icon {
             font-size: 2.8rem;
             color: var(--primary-color);
+        }
+
+        .sound-control {
+            display: flex;
+            gap: 10px;
+        }
+
+        .sound-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            color: var(--text-color);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sound-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1);
+        }
+
+        .sound-btn.active {
+            background: var(--primary-color);
+            color: white;
         }
 
         .wallet-info {
@@ -163,6 +200,7 @@
             border-radius: 15px;
             background: rgba(255, 255, 255, 0.03);
             transition: all 0.3s ease;
+            position: relative;
         }
 
         .player-side.active, .banker-side.active {
@@ -180,18 +218,20 @@
             letter-spacing: 2px;
             text-transform: uppercase;
             border: 3px solid;
+            position: relative;
+            overflow: hidden;
         }
 
         .player-label {
-            background: rgba(0, 168, 255, 0.1);
-            color: var(--secondary-color);
-            border-color: var(--secondary-color);
+            background: rgba(52, 152, 219, 0.1);
+            color: var(--player-color);
+            border-color: var(--player-color);
         }
 
         .banker-label {
-            background: rgba(255, 71, 87, 0.1);
-            color: var(--danger-color);
-            border-color: var(--danger-color);
+            background: rgba(231, 76, 60, 0.1);
+            color: var(--banker-color);
+            border-color: var(--banker-color);
         }
 
         .cards {
@@ -220,6 +260,7 @@
             transition: all 0.5s ease;
             transform-style: preserve-3d;
             cursor: pointer;
+            perspective: 1000px;
         }
 
         .card.flipped {
@@ -264,6 +305,10 @@
             border: 2px dashed rgba(255, 255, 255, 0.3);
         }
 
+        .card.special-card .card-front {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+        }
+
         .points-display {
             font-size: 2.8rem;
             font-weight: bold;
@@ -277,13 +322,13 @@
         }
 
         .player-points {
-            color: var(--secondary-color);
-            border-color: var(--secondary-color);
+            color: var(--player-color);
+            border-color: var(--player-color);
         }
 
         .banker-points {
-            color: var(--danger-color);
-            border-color: var(--danger-color);
+            color: var(--banker-color);
+            border-color: var(--banker-color);
         }
 
         .result-area {
@@ -304,18 +349,18 @@
         }
 
         .winner-player {
-            color: var(--secondary-color);
-            text-shadow: 0 0 30px rgba(0, 168, 255, 0.7);
+            color: var(--player-color);
+            text-shadow: 0 0 30px rgba(52, 152, 219, 0.7);
         }
 
         .winner-banker {
-            color: var(--danger-color);
-            text-shadow: 0 0 30px rgba(255, 71, 87, 0.7);
+            color: var(--banker-color);
+            text-shadow: 0 0 30px rgba(231, 76, 60, 0.7);
         }
 
         .winner-tie {
-            color: var(--warning-color);
-            text-shadow: 0 0 30px rgba(255, 165, 2, 0.7);
+            color: var(--tie-color);
+            text-shadow: 0 0 30px rgba(243, 156, 18, 0.7);
         }
 
         .game-controls {
@@ -368,7 +413,7 @@
             transform: none !important;
         }
 
-        .big-road {
+        .big-road-container {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(20px);
             border-radius: 20px;
@@ -376,61 +421,115 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .big-road h3 {
-            font-size: 1.8rem;
+        .road-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 25px;
+        }
+
+        .road-header h3 {
+            font-size: 1.8rem;
             color: var(--primary-color);
             display: flex;
             align-items: center;
             gap: 15px;
         }
 
-        .road-container {
-            overflow-x: auto;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 15px;
+        .road-controls {
+            display: flex;
+            gap: 10px;
         }
 
-        .road-grid {
+        .road-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .road-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .big-road {
+            background: #0a0e1a;
+            border-radius: 15px;
+            padding: 20px;
+            overflow: auto;
+        }
+
+        .road-table {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
-            gap: 10px;
-            min-width: 800px;
+            grid-template-columns: repeat(40, 24px);
+            grid-template-rows: repeat(6, 24px);
+            gap: 2px;
+            min-width: 1000px;
         }
 
         .road-cell {
-            aspect-ratio: 1;
-            border-radius: 8px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
             display: flex;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            font-size: 12px;
             font-weight: bold;
-            font-size: 1.6rem;
-            transition: all 0.2s ease;
+            position: relative;
         }
 
-        .player-cell {
-            background: rgba(0, 168, 255, 0.2);
-            border: 3px solid var(--secondary-color);
-            color: var(--secondary-color);
+        .player-road {
+            background: var(--road-blue);
+            color: white;
         }
 
-        .banker-cell {
-            background: rgba(255, 71, 87, 0.2);
-            border: 3px solid var(--danger-color);
-            color: var(--danger-color);
+        .banker-road {
+            background: var(--road-red);
+            color: white;
         }
 
-        .tie-cell {
-            background: rgba(255, 165, 2, 0.2);
-            border: 3px solid var(--warning-color);
-            color: var(--warning-color);
+        .tie-road {
+            background: var(--road-green);
+            color: white;
+            border: 2px solid white;
         }
 
-        .empty-cell {
+        .road-dragon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .empty-road {
             background: rgba(255, 255, 255, 0.05);
-            border: 2px dashed rgba(255, 255, 255, 0.1);
+        }
+
+        .road-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding: 0 10px;
+        }
+
+        .road-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .road-color {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
         }
 
         .sidebar {
@@ -507,21 +606,21 @@
         }
 
         .target-btn[data-target="player"].active {
-            background: rgba(0, 168, 255, 0.2);
-            color: var(--secondary-color);
-            border: 3px solid var(--secondary-color);
+            background: rgba(52, 152, 219, 0.2);
+            color: var(--player-color);
+            border: 3px solid var(--player-color);
         }
 
         .target-btn[data-target="banker"].active {
-            background: rgba(255, 71, 87, 0.2);
-            color: var(--danger-color);
-            border: 3px solid var(--danger-color);
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--banker-color);
+            border: 3px solid var(--banker-color);
         }
 
         .target-btn[data-target="tie"].active {
-            background: rgba(255, 165, 2, 0.2);
-            color: var(--warning-color);
-            border: 3px solid var(--warning-color);
+            background: rgba(243, 156, 18, 0.2);
+            color: var(--tie-color);
+            border: 3px solid var(--tie-color);
         }
 
         .amount-controls {
@@ -704,15 +803,15 @@
         }
 
         .history-player {
-            border-left-color: var(--secondary-color);
+            border-left-color: var(--player-color);
         }
 
         .history-banker {
-            border-left-color: var(--danger-color);
+            border-left-color: var(--banker-color);
         }
 
         .history-tie {
-            border-left-color: var(--warning-color);
+            border-left-color: var(--tie-color);
         }
 
         .history-info {
@@ -954,12 +1053,50 @@
             50% { box-shadow: 0 0 40px currentColor; }
         }
 
+        @keyframes roadEntry {
+            0% {
+                transform: scale(0);
+                opacity: 0;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
         .card-dealing {
             animation: cardDeal 0.5s ease forwards;
         }
 
         .winning-animation {
             animation: pulse 0.5s ease 3, winGlow 1s ease infinite;
+        }
+
+        .road-entry {
+            animation: roadEntry 0.3s ease forwards;
+        }
+
+        .dragon-tail {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid currentColor;
+            box-sizing: border-box;
+        }
+
+        .bead-road {
+            display: grid;
+            grid-template-columns: repeat(40, 12px);
+            grid-template-rows: repeat(6, 12px);
+            gap: 1px;
+            margin-top: 20px;
+        }
+
+        .bead-cell {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
         }
 
         @media (max-width: 1200px) {
@@ -1009,10 +1146,38 @@
             .stats-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .road-table {
+                grid-template-columns: repeat(20, 24px);
+                min-width: 500px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- 音效元素 -->
+    <audio id="backgroundMusic" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-game-show-suspense-waiting-667.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="cardSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-card-shuffle-2467.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="dealSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-card-game-tap-1990.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="winSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="loseSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="chipSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-casino-chips-handling-1249.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="depositSound">
+        <source src="https://assets.mixkit.co/sfx/preview/mixkit-money-bag-drop-1998.mp3" type="audio/mpeg">
+    </audio>
+
     <!-- 存款模態框 -->
     <div class="modal" id="depositModal">
         <div class="modal-content">
@@ -1097,6 +1262,15 @@
                     <i class="fas fa-dice"></i>
                 </div>
                 <h1>加密百家樂</h1>
+            </div>
+            
+            <div class="sound-control">
+                <button class="sound-btn" id="musicBtn" title="背景音樂">
+                    <i class="fas fa-music"></i>
+                </button>
+                <button class="sound-btn active" id="soundBtn" title="音效">
+                    <i class="fas fa-volume-up"></i>
+                </button>
             </div>
             
             <div class="wallet-info">
@@ -1184,11 +1358,31 @@
                 </div>
             </div>
             
-            <div class="big-road">
-                <h3><i class="fas fa-chart-line"></i> 大路圖</h3>
-                <div class="road-container">
-                    <div class="road-grid" id="roadGrid">
+            <div class="big-road-container">
+                <div class="road-header">
+                    <h3><i class="fas fa-chart-line"></i> 大路圖</h3>
+                    <div class="road-controls">
+                        <button class="road-btn" id="clearRoad">清除</button>
+                        <button class="road-btn" id="toggleRoad">切換</button>
+                    </div>
+                </div>
+                <div class="big-road">
+                    <div class="road-table" id="roadTable">
                         <!-- 大路圖動態生成 -->
+                    </div>
+                    <div class="road-labels">
+                        <div class="road-label">
+                            <div class="road-color" style="background: var(--road-blue);"></div>
+                            <span>玩家 (P)</span>
+                        </div>
+                        <div class="road-label">
+                            <div class="road-color" style="background: var(--road-red);"></div>
+                            <span>莊家 (B)</span>
+                        </div>
+                        <div class="road-label">
+                            <div class="road-color" style="background: var(--road-green); border: 2px solid white;"></div>
+                            <span>和局 (T)</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1310,17 +1504,37 @@
             // 遊戲歷史
             gameHistory: [],
             bigRoad: [],
+            roadType: 'big', // 'big', 'bead', 'cockroach'
             
             // 當前遊戲
             playerCards: [null, null, null],
             bankerCards: [null, null, null],
             playerPoints: 0,
             bankerPoints: 0,
-            gameResult: null
+            gameResult: null,
+            
+            // 音效設置
+            soundEnabled: true,
+            musicEnabled: false
+        };
+
+        // 音效元素
+        const audioElements = {
+            backgroundMusic: document.getElementById('backgroundMusic'),
+            cardSound: document.getElementById('cardSound'),
+            dealSound: document.getElementById('dealSound'),
+            winSound: document.getElementById('winSound'),
+            loseSound: document.getElementById('loseSound'),
+            chipSound: document.getElementById('chipSound'),
+            depositSound: document.getElementById('depositSound')
         };
 
         // DOM元素
         const elements = {
+            // 音效控制
+            musicBtn: document.getElementById('musicBtn'),
+            soundBtn: document.getElementById('soundBtn'),
+            
             // 餘額顯示
             totalBalance: document.getElementById('totalBalance'),
             
@@ -1345,6 +1559,11 @@
             dealBtn: document.getElementById('dealBtn'),
             newRoundBtn: document.getElementById('newRoundBtn'),
             
+            // 大路圖相關
+            roadTable: document.getElementById('roadTable'),
+            clearRoadBtn: document.getElementById('clearRoad'),
+            toggleRoadBtn: document.getElementById('toggleRoad'),
+            
             // 下注相關
             betAmountValue: document.getElementById('betAmountValue'),
             betTargetLabel: document.getElementById('betTargetLabel'),
@@ -1364,16 +1583,31 @@
             totalProfitElement: document.getElementById('totalProfit'),
             
             // 歷史相關
-            roadGrid: document.getElementById('roadGrid'),
             historyList: document.getElementById('historyList')
         };
 
-        // 卡片牌組
-        const cardsDeck = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"];
-        let currentDeck = [...cardsDeck];
+        // 卡片牌組 (標準52張牌)
+        const standardDeck = [];
+        const suits = ['♠', '♥', '♦', '♣'];
+        const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        
+        // 創建標準牌組
+        suits.forEach(suit => {
+            ranks.forEach(rank => {
+                standardDeck.push({
+                    rank: rank,
+                    suit: suit,
+                    value: getCardValue(rank)
+                });
+            });
+        });
+
+        let currentDeck = [...standardDeck];
+        let deckIndex = 0;
 
         // 初始化遊戲
         function initializeGame() {
+            shuffleDeck();
             updateUI();
             initializeBigRoad();
             initializeEventListeners();
@@ -1383,10 +1617,23 @@
                 elements.resultText.textContent = '請先存款以開始遊戲';
                 elements.resultText.style.color = 'var(--warning-color)';
             }
+            
+            // 設置音樂音量
+            audioElements.backgroundMusic.volume = 0.3;
+            audioElements.cardSound.volume = 0.5;
+            audioElements.dealSound.volume = 0.5;
+            audioElements.winSound.volume = 0.7;
+            audioElements.loseSound.volume = 0.7;
+            audioElements.chipSound.volume = 0.6;
+            audioElements.depositSound.volume = 0.7;
         }
 
         // 初始化事件監聽器
         function initializeEventListeners() {
+            // 音效控制
+            elements.musicBtn.addEventListener('click', toggleMusic);
+            elements.soundBtn.addEventListener('click', toggleSound);
+            
             // 存款相關
             elements.openDepositBtn.addEventListener('click', openDepositModal);
             elements.closeModalBtn.addEventListener('click', closeDepositModal);
@@ -1406,6 +1653,10 @@
                     elements.depositAmountInput.value = amount.dataset.amount;
                 });
             });
+            
+            // 大路圖控制
+            elements.clearRoadBtn.addEventListener('click', clearBigRoad);
+            elements.toggleRoadBtn.addEventListener('click', toggleRoadType);
             
             // 遊戲控制
             elements.dealBtn.addEventListener('click', dealCards);
@@ -1441,6 +1692,34 @@
             });
         }
 
+        // 音效控制
+        function playSound(sound) {
+            if (!gameState.soundEnabled) return;
+            
+            try {
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log('音效播放失敗:', e));
+            } catch (e) {
+                console.log('音效錯誤:', e);
+            }
+        }
+
+        function toggleMusic() {
+            gameState.musicEnabled = !gameState.musicEnabled;
+            elements.musicBtn.classList.toggle('active');
+            
+            if (gameState.musicEnabled) {
+                audioElements.backgroundMusic.play().catch(e => console.log('音樂播放失敗:', e));
+            } else {
+                audioElements.backgroundMusic.pause();
+            }
+        }
+
+        function toggleSound() {
+            gameState.soundEnabled = !gameState.soundEnabled;
+            elements.soundBtn.classList.toggle('active');
+        }
+
         // 存款相關功能
         function openDepositModal() {
             elements.depositModal.classList.add('active');
@@ -1468,6 +1747,9 @@
             
             const usdtAmount = amount * exchangeRates[gameState.selectedCrypto];
             gameState.balance += usdtAmount;
+            
+            // 播放存款音效
+            playSound(audioElements.depositSound);
             
             // 添加存款紀錄
             addTransaction('存款', `存入 ${amount} ${gameState.selectedCrypto}`, usdtAmount, true);
@@ -1506,6 +1788,8 @@
             
             elements.betTargetLabel.textContent = `下注目標: ${targetName}`;
             elements.betTargetLabel.style.color = getTargetColor(target);
+            
+            playSound(audioElements.chipSound);
         }
 
         function addToBet(amount) {
@@ -1528,6 +1812,8 @@
                     btn.classList.add('active');
                 }
             });
+            
+            playSound(audioElements.chipSound);
         }
 
         function setBetAmount(amount) {
@@ -1543,6 +1829,8 @@
             
             // 清除快速按鈕的選中狀態
             elements.amountButtons.forEach(btn => btn.classList.remove('active'));
+            
+            playSound(audioElements.chipSound);
         }
 
         function clearBet() {
@@ -1559,6 +1847,8 @@
             updateBetUI();
             elements.resultText.textContent = '請下注後開始遊戲';
             elements.resultText.style.color = 'var(--text-color)';
+            
+            playSound(audioElements.chipSound);
         }
 
         function placeBet() {
@@ -1593,9 +1883,65 @@
             // 禁用下注按鈕
             elements.placeBetBtn.disabled = true;
             elements.clearBetBtn.disabled = true;
+            
+            playSound(audioElements.chipSound);
         }
 
-        // 遊戲邏輯
+        // 卡片相關函數
+        function shuffleDeck() {
+            // Fisher-Yates 洗牌算法
+            for (let i = currentDeck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [currentDeck[i], currentDeck[j]] = [currentDeck[j], currentDeck[i]];
+            }
+            deckIndex = 0;
+        }
+
+        function getNextCard() {
+            if (deckIndex >= currentDeck.length) {
+                shuffleDeck();
+            }
+            return currentDeck[deckIndex++];
+        }
+
+        function getCardValue(rank) {
+            switch(rank) {
+                case 'A': return 1;
+                case '2': return 2;
+                case '3': return 3;
+                case '4': return 4;
+                case '5': return 5;
+                case '6': return 6;
+                case '7': return 7;
+                case '8': return 8;
+                case '9': return 9;
+                case '10': 
+                case 'J': 
+                case 'Q': 
+                case 'K': return 0;
+                default: return 0;
+            }
+        }
+
+        function calculatePoints(cards) {
+            let total = 0;
+            cards.forEach(card => {
+                if (card) {
+                    total += card.value;
+                }
+            });
+            return total % 10;
+        }
+
+        function getCardColor(suit) {
+            return suit === '♥' || suit === '♦' ? 'red' : 'black';
+        }
+
+        function getCardDisplay(card) {
+            return card ? `${card.rank}${card.suit}` : '';
+        }
+
+        // 遊戲流程函數
         async function dealCards() {
             if (!gameState.isBetPlaced) {
                 alert('請先下注！');
@@ -1614,8 +1960,10 @@
             // 重置卡片顯示
             resetCardDisplay();
             
-            // 洗牌
-            shuffleDeck();
+            // 洗牌（如果需要）
+            if (deckIndex > currentDeck.length - 10) {
+                shuffleDeck();
+            }
             
             // 初始化手牌
             gameState.playerCards = [null, null, null];
@@ -1667,68 +2015,25 @@
             elements.bankerSide.classList.remove('winning-animation');
         }
 
-        // 卡片處理函數
-        function shuffleDeck() {
-            currentDeck = [...cardsDeck];
-            for (let i = currentDeck.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [currentDeck[i], currentDeck[j]] = [currentDeck[j], currentDeck[i]];
-            }
-        }
-
-        function getRandomCard() {
-            return currentDeck[Math.floor(Math.random() * currentDeck.length)];
-        }
-
-        function getCardValue(card) {
-            if (!card) return 0;
-            
-            switch(card) {
-                case "A": return 1;
-                case "2": return 2;
-                case "3": return 3;
-                case "4": return 4;
-                case "5": return 5;
-                case "6": return 6;
-                case "7": return 7;
-                case "8": return 8;
-                case "9": return 9;
-                default: return 0; // 10, J, Q, K
-            }
-        }
-
-        function calculatePoints(cards) {
-            let points = 0;
-            cards.forEach(card => {
-                if (card) {
-                    points += getCardValue(card);
-                }
-            });
-            return points % 10;
-        }
-
-        function getCardColor(card) {
-            if (!card) return 'black';
-            // 簡化：隨機分配顏色
-            return Math.random() > 0.5 ? 'red' : 'black';
-        }
-
-        // 遊戲流程函數
         async function dealInitialCards() {
+            playSound(audioElements.dealSound);
+            
             // 玩家第一張牌
-            gameState.playerCards[0] = getRandomCard();
+            gameState.playerCards[0] = getNextCard();
             await revealCard('player', 0, gameState.playerCards[0]);
             
             // 莊家第一張牌
-            gameState.bankerCards[0] = getRandomCard();
+            gameState.bankerCards[0] = getNextCard();
             await revealCard('banker', 0, gameState.bankerCards[0]);
             
+            playSound(audioElements.dealSound);
+            
             // 玩家第二張牌
-            gameState.playerCards[1] = getRandomCard();
+            gameState.playerCards[1] = getNextCard();
             await revealCard('player', 1, gameState.playerCards[1]);
             
             // 莊家第二張牌
-            gameState.bankerCards[1] = getRandomCard();
+            gameState.bankerCards[1] = getNextCard();
             await revealCard('banker', 1, gameState.bankerCards[1]);
             
             // 計算前兩張點數
@@ -1741,62 +2046,51 @@
 
         async function determineThirdCards() {
             // 玩家補牌規則
-            if (gameState.playerPoints < 6) {
-                gameState.playerCards[2] = getRandomCard();
+            const playerFirstTwo = calculatePoints([gameState.playerCards[0], gameState.playerCards[1]]);
+            const bankerFirstTwo = calculatePoints([gameState.bankerCards[0], gameState.bankerCards[1]]);
+            
+            // 玩家補牌規則
+            if (playerFirstTwo <= 5) {
+                // 玩家補牌
+                gameState.playerCards[2] = getNextCard();
                 await new Promise(resolve => setTimeout(resolve, 500));
                 await revealCard('player', 2, gameState.playerCards[2]);
             }
             
-            // 莊家補牌規則（簡化版）
-            let bankerNeedsCard = false;
+            // 莊家補牌規則（標準百家樂規則）
+            let bankerDrawsThird = false;
+            const playerThirdCard = gameState.playerCards[2];
             
-            if (gameState.bankerPoints <= 2) {
-                bankerNeedsCard = true;
-            } else if (gameState.bankerPoints === 3) {
-                if (gameState.playerCards[2]) {
-                    const playerThirdCardValue = getCardValue(gameState.playerCards[2]);
-                    if (playerThirdCardValue !== 8) {
-                        bankerNeedsCard = true;
-                    }
-                } else {
-                    bankerNeedsCard = true;
+            if (bankerFirstTwo <= 2) {
+                bankerDrawsThird = true;
+            } else if (bankerFirstTwo === 3) {
+                if (playerThirdCard && playerThirdCard.value !== 8) {
+                    bankerDrawsThird = true;
                 }
-            } else if (gameState.bankerPoints === 4) {
-                if (gameState.playerCards[2]) {
-                    const playerThirdCardValue = getCardValue(gameState.playerCards[2]);
-                    if (playerThirdCardValue >= 2 && playerThirdCardValue <= 7) {
-                        bankerNeedsCard = true;
-                    }
-                } else {
-                    bankerNeedsCard = true;
+            } else if (bankerFirstTwo === 4) {
+                if (playerThirdCard && playerThirdCard.value >= 2 && playerThirdCard.value <= 7) {
+                    bankerDrawsThird = true;
                 }
-            } else if (gameState.bankerPoints === 5) {
-                if (gameState.playerCards[2]) {
-                    const playerThirdCardValue = getCardValue(gameState.playerCards[2]);
-                    if (playerThirdCardValue >= 4 && playerThirdCardValue <= 7) {
-                        bankerNeedsCard = true;
-                    }
-                } else {
-                    bankerNeedsCard = true;
+            } else if (bankerFirstTwo === 5) {
+                if (playerThirdCard && playerThirdCard.value >= 4 && playerThirdCard.value <= 7) {
+                    bankerDrawsThird = true;
                 }
-            } else if (gameState.bankerPoints === 6) {
-                if (gameState.playerCards[2]) {
-                    const playerThirdCardValue = getCardValue(gameState.playerCards[2]);
-                    if (playerThirdCardValue === 6 || playerThirdCardValue === 7) {
-                        bankerNeedsCard = true;
-                    }
+            } else if (bankerFirstTwo === 6) {
+                if (playerThirdCard && (playerThirdCard.value === 6 || playerThirdCard.value === 7)) {
+                    bankerDrawsThird = true;
                 }
             }
+            // bankerFirstTwo >= 7 不補牌
             
-            if (bankerNeedsCard) {
-                gameState.bankerCards[2] = getRandomCard();
+            if (bankerDrawsThird) {
+                gameState.bankerCards[2] = getNextCard();
                 await new Promise(resolve => setTimeout(resolve, 500));
                 await revealCard('banker', 2, gameState.bankerCards[2]);
             }
             
             // 重新計算點數
-            gameState.playerPoints = calculatePoints(gameState.playerCards);
-            gameState.bankerPoints = calculatePoints(gameState.bankerCards);
+            gameState.playerPoints = calculatePoints(gameState.playerCards.filter(card => card !== null));
+            gameState.bankerPoints = calculatePoints(gameState.bankerCards.filter(card => card !== null));
             
             elements.playerPointsElement.textContent = gameState.playerPoints;
             elements.bankerPointsElement.textContent = gameState.bankerPoints;
@@ -1805,7 +2099,6 @@
         async function calculateResult() {
             // 判斷勝負
             let result = '';
-            let profit = 0;
             
             if (gameState.playerPoints > gameState.bankerPoints) {
                 result = 'player';
@@ -1818,6 +2111,9 @@
             gameState.gameResult = result;
             
             // 計算盈利
+            let profit = 0;
+            let netProfit = 0;
+            
             if (result === gameState.currentBetTarget) {
                 switch(result) {
                     case 'player':
@@ -1828,15 +2124,17 @@
                         profit = gameState.currentBet * 8.00;
                         break;
                 }
+                netProfit = profit - gameState.currentBet;
             } else if (result === 'tie') {
                 // 和局退回下注金額
                 profit = gameState.currentBet;
+                netProfit = 0;
             } else {
                 profit = 0;
+                netProfit = -gameState.currentBet;
             }
             
             // 更新餘額
-            const netProfit = profit - gameState.currentBet;
             gameState.balance += profit;
             gameState.totalProfit += netProfit;
             
@@ -1850,10 +2148,17 @@
             updateBigRoad(result);
             
             // 添加歷史紀錄
-            addGameHistory(result, profit);
+            addGameHistory(result, profit, netProfit);
             
             // 顯示結果
             displayResult(result, netProfit);
+            
+            // 播放音效
+            if (netProfit > 0) {
+                playSound(audioElements.winSound);
+            } else if (netProfit < 0) {
+                playSound(audioElements.loseSound);
+            }
             
             // 更新UI
             updateUI();
@@ -1874,7 +2179,9 @@
             elements.tieGamesElement.textContent = gameState.tieGames;
             
             const winRate = gameState.totalRounds > 0 ? 
-                Math.round(((gameState.playerWins + gameState.bankerWins) / gameState.totalRounds) * 100) : 0;
+                Math.round(((gameState.currentBetTarget === 'player' ? gameState.playerWins : 
+                           gameState.currentBetTarget === 'banker' ? gameState.bankerWins : 
+                           gameState.tieGames) / gameState.totalRounds) * 100) : 0;
             elements.winRateElement.textContent = `${winRate}%`;
             
             elements.totalProfitElement.textContent = gameState.totalProfit.toLocaleString('en-US', {
@@ -1919,9 +2226,12 @@
             }
         }
 
-        async function revealCard(side, index, cardValue) {
+        async function revealCard(side, index, card) {
             const container = side === 'player' ? elements.playerCardsContainer : elements.bankerCardsContainer;
             const cardElement = container.children[index];
+            
+            // 播放發牌音效
+            playSound(audioElements.cardSound);
             
             // 翻牌動畫
             cardElement.classList.remove('placeholder');
@@ -1935,38 +2245,43 @@
             await new Promise(resolve => setTimeout(resolve, 300));
             
             // 顯示卡片值
-            const color = getCardColor(cardValue);
-            cardElement.children[0].textContent = cardValue;
+            const color = getCardColor(card.suit);
+            cardElement.children[0].textContent = getCardDisplay(card);
             cardElement.children[0].classList.add(color);
+            
+            // 特殊卡片樣式
+            if (card.rank === 'A' || card.rank === 'K' || card.rank === 'Q' || card.rank === 'J') {
+                cardElement.classList.add('special-card');
+            }
             
             await new Promise(resolve => setTimeout(resolve, 200));
         }
 
-        function displayResult(result, profit) {
+        function displayResult(result, netProfit) {
             let resultText = '';
             let resultColor = '';
             
             switch(result) {
                 case 'player':
                     resultText = '玩家勝！';
-                    resultColor = 'var(--secondary-color)';
+                    resultColor = 'var(--player-color)';
                     elements.playerSide.classList.add('winning-animation');
                     break;
                 case 'banker':
                     resultText = '莊家勝！';
-                    resultColor = 'var(--danger-color)';
+                    resultColor = 'var(--banker-color)';
                     elements.bankerSide.classList.add('winning-animation');
                     break;
                 case 'tie':
                     resultText = '和局！';
-                    resultColor = 'var(--warning-color)';
+                    resultColor = 'var(--tie-color)';
                     break;
             }
             
-            if (profit > 0) {
-                resultText += ` 盈利: +${profit.toFixed(2)} USDT`;
-            } else if (profit < 0) {
-                resultText += ` 虧損: ${profit.toFixed(2)} USDT`;
+            if (netProfit > 0) {
+                resultText += ` 盈利: +${netProfit.toFixed(2)} USDT`;
+            } else if (netProfit < 0) {
+                resultText += ` 虧損: ${netProfit.toFixed(2)} USDT`;
             } else {
                 resultText += ' 平局';
             }
@@ -1977,43 +2292,151 @@
 
         // 大路圖功能
         function initializeBigRoad() {
-            elements.roadGrid.innerHTML = '';
-            for (let i = 0; i < 100; i++) {
-                const cell = document.createElement('div');
-                cell.className = 'road-cell empty-cell';
-                elements.roadGrid.appendChild(cell);
+            elements.roadTable.innerHTML = '';
+            
+            // 創建6行 x 40列的大路圖
+            for (let row = 0; row < 6; row++) {
+                for (let col = 0; col < 40; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'road-cell empty-road';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    elements.roadTable.appendChild(cell);
+                }
             }
         }
 
         function updateBigRoad(result) {
-            gameState.bigRoad.push(result);
+            const roadData = gameState.bigRoad;
+            roadData.push(result);
             
-            // 更新大路圖顯示
+            // 只保留最近240個結果（6行 x 40列）
+            if (roadData.length > 240) {
+                roadData.splice(0, roadData.length - 240);
+            }
+            
+            // 重新繪製大路圖
             initializeBigRoad();
             
-            gameState.bigRoad.forEach((result, index) => {
-                const cell = elements.roadGrid.children[index];
-                cell.className = 'road-cell ';
+            // 標準大路圖算法
+            let currentRow = 0;
+            let currentCol = 0;
+            let prevResult = null;
+            
+            // 處理和局
+            const processedData = [];
+            let dragonCount = 1;
+            
+            for (let i = 0; i < roadData.length; i++) {
+                const currentResult = roadData[i];
                 
-                switch(result) {
-                    case 'player':
-                        cell.className += 'player-cell';
+                if (currentResult === 'tie') {
+                    // 和局在最後一個結果上顯示
+                    if (processedData.length > 0) {
+                        const lastEntry = processedData[processedData.length - 1];
+                        if (!lastEntry.tie) {
+                            lastEntry.tie = true;
+                        }
+                    }
+                    continue;
+                }
+                
+                if (prevResult === null || currentResult !== prevResult) {
+                    // 新的一列
+                    currentCol++;
+                    if (currentCol >= 40) {
+                        currentCol = 0;
+                        currentRow++;
+                        if (currentRow >= 6) {
+                            // 滾動到新行
+                            currentRow = 0;
+                            // 清除第一行
+                            gameState.bigRoad.splice(0, 40);
+                            return updateBigRoad(result); // 重新計算
+                        }
+                    }
+                    dragonCount = 1;
+                } else {
+                    // 同一列，向下移動
+                    currentRow++;
+                    if (currentRow >= 6) {
+                        // 滾動到新列
+                        currentRow = 0;
+                        currentCol++;
+                        if (currentCol >= 40) {
+                            currentCol = 0;
+                            // 清除第一行
+                            gameState.bigRoad.splice(0, 40);
+                            return updateBigRoad(result); // 重新計算
+                        }
+                    }
+                    dragonCount++;
+                }
+                
+                processedData.push({
+                    result: currentResult,
+                    row: currentRow,
+                    col: currentCol,
+                    dragon: dragonCount,
+                    tie: false
+                });
+                
+                prevResult = currentResult;
+            }
+            
+            // 繪製大路圖
+            processedData.forEach(entry => {
+                const cellIndex = entry.row * 40 + entry.col;
+                if (cellIndex < elements.roadTable.children.length) {
+                    const cell = elements.roadTable.children[cellIndex];
+                    cell.className = 'road-cell road-entry';
+                    
+                    if (entry.result === 'player') {
+                        cell.classList.add('player-road');
                         cell.textContent = 'P';
-                        break;
-                    case 'banker':
-                        cell.className += 'banker-cell';
+                    } else if (entry.result === 'banker') {
+                        cell.classList.add('banker-road');
                         cell.textContent = 'B';
-                        break;
-                    case 'tie':
-                        cell.className += 'tie-cell';
-                        cell.textContent = 'T';
-                        break;
+                    }
+                    
+                    // 龍寶顯示
+                    if (entry.dragon > 1) {
+                        const dragonSpan = document.createElement('span');
+                        dragonSpan.className = 'road-dragon';
+                        dragonSpan.textContent = entry.dragon;
+                        cell.appendChild(dragonSpan);
+                    }
+                    
+                    // 和局標記
+                    if (entry.tie) {
+                        const tieMark = document.createElement('div');
+                        tieMark.className = 'tie-road';
+                        tieMark.style.width = '12px';
+                        tieMark.style.height = '12px';
+                        tieMark.style.position = 'absolute';
+                        tieMark.style.top = '6px';
+                        tieMark.style.right = '6px';
+                        cell.appendChild(tieMark);
+                    }
                 }
             });
         }
 
+        function clearBigRoad() {
+            gameState.bigRoad = [];
+            initializeBigRoad();
+        }
+
+        function toggleRoadType() {
+            gameState.roadType = gameState.roadType === 'big' ? 'bead' : 'big';
+            elements.toggleRoadBtn.textContent = gameState.roadType === 'big' ? '珠盤路' : '大路';
+            
+            // 這裡可以實現切換不同路紙的功能
+            // 目前只實現大路
+        }
+
         // 歷史紀錄功能
-        function addGameHistory(result, profit) {
+        function addGameHistory(result, profit, netProfit) {
             const now = new Date();
             const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
             
@@ -2022,7 +2445,7 @@
                 result: result,
                 betTarget: gameState.currentBetTarget,
                 betAmount: gameState.currentBet,
-                profit: profit - gameState.currentBet,
+                profit: netProfit,
                 time: timeString
             };
             
@@ -2109,9 +2532,9 @@
         // 輔助函數
         function getTargetColor(target) {
             switch(target) {
-                case 'player': return 'var(--secondary-color)';
-                case 'banker': return 'var(--danger-color)';
-                case 'tie': return 'var(--warning-color)';
+                case 'player': return 'var(--player-color)';
+                case 'banker': return 'var(--banker-color)';
+                case 'tie': return 'var(--tie-color)';
                 default: return 'var(--text-color)';
             }
         }
