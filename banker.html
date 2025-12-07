@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>皇家百家樂 | Royal Baccarat</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0c2461 0%, #1e3799 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.8rem;
+            background: linear-gradient(90deg, #ffd700, #ffed4e);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            text-align: center;
+            color: #a5b1c2;
+            font-size: 1.1rem;
+        }
+
+        .game-area {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .game-table {
+            background: linear-gradient(145deg, #2d3436, #1e272e);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 25px;
+            border: 2px solid #ffd700;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-table::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            background: linear-gradient(90deg, #ffd700, #ffed4e);
+        }
+
+        .cards-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+        }
+
+        .player-side, .banker-side {
+            text-align: center;
+            width: 45%;
+        }
+
+        .side-label {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding: 10px 25px;
+            border-radius: 50px;
+            display: inline-block;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .player-label {
+            background: linear-gradient(90deg, #1e90ff, #3742fa);
+            color: white;
+        }
+
+        .banker-label {
+            background: linear-gradient(90deg, #ff3838, #c23636);
+            color: white;
+        }
+
+        .cards {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            min-height: 150px;
+            align-items: center;
+        }
+
+        .card {
+            width: 100px;
+            height: 140px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #2c3e50;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            position: relative;
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card.red {
+            color: #e74c3c;
+        }
+
+        .card.black {
+            color: #2c3e50;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #ff3838, #1e90ff);
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .points {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin-top: 15px;
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            display: inline-block;
+            min-width: 150px;
+        }
+
+        .player-points {
+            color: #1e90ff;
+            border: 2px solid #1e90ff;
+        }
+
+        .banker-points {
+            color: #ff3838;
+            border: 2px solid #ff3838;
+        }
+
+        .result-area {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+        }
+
+        .result-text {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .winner-player {
+            color: #1e90ff;
+            text-shadow: 0 0 15px rgba(30, 144, 255, 0.7);
+        }
+
+        .winner-banker {
+            color: #ff3838;
+            text-shadow: 0 0 15px rgba(255, 56, 56, 0.7);
+        }
+
+        .winner-tie {
+            color: #ffd700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 18px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 1px;
+        }
+
+        .btn-play {
+            background: linear-gradient(90deg, #00b09b, #96c93d);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0, 176, 155, 0.4);
+        }
+
+        .btn-play:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 176, 155, 0.6);
+        }
+
+        .btn-reset {
+            background: linear-gradient(90deg, #ff7e5f, #feb47b);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 126, 95, 0.4);
+        }
+
+        .btn-reset:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 126, 95, 0.6);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .big-road {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: 25px;
+        }
+
+        .big-road h3 {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #ffd700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .road-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            min-height: 300px;
+        }
+
+        .road-cell {
+            aspect-ratio: 1;
+            border-radius: 6px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.4rem;
+            transition: all 0.2s ease;
+        }
+
+        .player-cell {
+            background: rgba(30, 144, 255, 0.3);
+            border: 2px solid #1e90ff;
+            color: #1e90ff;
+        }
+
+        .banker-cell {
+            background: rgba(255, 56, 56, 0.3);
+            border: 2px solid #ff3838;
+            color: #ff3838;
+        }
+
+        .tie-cell {
+            background: rgba(255, 215, 0, 0.3);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+        }
+
+        .empty-cell {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .balance-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .balance-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .balance-amount {
+            font-size: 3rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .currency {
+            font-size: 1.8rem;
+            color: #ffd700;
+            vertical-align: top;
+        }
+
+        .betting-controls {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .betting-controls h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ffd700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bet-options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .bet-btn {
+            padding: 18px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bet-btn-player {
+            background: rgba(30, 144, 255, 0.2);
+            color: #1e90ff;
+            border: 2px solid #1e90ff;
+        }
+
+        .bet-btn-banker {
+            background: rgba(255, 56, 56, 0.2);
+            color: #ff3838;
+            border: 2px solid #ff3838;
+        }
+
+        .bet-btn-tie {
+            background: rgba(255, 215, 0, 0.2);
+            color: #ffd700;
+            border: 2px solid #ffd700;
+        }
+
+        .bet-btn.active {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .bet-amount {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .amount-buttons {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .amount-btn {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+
+        .amount-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .amount-btn.active {
+            background: linear-gradient(90deg, #00b09b, #96c93d);
+            color: white;
+        }
+
+        .history-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .history-panel h3 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ffd700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid;
+        }
+
+        .history-player {
+            border-left-color: #1e90ff;
+        }
+
+        .history-banker {
+            border-left-color: #ff3838;
+        }
+
+        .history-tie {
+            border-left-color: #ffd700;
+        }
+
+        .history-result {
+            font-weight: bold;
+        }
+
+        .history-profit {
+            font-weight: bold;
+        }
+
+        .profit-positive {
+            color: #00b09b;
+        }
+
+        .profit-negative {
+            color: #ff3838;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 1.1rem;
+            color: #a5b1c2;
+        }
+
+        .round-count, .win-rate {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 20px;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .cards-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+            }
+            
+            .player-side, .banker-side {
+                width: 100%;
+            }
+            
+            .control-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .road-grid {
+                grid-template-columns: repeat(8, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-crown"></i> 皇家百家樂</h1>
+            <p>經典博弈遊戲，體驗真實賭場氛圍 | 虛擬幣交易系統</p>
+        </div>
+
+        <div class="game-area">
+            <div class="game-table">
+                <div class="cards-container">
+                    <div class="player-side">
+                        <div class="side-label player-label">玩家 PLAYER</div>
+                        <div class="cards" id="player-cards">
+                            <div class="card card-back" id="player-card-1">?</div>
+                            <div class="card card-back" id="player-card-2">?</div>
+                            <div class="card card-back" id="player-card-3" style="opacity: 0.5;">+</div>
+                        </div>
+                        <div class="points player-points" id="player-points">0</div>
+                    </div>
+                    
+                    <div class="banker-side">
+                        <div class="side-label banker-label">莊家 BANKER</div>
+                        <div class="cards" id="banker-cards">
+                            <div class="card card-back" id="banker-card-1">?</div>
+                            <div class="card card-back" id="banker-card-2">?</div>
+                            <div class="card card-back" id="banker-card-3" style="opacity: 0.5;">+</div>
+                        </div>
+                        <div class="points banker-points" id="banker-points">0</div>
+                    </div>
+                </div>
+                
+                <div class="result-area">
+                    <div class="result-text" id="result-text">等待發牌...</div>
+                    <div class="game-info">
+                        <div class="round-count">局數: <span id="round-count">0</span></div>
+                        <div class="win-rate">勝率: <span id="win-rate">0%</span></div>
+                    </div>
+                </div>
+                
+                <div class="control-buttons">
+                    <button class="btn btn-play" id="play-btn">
+                        <i class="fas fa-play"></i> 開始遊戲
+                    </button>
+                    <button class="btn btn-reset" id="reset-btn">
+                        <i class="fas fa-redo"></i> 重新開始
+                    </button>
+                </div>
+            </div>
+            
+            <div class="big-road">
+                <h3><i class="fas fa-project-diagram"></i> 大路圖</h3>
+                <div class="road-grid" id="road-grid">
+                    <!-- 大路圖會在這裡動態生成 -->
+                </div>
+            </div>
+        </div>
+
+        <div class="sidebar">
+            <div class="balance-card">
+                <h3><i class="fas fa-wallet"></i> 虛擬錢包</h3>
+                <div class="balance-amount">
+                    <span id="balance">10,000</span>
+                    <span class="currency">金幣</span>
+                </div>
+                <div class="current-bet">
+                    <div style="font-size: 1.2rem; margin-bottom: 10px;">當前下注: <span id="current-bet-amount">0</span> 金幣</div>
+                    <div style="font-size: 1.1rem; color: #a5b1c2;">下注目標: <span id="current-bet-target">未選擇</span></div>
+                </div>
+            </div>
+            
+            <div class="betting-controls">
+                <h3><i class="fas fa-coins"></i> 下注控制</h3>
+                <div class="bet-options">
+                    <button class="bet-btn bet-btn-player" data-target="player">
+                        <span>玩家 (1:1)</span>
+                        <span>賠率 1.95</span>
+                    </button>
+                    <button class="bet-btn bet-btn-banker" data-target="banker">
+                        <span>莊家 (1:1)</span>
+                        <span>賠率 1.95</span>
+                    </button>
+                    <button class="bet-btn bet-btn-tie" data-target="tie">
+                        <span>和局 (1:8)</span>
+                        <span>賠率 8.00</span>
+                    </button>
+                </div>
+                
+                <div class="bet-amount">
+                    <div style="margin-bottom: 10px; font-size: 1.1rem;">下注金額</div>
+                    <div class="amount-buttons">
+                        <button class="amount-btn" data-amount="100">100</button>
+                        <button class="amount-btn" data-amount="500">500</button>
+                        <button class="amount-btn" data-amount="1000">1,000</button>
+                        <button class="amount-btn" data-amount="2000">2,000</button>
+                        <button class="amount-btn" data-amount="5000">5,000</button>
+                        <button class="amount-btn" data-amount="10000">10,000</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="history-panel">
+                <h3><i class="fas fa-history"></i> 交易紀錄</h3>
+                <div class="history-list" id="history-list">
+                    <!-- 交易紀錄會在這裡動態生成 -->
+                    <div class="history-item" style="text-align: center; color: #a5b1c2;">
+                        尚未有交易紀錄
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 遊戲狀態變數
+        let balance = 10000;
+        let currentBet = 0;
+        let currentBetTarget = null;
+        let gameHistory = [];
+        let roundCount = 0;
+        let winCount = 0;
+        let bigRoad = [];
+        let isGameActive = false;
+        
+        // 卡片牌組
+        const cards = ["A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"];
+        let shuffledCards = [...cards];
+        
+        // DOM 元素
+        const balanceElement = document.getElementById('balance');
+        const currentBetAmountElement = document.getElementById('current-bet-amount');
+        const currentBetTargetElement = document.getElementById('current-bet-target');
+        const playBtn = document.getElementById('play-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const playerCardsElement = document.getElementById('player-cards');
+        const bankerCardsElement = document.getElementById('banker-cards');
+        const playerPointsElement = document.getElementById('player-points');
+        const bankerPointsElement = document.getElementById('banker-points');
+        const resultTextElement = document.getElementById('result-text');
+        const roundCountElement = document.getElementById('round-count');
+        const winRateElement = document.getElementById('win-rate');
+        const roadGridElement = document.getElementById('road-grid');
+        const historyListElement = document.getElementById('history-list');
+        
+        // 初始化大路圖
+        function initializeRoadGrid() {
+            roadGridElement.innerHTML = '';
+            for (let i = 0; i < 60; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'road-cell empty-cell';
+                cell.id = `road-cell-${i}`;
+                roadGridElement.appendChild(cell);
+            }
+        }
+        
+        // 洗牌函數
+        function shuffleCards() {
+            shuffledCards = [...cards];
+            for (let i = shuffledCards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledCards[i], shuffledCards[j]] = [shuffledCards[j], shuffledCards[i]];
+            }
+        }
+        
+        // 隨機抽牌
+        function randomNumber() {
+            return Math.floor(Math.random() * 13);
+        }
+        
+        // 計算點數
+        function calPoint(cardArray) {
+            let point = 0;
+            
+            for (let i = 0; i < cardArray.length; i++) {
+                if (cardArray[i] === null) continue;
+                
+                switch (cardArray[i]) {
+                    case "A": point += 1; break;
+                    case "9": point += 9; break;
+                    case "8": point += 8; break;
+                    case "7": point += 7; break;
+                    case "6": point += 6; break;
+                    case "5": point += 5; break;
+                    case "4": point += 4; break;
+                    case "3": point += 3; break;
+                    case "2": point += 2; break;
+                    default: point += 0; break;
+                }
+            }
+            
+            return point % 10;
+        }
+        
+        // 獲取卡片顏色
+        function getCardColor(card) {
+            const redCards = ['♥', '♦', 'H', 'D'];
+            const blackCards = ['♠', '♣', 'S', 'C'];
+            // 隨機分配紅黑顏色（簡化版）
+            return Math.random() > 0.5 ? 'red' : 'black';
+        }
+        
+        // 更新大路圖
+        function updateBigRoad(result) {
+            if (bigRoad.length >= 60) {
+                bigRoad.shift();
+            }
+            
+            bigRoad.push(result);
+            
+            // 更新大路圖顯示
+            initializeRoadGrid();
+            
+            bigRoad.forEach((result, index) => {
+                const cell = document.getElementById(`road-cell-${index}`);
+                cell.className = 'road-cell ';
+                
+                switch(result) {
+                    case 'player':
+                        cell.className += 'player-cell';
+                        cell.textContent = 'P';
+                        break;
+                    case 'banker':
+                        cell.className += 'banker-cell';
+                        cell.textContent = 'B';
+                        break;
+                    case 'tie':
+                        cell.className += 'tie-cell';
+                        cell.textContent = 'T';
+                        break;
+                }
+            });
+        }
+        
+        // 添加交易紀錄
+        function addHistoryEntry(result, betAmount, profit) {
+            const historyItem = document.createElement('div');
+            historyItem.className = `history-item history-${result}`;
+            
+            const now = new Date();
+            const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            
+            let resultText = '';
+            switch(result) {
+                case 'player': resultText = '玩家勝'; break;
+                case 'banker': resultText = '莊家勝'; break;
+                case 'tie': resultText = '和局'; break;
+            }
+            
+            historyItem.innerHTML = `
+                <div>
+                    <div>第${roundCount}局</div>
+                    <div style="font-size: 0.9rem; color: #a5b1c2;">${timeString}</div>
+                </div>
+                <div class="history-result">${resultText}</div>
+                <div class="history-profit ${profit >= 0 ? 'profit-positive' : 'profit-negative'}">
+                    ${profit >= 0 ? '+' : ''}${profit} 金幣
+                </div>
+            `;
+            
+            // 添加到歷史列表頂部
+            if (historyListElement.firstChild && historyListElement.firstChild.style.textAlign === 'center') {
+                historyListElement.removeChild(historyListElement.firstChild);
+            }
+            
+            historyListElement.insertBefore(historyItem, historyListElement.firstChild);
+            
+            // 限制歷史紀錄數量
+            if (historyListElement.children.length > 10) {
+                historyListElement.removeChild(historyListElement.lastChild);
+            }
+        }
+        
+        // 更新UI顯示
+        function updateUI() {
+            balanceElement.textContent = balance.toLocaleString();
+            currentBetAmountElement.textContent = currentBet.toLocaleString();
+            
+            let targetText = '未選擇';
+            switch(currentBetTarget) {
+                case 'player': targetText = '玩家'; break;
+                case 'banker': targetText = '莊家'; break;
+                case 'tie': targetText = '和局'; break;
+            }
+            currentBetTargetElement.textContent = targetText;
+            
+            roundCountElement.textContent = roundCount;
+            const winRate = roundCount > 0 ? Math.round((winCount / roundCount) * 100) : 0;
+            winRateElement.textContent = `${winRate}%`;
+        }
+        
+        // 重置卡片顯示
+        function resetCardDisplay() {
+            // 重置玩家卡片
+            for (let i = 1; i <= 3; i++) {
+                const cardElement = document.getElementById(`player-card-${i}`);
+                cardElement.className = 'card card-back';
+                cardElement.textContent = i === 3 ? '+' : '?';
+                cardElement.style.opacity = i === 3 ? '0.5' : '1';
+            }
+            
+            // 重置莊家卡片
+            for (let i = 1; i <= 3; i++) {
+                const cardElement = document.getElementById(`banker-card-${i}`);
+                cardElement.className = 'card card-back';
+                cardElement.textContent = i === 3 ? '+' : '?';
+                cardElement.style.opacity = i === 3 ? '0.5' : '1';
+            }
+            
+            playerPointsElement.textContent = '0';
+            bankerPointsElement.textContent = '0';
+            resultTextElement.textContent = '等待發牌...';
+            resultTextElement.className = 'result-text';
+        }
+        
+        // 顯示卡片動畫
+        function revealCard(cardElement, cardValue, isThirdCard = false) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    const color = getCardColor(cardValue);
+                    cardElement.className = `card ${color}`;
+                    cardElement.textContent = cardValue;
+                    cardElement.style.opacity = '1';
+                    
+                    if (isThirdCard) {
+                        cardElement.style.animation = 'none';
+                        cardElement.offsetHeight; // 觸發重排
+                        cardElement.style.animation = 'fadeIn 0.5s ease';
+                    }
+                    
+                    resolve();
+                }, isThirdCard ? 1000 : 500);
+            });
+        }
+        
+        // 執行遊戲邏輯
+        async function playGame() {
+            if (!currentBetTarget || currentBet <= 0) {
+                alert('請選擇下注目標和金額！');
+                return;
+            }
+            
+            if (currentBet > balance) {
+                alert('餘額不足！');
+                return;
+            }
+            
+            // 扣除下注金額
+            balance -= currentBet;
+            updateUI();
+            
+            isGameActive = true;
+            playBtn.disabled = true;
+            resetBtn.disabled = true;
+            
+            // 重置卡片顯示
+            resetCardDisplay();
+            
+            // 洗牌
+            shuffleCards();
+            
+            // 初始化手牌
+            const playerCard = new Array(3).fill(null);
+            const bankerCard = new Array(3).fill(null);
+            
+            // 發前兩張牌
+            playerCard[0] = shuffledCards[randomNumber()];
+            playerCard[1] = shuffledCards[randomNumber()];
+            bankerCard[0] = shuffledCards[randomNumber()];
+            bankerCard[1] = shuffledCards[randomNumber()];
+            
+            // 顯示前兩張牌
+            await revealCard(document.getElementById('player-card-1'), playerCard[0]);
+            await revealCard(document.getElementById('banker-card-1'), bankerCard[0]);
+            await revealCard(document.getElementById('player-card-2'), playerCard[1]);
+            await revealCard(document.getElementById('banker-card-2'), bankerCard[1]);
+            
+            // 計算前兩張點數
+            const playerFirstTwoPoints = calPoint([playerCard[0], playerCard[1]]);
+            const bankerFirstTwoPoints = calPoint([bankerCard[0], bankerCard[1]]);
+            
+            playerPointsElement.textContent = playerFirstTwoPoints;
+            bankerPointsElement.textContent = bankerFirstTwoPoints;
+            
+            // 玩家補牌規則
+            let playerThirdCard = null;
+            if (playerFirstTwoPoints < 6) {
+                // 玩家補牌
+                playerCard[2] = shuffledCards[randomNumber()];
+                playerThirdCard = playerCard[2];
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await revealCard(document.getElementById('player-card-3'), playerThirdCard, true);
+            }
+            
+            // 莊家補牌規則（簡化版）
+            let bankerThirdCard = null;
+            let bankerNeedsCard = false;
+            
+            // 簡化莊家補牌規則
+            if (bankerFirstTwoPoints < 6) {
+                bankerNeedsCard = true;
+            }
+            
+            if (bankerNeedsCard) {
+                // 莊家補牌
+                bankerCard[2] = shuffledCards[randomNumber()];
+                bankerThirdCard = bankerCard[2];
+                
+                await new Promise(resolve => setTimeout(resolve, 500));
+                await revealCard(document.getElementById('banker-card-3'), bankerThirdCard, true);
+            }
+            
+            // 計算最終點數
+            const playerFinalPoints = calPoint(playerCard.filter(card => card !== null));
+            const bankerFinalPoints = calPoint(bankerCard.filter(card => card !== null));
+            
+            playerPointsElement.textContent = playerFinalPoints;
+            bankerPointsElement.textContent = bankerFinalPoints;
+            
+            // 判斷勝負
+            let result = '';
+            let profit = 0;
+            
+            if (playerFinalPoints > bankerFinalPoints) {
+                result = 'player';
+                resultTextElement.textContent = '玩家勝！';
+                resultTextElement.className = 'result-text winner-player';
+            } else if (playerFinalPoints < bankerFinalPoints) {
+                result = 'banker';
+                resultTextElement.textContent = '莊家勝！';
+                resultTextElement.className = 'result-text winner-banker';
+            } else {
+                result = 'tie';
+                resultTextElement.textContent = '和局！';
+                resultTextElement.className = 'result-text winner-tie';
+            }
+            
+            // 計算收益
+            if (result === currentBetTarget) {
+                winCount++;
+                
+                switch(result) {
+                    case 'player':
+                    case 'banker':
+                        profit = Math.floor(currentBet * 1.95);
+                        break;
+                    case 'tie':
+                        profit = Math.floor(currentBet * 8.00);
+                        break;
+                }
+            } else if (result === 'tie' && currentBetTarget !== 'tie') {
+                // 和局時，玩家和莊家的賭注退回一半
+                profit = Math.floor(currentBet * 0.5);
+            } else {
+                profit = -currentBet;
+            }
+            
+            // 更新餘額
+            balance += currentBet + profit;
+            
+            // 更新遊戲統計
+            roundCount++;
+            
+            // 更新大路圖
+            updateBigRoad(result);
+            
+            // 添加交易紀錄
+            addHistoryEntry(result, currentBet, profit);
+            
+            // 更新UI
+            updateUI();
+            
+            // 重置當前下注
+            currentBet = 0;
+            currentBetTarget = null;
+            
+            // 重置按鈕狀態
+            document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('active'));
+            
+            isGameActive = false;
+            playBtn.disabled = false;
+            resetBtn.disabled = false;
+        }
+        
+        // 重置遊戲
+        function resetGame() {
+            if (isGameActive) return;
+            
+            if (!confirm('確定要重新開始遊戲嗎？這將重置所有數據。')) {
+                return;
+            }
+            
+            balance = 10000;
+            currentBet = 0;
+            currentBetTarget = null;
+            gameHistory = [];
+            roundCount = 0;
+            winCount = 0;
+            bigRoad = [];
+            
+            // 重置UI
+            updateUI();
+            initializeRoadGrid();
+            resetCardDisplay();
+            
+            // 清除歷史紀錄
+            historyListElement.innerHTML = `
+                <div class="history-item" style="text-align: center; color: #a5b1c2;">
+                    尚未有交易紀錄
+                </div>
+            `;
+            
+            // 重置按鈕狀態
+            document.querySelectorAll('.bet-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('active'));
+            
+            alert('遊戲已重置！');
+        }
+        
+        // 事件監聽器
+        playBtn.addEventListener('click', playGame);
+        resetBtn.addEventListener('click', resetGame);
+        
+        // 下注目標按鈕
+        document.querySelectorAll('.bet-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (isGameActive) return;
+                
+                document.querySelectorAll('.bet-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentBetTarget = this.getAttribute('data-target');
+                updateUI();
+            });
+        });
+        
+        // 下注金額按鈕
+        document.querySelectorAll('.amount-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (isGameActive) return;
+                
+                const amount = parseInt(this.getAttribute('data-amount'));
+                
+                if (amount > balance) {
+                    alert('餘額不足！');
+                    return;
+                }
+                
+                document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentBet = amount;
+                updateUI();
+            });
+        });
+        
+        // 初始化
+        function initializeGame() {
+            updateUI();
+            initializeRoadGrid();
+            
+            // 添加CSS動畫
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: scale(0.8); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+                
+                @keyframes pulse {
+                    0% { transform: scale(1); }
+                    50% { transform: scale(1.05); }
+                    100% { transform: scale(1); }
+                }
+                
+                .pulse {
+                    animation: pulse 0.5s ease;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+        
+        // 頁面加載完成後初始化
+        document.addEventListener('DOMContentLoaded', initializeGame);
+    </script>
+</body>
+</html>
