@@ -9,6 +9,8 @@
         :root {
             --primary-color: #00d09c;
             --secondary-color: #1db954;
+            --spotify-green: #1db954;
+            --soundcloud-orange: #ff8800;
             --danger-color: #ff4757;
             --warning-color: #ffa502;
             --dark-bg: #0f1525;
@@ -85,7 +87,7 @@
 
         .spotify-player {
             background: rgba(29, 185, 84, 0.1);
-            border: 2px solid var(--secondary-color);
+            border: 2px solid var(--spotify-green);
             border-radius: 50px;
             padding: 12px 25px;
             display: flex;
@@ -93,10 +95,31 @@
             gap: 15px;
             min-width: 300px;
             backdrop-filter: blur(10px);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .spotify-player:hover {
+            background: rgba(29, 185, 84, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .soundcloud-player {
+            background: rgba(255, 136, 0, 0.1);
+            border: 2px solid var(--soundcloud-orange);
+        }
+
+        .soundcloud-player:hover {
+            background: rgba(255, 136, 0, 0.2);
         }
 
         .spotify-icon {
-            color: var(--secondary-color);
+            color: var(--spotify-green);
+            font-size: 1.8rem;
+        }
+
+        .soundcloud-icon {
+            color: var(--soundcloud-orange);
             font-size: 1.8rem;
         }
 
@@ -107,11 +130,15 @@
 
         .track-title {
             font-weight: bold;
-            color: var(--secondary-color);
+            color: var(--spotify-green);
             font-size: 1rem;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        .soundcloud-player .track-title {
+            color: var(--soundcloud-orange);
         }
 
         .track-artist {
@@ -125,6 +152,7 @@
         .music-controls {
             display: flex;
             gap: 10px;
+            align-items: center;
         }
 
         .music-btn {
@@ -787,6 +815,209 @@
             border-left-color: var(--tie-color);
         }
 
+        /* 音樂模態框樣式 */
+        .music-modal .modal-content {
+            max-width: 800px;
+            width: 90%;
+        }
+
+        .music-platform-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .platform-option {
+            flex: 1;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .platform-option.active {
+            transform: translateY(-5px);
+        }
+
+        .platform-option[data-platform="spotify"].active {
+            background: rgba(29, 185, 84, 0.1);
+            border-color: var(--spotify-green);
+        }
+
+        .platform-option[data-platform="soundcloud"].active {
+            background: rgba(255, 136, 0, 0.1);
+            border-color: var(--soundcloud-orange);
+        }
+
+        .platform-option[data-platform="custom"].active {
+            background: rgba(0, 208, 156, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .platform-icon {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .platform-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .platform-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .spotify-search, .soundcloud-search, .custom-music {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .spotify-search.active, .soundcloud-search.active, .custom-music.active {
+            display: block;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+        }
+
+        .search-results {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .search-result {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .search-result:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateX(5px);
+        }
+
+        .result-album {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .result-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .result-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .result-artist {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .add-song-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-color);
+            border-radius: 10px;
+            padding: 15px;
+            width: 100%;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .add-song-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .custom-playlist {
+            margin-top: 20px;
+        }
+
+        .playlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .playlist-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .playlist-item.active {
+            background: rgba(29, 185, 84, 0.1);
+            border-left: 4px solid var(--spotify-green);
+        }
+
+        .playlist-item-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .playlist-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+        }
+
+        .playlist-btn:hover {
+            color: var(--text-color);
+        }
+
+        /* 原有模態框樣式 */
         .modal {
             display: none;
             position: fixed;
@@ -941,6 +1172,10 @@
                 grid-template-columns: repeat(20, 30px);
                 min-width: 620px;
             }
+            
+            .music-platform-selector {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -1032,6 +1267,156 @@
         </div>
     </div>
 
+    <!-- 音樂選擇模態框 -->
+    <div class="modal music-modal" id="musicModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-music"></i> 選擇音樂平台
+                </div>
+                <button class="close-modal" id="closeMusicModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="music-platform-selector">
+                <div class="platform-option active" data-platform="spotify">
+                    <div class="platform-icon" style="color: var(--spotify-green);">
+                        <i class="fab fa-spotify"></i>
+                    </div>
+                    <div class="platform-name">Spotify</div>
+                    <div class="platform-desc">搜尋 Spotify 歌曲</div>
+                </div>
+                
+                <div class="platform-option" data-platform="soundcloud">
+                    <div class="platform-icon" style="color: var(--soundcloud-orange);">
+                        <i class="fab fa-soundcloud"></i>
+                    </div>
+                    <div class="platform-name">SoundCloud</div>
+                    <div class="platform-desc">搜尋 SoundCloud 音樂</div>
+                </div>
+                
+                <div class="platform-option" data-platform="custom">
+                    <div class="platform-icon" style="color: var(--primary-color);">
+                        <i class="fas fa-headphones"></i>
+                    </div>
+                    <div class="platform-name">自訂播放清單</div>
+                    <div class="platform-desc">管理您的歌曲</div>
+                </div>
+            </div>
+            
+            <!-- Spotify 搜尋區域 -->
+            <div class="spotify-search" id="spotifySearch">
+                <input type="text" class="search-input" id="spotifySearchInput" placeholder="搜尋 Spotify 歌曲...">
+                <button class="btn-primary" id="spotifySearchBtn" style="width: 100%;">
+                    <i class="fas fa-search"></i> 搜尋歌曲
+                </button>
+                <div class="search-results" id="spotifyResults">
+                    <!-- 搜尋結果動態生成 -->
+                </div>
+            </div>
+            
+            <!-- SoundCloud 搜尋區域 -->
+            <div class="soundcloud-search" id="soundcloudSearch">
+                <input type="text" class="search-input" id="soundcloudSearchInput" placeholder="搜尋 SoundCloud 音樂...">
+                <button class="btn-primary" id="soundcloudSearchBtn" style="width: 100%;">
+                    <i class="fas fa-search"></i> 搜尋音樂
+                </button>
+                <div class="search-results" id="soundcloudResults">
+                    <!-- 搜尋結果動態生成 -->
+                </div>
+            </div>
+            
+            <!-- 自訂播放清單區域 -->
+            <div class="custom-music active" id="customMusic">
+                <button class="add-song-btn" id="addCustomSong">
+                    <i class="fas fa-plus"></i> 新增自訂歌曲
+                </button>
+                
+                <div class="custom-playlist">
+                    <div class="playlist-header">
+                        <h4 style="color: var(--primary-color);">
+                            <i class="fas fa-list-music"></i> 您的播放清單
+                        </h4>
+                        <span id="playlistCount">0 首歌曲</span>
+                    </div>
+                    <div class="search-results" id="customPlaylist">
+                        <!-- 播放清單動態生成 -->
+                        <div style="text-align: center; color: var(--text-secondary); padding: 30px;">
+                            播放清單為空，請新增歌曲
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-actions" style="margin-top: 25px;">
+                <button class="btn-secondary" id="closeMusicModalBtn">
+                    關閉
+                </button>
+                <button class="btn-primary" id="savePlaylist">
+                    儲存播放清單
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 自訂歌曲模態框 -->
+    <div class="modal" id="customSongModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-music"></i> 新增自訂歌曲
+                </div>
+                <button class="close-modal" id="closeCustomSongModal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="crypto-options">
+                <div class="crypto-option active" data-type="mp3">
+                    <div class="crypto-icon">
+                        <i class="fas fa-file-audio"></i>
+                    </div>
+                    <div class="crypto-info">
+                        <div class="crypto-name">MP3 檔案</div>
+                        <div class="crypto-symbol">上傳或輸入網址</div>
+                    </div>
+                </div>
+                
+                <div class="crypto-option" data-type="youtube">
+                    <div class="crypto-icon">
+                        <i class="fab fa-youtube"></i>
+                    </div>
+                    <div class="crypto-info">
+                        <div class="crypto-name">YouTube</div>
+                        <div class="crypto-symbol">YouTube 連結</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="deposit-amount">
+                <input type="text" id="songTitle" placeholder="歌曲名稱" style="margin-bottom: 10px;">
+                <input type="text" id="songArtist" placeholder="歌手名稱" style="margin-bottom: 10px;">
+                <input type="text" id="songUrl" placeholder="MP3 網址或 YouTube 連結">
+                
+                <div class="quick-amounts">
+                    <div class="quick-amount" data-url="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">範例 1</div>
+                    <div class="quick-amount" data-url="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3">範例 2</div>
+                    <div class="quick-amount" data-url="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3">範例 3</div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn-primary" id="addSongToPlaylist">
+                    <i class="fas fa-plus"></i> 新增到播放清單
+                </button>
+                <button class="btn-secondary" id="cancelAddSong">
+                    取消
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- 主遊戲介面 -->
     <div class="container">
         <div class="header">
@@ -1043,11 +1428,11 @@
             </div>
             
             <div class="music-control">
-                <div class="spotify-player" id="spotifyPlayer">
-                    <i class="fab fa-spotify spotify-icon"></i>
+                <div class="spotify-player" id="musicPlayerUI">
+                    <i class="fab fa-spotify spotify-icon" id="platformIcon"></i>
                     <div class="track-info">
-                        <div class="track-title" id="trackTitle">加載音樂中...</div>
-                        <div class="track-artist" id="trackArtist">請稍候</div>
+                        <div class="track-title" id="trackTitle">點擊選擇音樂</div>
+                        <div class="track-artist" id="trackArtist">選擇您的播放清單</div>
                     </div>
                     <div class="music-controls">
                         <button class="music-btn" id="prevTrack" title="上一首">
@@ -1060,6 +1445,9 @@
                             <i class="fas fa-step-forward"></i>
                         </button>
                         <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50" title="音量">
+                        <button class="music-btn" id="openMusicModal" title="選擇音樂">
+                            <i class="fas fa-music"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1245,7 +1633,7 @@
     <script>
         // 遊戲狀態
         const gameState = {
-            balance: 0,
+            balance: 1000,
             currentBet: 0,
             currentBetTarget: null,
             isGameActive: false,
@@ -1261,12 +1649,13 @@
             roadPosition: { row: 0, col: 0 },
             
             // 音樂狀態
+            musicMode: 'custom', // 'spotify', 'soundcloud', 'custom'
             currentTrackIndex: 0,
             isPlaying: false,
             currentVolume: 50,
             
-            // 真實音樂播放列表
-            playlist: [
+            // 播放清單
+            defaultPlaylist: [
                 {
                     id: '1',
                     title: 'Poker Face',
@@ -1274,7 +1663,8 @@
                     album: 'The Fame',
                     previewUrl: 'https://p.scdn.co/mp3-preview/64b8992f7f81d1f1fd25c575cfebec0ae033c23a',
                     duration: 238000,
-                    popularity: 85
+                    popularity: 85,
+                    platform: 'spotify'
                 },
                 {
                     id: '2',
@@ -1283,7 +1673,8 @@
                     album: 'Viva Las Vegas',
                     previewUrl: 'https://p.scdn.co/mp3-preview/5ee8048e933dd2c4f3a3899cc77401719cf8308c',
                     duration: 152000,
-                    popularity: 78
+                    popularity: 78,
+                    platform: 'spotify'
                 },
                 {
                     id: '3',
@@ -1292,76 +1683,42 @@
                     album: 'The Gambler',
                     previewUrl: 'https://p.scdn.co/mp3-preview/772b7dd53465a6432e8e44776787b1c0913c75e9',
                     duration: 208000,
-                    popularity: 72
-                },
-                {
-                    id: '4',
-                    title: 'Waking Up In Vegas',
-                    artist: 'Katy Perry',
-                    album: 'One of the Boys',
-                    previewUrl: 'https://p.scdn.co/mp3-preview/0bb42e1c329372ec1ff802cd6cf714c5bfb77d7b',
-                    duration: 220000,
-                    popularity: 75
-                },
-                {
-                    id: '5',
-                    title: 'Casino Royale Theme',
-                    artist: 'Herb Alpert & The Tijuana Brass',
-                    album: 'Casino Royale',
-                    previewUrl: 'https://p.scdn.co/mp3-preview/cfb2c1bb8ed0dcfc75d3f51b8033d0ab05fe7a1d',
-                    duration: 156000,
-                    popularity: 68
-                },
-                {
-                    id: '6',
-                    title: 'Luck Be a Lady',
-                    artist: 'Frank Sinatra',
-                    album: 'Sinatra Reprise: The Very Good Years',
-                    previewUrl: 'https://p.scdn.co/mp3-preview/91a9e59e6a5aeeafd1416e543531294fe6173f13',
-                    duration: 324000,
-                    popularity: 80
-                },
-                {
-                    id: '7',
-                    title: 'Ace of Spades',
-                    artist: 'Motörhead',
-                    album: 'Ace of Spades',
-                    previewUrl: 'https://p.scdn.co/mp3-preview/35d2ac6bf5d71c22c39aef3969af07c5a75c6e01',
-                    duration: 173000,
-                    popularity: 82
-                },
-                {
-                    id: '8',
-                    title: 'Money',
-                    artist: 'Pink Floyd',
-                    album: 'The Dark Side of the Moon',
-                    previewUrl: 'https://p.scdn.co/mp3-preview/61a55491a6d86a34119328b34ca5583631363a2c',
-                    duration: 382000,
-                    popularity: 88
-                },
-                {
-                    id: '9',
-                    title: 'Smooth',
-                    artist: 'Santana ft. Rob Thomas',
-                    album: 'Supernatural',
-                    previewUrl: 'https://p.scdn.co/mp3-preview/b3d2e7c1f1751d3a1e29f62185d65e3af0ba28a0',
-                    duration: 296000,
-                    popularity: 83
-                },
-                {
-                    id: '10',
-                    title: "Can't Stop the Feeling!",
-                    artist: 'Justin Timberlake',
-                    album: 'Trolls (Original Motion Picture Soundtrack)',
-                    previewUrl: 'https://p.scdn.co/mp3-preview/3aafec5f2416a526681e556107e2c349d8c4ac59',
-                    duration: 237000,
-                    popularity: 87
+                    popularity: 72,
+                    platform: 'spotify'
                 }
-            ]
+            ],
+            
+            customPlaylist: [
+                {
+                    id: 'custom-1',
+                    title: 'Casino Background Music',
+                    artist: 'Casino Vibes',
+                    album: 'Gambling Music',
+                    previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+                    duration: 180000,
+                    platform: 'custom'
+                },
+                {
+                    id: 'custom-2',
+                    title: 'Poker Night',
+                    artist: 'Card Game Music',
+                    album: 'Casino Collection',
+                    previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+                    duration: 210000,
+                    platform: 'custom'
+                }
+            ],
+            
+            currentPlaylist: [],
+            searchResults: {
+                spotify: [],
+                soundcloud: []
+            }
         };
 
         // DOM元素
         const elements = {
+            // 音樂控制
             trackTitle: document.getElementById('trackTitle'),
             trackArtist: document.getElementById('trackArtist'),
             playPause: document.getElementById('playPause'),
@@ -1369,7 +1726,47 @@
             nextTrack: document.getElementById('nextTrack'),
             volumeSlider: document.getElementById('volumeSlider'),
             musicPlayer: document.getElementById('musicPlayer'),
+            musicPlayerUI: document.getElementById('musicPlayerUI'),
+            platformIcon: document.getElementById('platformIcon'),
+            openMusicModal: document.getElementById('openMusicModal'),
             
+            // 模態框
+            musicModal: document.getElementById('musicModal'),
+            closeMusicModal: document.getElementById('closeMusicModal'),
+            closeMusicModalBtn: document.getElementById('closeMusicModalBtn'),
+            platformOptions: document.querySelectorAll('.platform-option'),
+            
+            // Spotify 搜尋
+            spotifySearch: document.getElementById('spotifySearch'),
+            spotifySearchInput: document.getElementById('spotifySearchInput'),
+            spotifySearchBtn: document.getElementById('spotifySearchBtn'),
+            spotifyResults: document.getElementById('spotifyResults'),
+            
+            // SoundCloud 搜尋
+            soundcloudSearch: document.getElementById('soundcloudSearch'),
+            soundcloudSearchInput: document.getElementById('soundcloudSearchInput'),
+            soundcloudSearchBtn: document.getElementById('soundcloudSearchBtn'),
+            soundcloudResults: document.getElementById('soundcloudResults'),
+            
+            // 自訂播放清單
+            customMusic: document.getElementById('customMusic'),
+            customPlaylist: document.getElementById('customPlaylist'),
+            playlistCount: document.getElementById('playlistCount'),
+            addCustomSong: document.getElementById('addCustomSong'),
+            savePlaylist: document.getElementById('savePlaylist'),
+            
+            // 自訂歌曲模態框
+            customSongModal: document.getElementById('customSongModal'),
+            closeCustomSongModal: document.getElementById('closeCustomSongModal'),
+            cancelAddSong: document.getElementById('cancelAddSong'),
+            addSongToPlaylist: document.getElementById('addSongToPlaylist'),
+            songTitle: document.getElementById('songTitle'),
+            songArtist: document.getElementById('songArtist'),
+            songUrl: document.getElementById('songUrl'),
+            songTypeOptions: document.querySelectorAll('[data-type]'),
+            quickUrlButtons: document.querySelectorAll('[data-url]'),
+            
+            // 存款相關
             totalBalance: document.getElementById('totalBalance'),
             depositModal: document.getElementById('depositModal'),
             openDeposit: document.getElementById('openDeposit'),
@@ -1380,6 +1777,7 @@
             cryptoOptions: document.querySelectorAll('.crypto-option'),
             quickAmounts: document.querySelectorAll('.quick-amount'),
             
+            // 遊戲控制
             playerCardsContainer: document.getElementById('playerCards'),
             bankerCardsContainer: document.getElementById('bankerCards'),
             playerPoints: document.getElementById('playerPoints'),
@@ -1388,8 +1786,10 @@
             dealBtn: document.getElementById('dealBtn'),
             newRoundBtn: document.getElementById('newRoundBtn'),
             
+            // 大路圖
             roadGrid: document.getElementById('roadGrid'),
             
+            // 下注控制
             betAmountValue: document.getElementById('betAmountValue'),
             betTargetLabel: document.getElementById('betTargetLabel'),
             targetButtons: document.querySelectorAll('.target-btn'),
@@ -1399,11 +1799,13 @@
             clearBet: document.getElementById('clearBet'),
             placeBet: document.getElementById('placeBet'),
             
+            // 統計數據
             totalRounds: document.getElementById('totalRounds'),
             playerWins: document.getElementById('playerWins'),
             bankerWins: document.getElementById('bankerWins'),
             tieGames: document.getElementById('tieGames'),
             
+            // 歷史紀錄
             historyList: document.getElementById('historyList')
         };
 
@@ -1422,7 +1824,7 @@
             setupMusicSystem();
             updateUI();
             initRoadGrid();
-            loadFirstTrack();
+            loadPlaylist();
         }
 
         // 音樂系統設置
@@ -1443,31 +1845,56 @@
             // 音樂播放器事件監聽
             elements.musicPlayer.addEventListener('ended', nextTrack);
             elements.musicPlayer.addEventListener('error', handleMusicError);
-            elements.musicPlayer.addEventListener('canplaythrough', () => {
-                if (gameState.isPlaying) {
-                    elements.musicPlayer.play().catch(e => {
-                        console.log('自動播放被阻止:', e);
-                        gameState.isPlaying = false;
-                        updatePlayPauseButton();
-                    });
-                }
-            });
         }
 
-        function loadFirstTrack() {
-            const track = gameState.playlist[gameState.currentTrackIndex];
-            updateTrackInfo(track);
+        function loadPlaylist() {
+            // 合併預設和自訂播放清單
+            gameState.currentPlaylist = [...gameState.defaultPlaylist, ...gameState.customPlaylist];
             
-            // 預加載音頻
-            if (track.previewUrl) {
-                elements.musicPlayer.src = track.previewUrl;
-                elements.musicPlayer.load();
+            // 更新播放清單顯示
+            updateCustomPlaylist();
+            
+            // 載入第一首歌
+            if (gameState.currentPlaylist.length > 0) {
+                const track = gameState.currentPlaylist[gameState.currentTrackIndex];
+                updateTrackInfo(track);
+                updatePlayerUI(track);
             }
         }
 
         function updateTrackInfo(track) {
             elements.trackTitle.textContent = track.title;
-            elements.trackArtist.textContent = `${track.artist} • ${track.album}`;
+            elements.trackArtist.textContent = `${track.artist} • ${track.platform === 'custom' ? '自訂歌曲' : track.album}`;
+        }
+
+        function updatePlayerUI(track) {
+            // 更新平台圖標
+            const platformIcon = elements.platformIcon;
+            const musicPlayerUI = elements.musicPlayerUI;
+            
+            if (track.platform === 'spotify') {
+                platformIcon.className = 'fab fa-spotify spotify-icon';
+                musicPlayerUI.className = 'spotify-player';
+                musicPlayerUI.style.borderColor = 'var(--spotify-green)';
+            } else if (track.platform === 'soundcloud') {
+                platformIcon.className = 'fab fa-soundcloud soundcloud-icon';
+                musicPlayerUI.className = 'spotify-player soundcloud-player';
+                musicPlayerUI.style.borderColor = 'var(--soundcloud-orange)';
+            } else {
+                platformIcon.className = 'fas fa-headphones spotify-icon';
+                musicPlayerUI.className = 'spotify-player';
+                musicPlayerUI.style.borderColor = 'var(--primary-color)';
+            }
+            
+            // 更新標題顏色
+            const trackTitle = elements.trackTitle;
+            if (track.platform === 'soundcloud') {
+                trackTitle.style.color = 'var(--soundcloud-orange)';
+            } else if (track.platform === 'custom') {
+                trackTitle.style.color = 'var(--primary-color)';
+            } else {
+                trackTitle.style.color = 'var(--spotify-green)';
+            }
         }
 
         function updateVolume() {
@@ -1494,10 +1921,22 @@
         }
 
         function playMusic() {
-            const track = gameState.playlist[gameState.currentTrackIndex];
+            if (gameState.currentPlaylist.length === 0) {
+                alert('播放清單為空，請先新增歌曲');
+                return;
+            }
+            
+            const track = gameState.currentPlaylist[gameState.currentTrackIndex];
             
             if (!track.previewUrl) {
-                alert('此曲目沒有預覽音頻');
+                alert('此曲目沒有可播放的音頻');
+                return;
+            }
+            
+            // 設置音樂來源
+            if (track.platform === 'youtube') {
+                // 處理 YouTube 連結
+                alert('YouTube 連結需要在瀏覽器中直接播放');
                 return;
             }
             
@@ -1508,7 +1947,7 @@
                 updatePlayPauseButton();
             }).catch(e => {
                 console.log('音樂播放失敗:', e);
-                alert('無法播放音樂，請確保瀏覽器允許自動播放');
+                alert('無法播放音樂，請檢查網路連線或音頻連結');
             });
         }
 
@@ -1530,40 +1969,30 @@
         }
 
         function prevTrack() {
-            gameState.currentTrackIndex = (gameState.currentTrackIndex - 1 + gameState.playlist.length) % gameState.playlist.length;
-            const track = gameState.playlist[gameState.currentTrackIndex];
+            if (gameState.currentPlaylist.length === 0) return;
+            
+            gameState.currentTrackIndex = (gameState.currentTrackIndex - 1 + gameState.currentPlaylist.length) % gameState.currentPlaylist.length;
+            const track = gameState.currentPlaylist[gameState.currentTrackIndex];
             updateTrackInfo(track);
+            updatePlayerUI(track);
             
             if (gameState.isPlaying) {
                 pauseMusic();
-                setTimeout(() => {
-                    if (track.previewUrl) {
-                        elements.musicPlayer.src = track.previewUrl;
-                        elements.musicPlayer.play().then(() => {
-                            gameState.isPlaying = true;
-                            updatePlayPauseButton();
-                        });
-                    }
-                }, 100);
+                setTimeout(playMusic, 100);
             }
         }
 
         function nextTrack() {
-            gameState.currentTrackIndex = (gameState.currentTrackIndex + 1) % gameState.playlist.length;
-            const track = gameState.playlist[gameState.currentTrackIndex];
+            if (gameState.currentPlaylist.length === 0) return;
+            
+            gameState.currentTrackIndex = (gameState.currentTrackIndex + 1) % gameState.currentPlaylist.length;
+            const track = gameState.currentPlaylist[gameState.currentTrackIndex];
             updateTrackInfo(track);
+            updatePlayerUI(track);
             
             if (gameState.isPlaying) {
                 pauseMusic();
-                setTimeout(() => {
-                    if (track.previewUrl) {
-                        elements.musicPlayer.src = track.previewUrl;
-                        elements.musicPlayer.play().then(() => {
-                            gameState.isPlaying = true;
-                            updatePlayPauseButton();
-                        });
-                    }
-                }, 100);
+                setTimeout(playMusic, 100);
             }
         }
 
@@ -1573,12 +2002,449 @@
             nextTrack();
         }
 
-        // 事件監聽器
+        // Spotify 搜尋功能（模擬）
+        function searchSpotify(query) {
+            if (!query.trim()) {
+                alert('請輸入搜尋關鍵字');
+                return;
+            }
+            
+            // 模擬搜尋結果（實際應用中會調用 Spotify API）
+            const mockResults = [
+                {
+                    id: 'spotify-search-1',
+                    title: `${query} - Remix`,
+                    artist: 'Various Artists',
+                    album: 'Casino Mix 2024',
+                    previewUrl: 'https://p.scdn.co/mp3-preview/64b8992f7f81d1f1fd25c575cfebec0ae033c23a',
+                    duration: 180000,
+                    platform: 'spotify'
+                },
+                {
+                    id: 'spotify-search-2',
+                    title: `Gambling with ${query}`,
+                    artist: 'DJ Casino',
+                    album: 'Poker Anthems',
+                    previewUrl: 'https://p.scdn.co/mp3-preview/5ee8048e933dd2c4f3a3899cc77401719cf8308c',
+                    duration: 210000,
+                    platform: 'spotify'
+                },
+                {
+                    id: 'spotify-search-3',
+                    title: `${query} Nights`,
+                    artist: 'Vegas Sounds',
+                    album: 'Casino Vibes',
+                    previewUrl: 'https://p.scdn.co/mp3-preview/772b7dd53465a6432e8e44776787b1c0913c75e9',
+                    duration: 195000,
+                    platform: 'spotify'
+                }
+            ];
+            
+            gameState.searchResults.spotify = mockResults;
+            displaySpotifyResults();
+        }
+
+        function displaySpotifyResults() {
+            const resultsContainer = elements.spotifyResults;
+            resultsContainer.innerHTML = '';
+            
+            if (gameState.searchResults.spotify.length === 0) {
+                resultsContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 30px;">沒有找到相關結果</div>';
+                return;
+            }
+            
+            gameState.searchResults.spotify.forEach((track, index) => {
+                const resultElement = document.createElement('div');
+                resultElement.className = 'search-result';
+                resultElement.innerHTML = `
+                    <div class="result-album" style="background: linear-gradient(135deg, #${Math.floor(Math.random()*16777215).toString(16)}, #${Math.floor(Math.random()*16777215).toString(16)});">
+                        <i class="fas fa-music"></i>
+                    </div>
+                    <div class="result-info">
+                        <div class="result-title">${track.title}</div>
+                        <div class="result-artist">${track.artist} • ${track.album}</div>
+                    </div>
+                    <button class="playlist-btn add-to-playlist" data-index="${index}" data-platform="spotify" title="新增到播放清單">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                `;
+                resultsContainer.appendChild(resultElement);
+            });
+            
+            // 添加事件監聽器
+            document.querySelectorAll('.add-to-playlist[data-platform="spotify"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(btn.dataset.index);
+                    addToCustomPlaylist(gameState.searchResults.spotify[index]);
+                });
+            });
+        }
+
+        // SoundCloud 搜尋功能（模擬）
+        function searchSoundCloud(query) {
+            if (!query.trim()) {
+                alert('請輸入搜尋關鍵字');
+                return;
+            }
+            
+            // 模擬搜尋結果
+            const mockResults = [
+                {
+                    id: 'soundcloud-search-1',
+                    title: `${query} Mix`,
+                    artist: 'SoundCloud DJ',
+                    album: 'Underground Casino',
+                    previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+                    duration: 220000,
+                    platform: 'soundcloud'
+                },
+                {
+                    id: 'soundcloud-search-2',
+                    title: `${query} Beats`,
+                    artist: 'Cloud Beats',
+                    album: 'Independent Mix',
+                    previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
+                    duration: 190000,
+                    platform: 'soundcloud'
+                },
+                {
+                    id: 'soundcloud-search-3',
+                    title: `${query} Vibes`,
+                    artist: 'Vibe Creator',
+                    album: 'Chill Casino',
+                    previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
+                    duration: 205000,
+                    platform: 'soundcloud'
+                }
+            ];
+            
+            gameState.searchResults.soundcloud = mockResults;
+            displaySoundCloudResults();
+        }
+
+        function displaySoundCloudResults() {
+            const resultsContainer = elements.soundcloudResults;
+            resultsContainer.innerHTML = '';
+            
+            if (gameState.searchResults.soundcloud.length === 0) {
+                resultsContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 30px;">沒有找到相關結果</div>';
+                return;
+            }
+            
+            gameState.searchResults.soundcloud.forEach((track, index) => {
+                const resultElement = document.createElement('div');
+                resultElement.className = 'search-result';
+                resultElement.innerHTML = `
+                    <div class="result-album" style="background: linear-gradient(135deg, #ff8800, #ff5500);">
+                        <i class="fab fa-soundcloud"></i>
+                    </div>
+                    <div class="result-info">
+                        <div class="result-title">${track.title}</div>
+                        <div class="result-artist">${track.artist} • ${track.album}</div>
+                    </div>
+                    <button class="playlist-btn add-to-playlist" data-index="${index}" data-platform="soundcloud" title="新增到播放清單">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                `;
+                resultsContainer.appendChild(resultElement);
+            });
+            
+            // 添加事件監聽器
+            document.querySelectorAll('.add-to-playlist[data-platform="soundcloud"]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(btn.dataset.index);
+                    addToCustomPlaylist(gameState.searchResults.soundcloud[index]);
+                });
+            });
+        }
+
+        // 自訂播放清單功能
+        function updateCustomPlaylist() {
+            const playlistContainer = elements.customPlaylist;
+            const playlistCount = elements.playlistCount;
+            
+            playlistContainer.innerHTML = '';
+            
+            if (gameState.customPlaylist.length === 0) {
+                playlistContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 30px;">播放清單為空，請新增歌曲</div>';
+                playlistCount.textContent = '0 首歌曲';
+                return;
+            }
+            
+            playlistCount.textContent = `${gameState.customPlaylist.length} 首歌曲`;
+            
+            gameState.customPlaylist.forEach((track, index) => {
+                const isActive = gameState.currentTrackIndex === (gameState.defaultPlaylist.length + index) && 
+                               gameState.currentPlaylist[gameState.currentTrackIndex]?.id === track.id;
+                
+                const playlistItem = document.createElement('div');
+                playlistItem.className = `playlist-item ${isActive ? 'active' : ''}`;
+                playlistItem.innerHTML = `
+                    <div class="result-album" style="background: ${track.platform === 'soundcloud' ? 'linear-gradient(135deg, #ff8800, #ff5500)' : 'linear-gradient(135deg, var(--primary-color), var(--secondary-color))'};">
+                        <i class="fas ${track.platform === 'soundcloud' ? 'fa-soundcloud' : 'fa-music'}"></i>
+                    </div>
+                    <div class="result-info">
+                        <div class="result-title">${track.title}</div>
+                        <div class="result-artist">${track.artist}</div>
+                    </div>
+                    <div class="playlist-item-actions">
+                        <button class="playlist-btn play-now" data-index="${index}" title="立即播放">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="playlist-btn remove-song" data-index="${index}" title="移除歌曲">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                playlistContainer.appendChild(playlistItem);
+            });
+            
+            // 添加事件監聽器
+            document.querySelectorAll('.play-now').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(btn.dataset.index);
+                    playCustomTrack(index);
+                });
+            });
+            
+            document.querySelectorAll('.remove-song').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(btn.dataset.index);
+                    removeFromCustomPlaylist(index);
+                });
+            });
+        }
+
+        function addToCustomPlaylist(track) {
+            // 檢查是否已經存在
+            const exists = gameState.customPlaylist.some(item => 
+                item.title === track.title && item.artist === track.artist
+            );
+            
+            if (exists) {
+                alert('此歌曲已經在播放清單中');
+                return;
+            }
+            
+            // 添加到自訂播放清單
+            const customTrack = {
+                ...track,
+                id: `custom-${Date.now()}`,
+                platform: track.platform || 'custom'
+            };
+            
+            gameState.customPlaylist.push(customTrack);
+            gameState.currentPlaylist = [...gameState.defaultPlaylist, ...gameState.customPlaylist];
+            
+            updateCustomPlaylist();
+            alert('已新增到播放清單');
+        }
+
+        function removeFromCustomPlaylist(index) {
+            if (confirm('確定要移除這首歌曲嗎？')) {
+                gameState.customPlaylist.splice(index, 1);
+                gameState.currentPlaylist = [...gameState.defaultPlaylist, ...gameState.customPlaylist];
+                
+                // 如果移除的是當前播放的歌曲，切換到下一首
+                const currentTrack = gameState.currentPlaylist[gameState.currentTrackIndex];
+                if (!currentTrack || !gameState.customPlaylist.some(track => track.id === currentTrack.id)) {
+                    gameState.currentTrackIndex = Math.max(0, Math.min(gameState.currentTrackIndex, gameState.currentPlaylist.length - 1));
+                    if (gameState.currentPlaylist.length > 0) {
+                        const newTrack = gameState.currentPlaylist[gameState.currentTrackIndex];
+                        updateTrackInfo(newTrack);
+                        updatePlayerUI(newTrack);
+                    }
+                }
+                
+                updateCustomPlaylist();
+                savePlaylistToLocalStorage();
+            }
+        }
+
+        function playCustomTrack(index) {
+            const trackIndex = gameState.defaultPlaylist.length + index;
+            gameState.currentTrackIndex = trackIndex;
+            
+            const track = gameState.currentPlaylist[trackIndex];
+            updateTrackInfo(track);
+            updatePlayerUI(track);
+            
+            if (gameState.isPlaying) {
+                pauseMusic();
+                setTimeout(playMusic, 100);
+            } else {
+                playMusic();
+            }
+            
+            updateCustomPlaylist();
+        }
+
+        function addCustomSong() {
+            const title = elements.songTitle.value.trim();
+            const artist = elements.songArtist.value.trim();
+            const url = elements.songUrl.value.trim();
+            const type = document.querySelector('.crypto-option.active[data-type]')?.dataset.type;
+            
+            if (!title || !artist || !url) {
+                alert('請填寫所有欄位');
+                return;
+            }
+            
+            if (!url.startsWith('http')) {
+                alert('請輸入有效的網址');
+                return;
+            }
+            
+            const newSong = {
+                id: `custom-${Date.now()}`,
+                title: title,
+                artist: artist,
+                album: '自訂歌曲',
+                previewUrl: url,
+                duration: 180000,
+                platform: type === 'youtube' ? 'youtube' : 'custom'
+            };
+            
+            gameState.customPlaylist.push(newSong);
+            gameState.currentPlaylist = [...gameState.defaultPlaylist, ...gameState.customPlaylist];
+            
+            updateCustomPlaylist();
+            savePlaylistToLocalStorage();
+            
+            // 清空表單
+            elements.songTitle.value = '';
+            elements.songArtist.value = '';
+            elements.songUrl.value = '';
+            
+            // 關閉模態框
+            elements.customSongModal.classList.remove('active');
+            
+            alert('歌曲已新增到播放清單');
+        }
+
+        function savePlaylistToLocalStorage() {
+            try {
+                localStorage.setItem('baccaratCustomPlaylist', JSON.stringify(gameState.customPlaylist));
+            } catch (e) {
+                console.log('無法儲存播放清單:', e);
+            }
+        }
+
+        function loadPlaylistFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('baccaratCustomPlaylist');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed)) {
+                        gameState.customPlaylist = parsed;
+                        return true;
+                    }
+                }
+            } catch (e) {
+                console.log('無法載入播放清單:', e);
+            }
+            return false;
+        }
+
+        // 事件監聽器設置
         function setupEventListeners() {
             // 音樂控制
             elements.playPause.addEventListener('click', togglePlayPause);
             elements.prevTrack.addEventListener('click', prevTrack);
             elements.nextTrack.addEventListener('click', nextTrack);
+            elements.musicPlayerUI.addEventListener('click', () => {
+                elements.musicModal.classList.add('active');
+            });
+            elements.openMusicModal.addEventListener('click', () => {
+                elements.musicModal.classList.add('active');
+            });
+            
+            // 音樂模態框
+            elements.closeMusicModal.addEventListener('click', () => {
+                elements.musicModal.classList.remove('active');
+            });
+            elements.closeMusicModalBtn.addEventListener('click', () => {
+                elements.musicModal.classList.remove('active');
+            });
+            
+            // 平台選擇
+            elements.platformOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    elements.platformOptions.forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+                    
+                    const platform = option.dataset.platform;
+                    
+                    // 顯示對應的搜尋區域
+                    elements.spotifySearch.classList.remove('active');
+                    elements.soundcloudSearch.classList.remove('active');
+                    elements.customMusic.classList.remove('active');
+                    
+                    if (platform === 'spotify') {
+                        elements.spotifySearch.classList.add('active');
+                    } else if (platform === 'soundcloud') {
+                        elements.soundcloudSearch.classList.add('active');
+                    } else {
+                        elements.customMusic.classList.add('active');
+                    }
+                });
+            });
+            
+            // Spotify 搜尋
+            elements.spotifySearchBtn.addEventListener('click', () => {
+                const query = elements.spotifySearchInput.value;
+                searchSpotify(query);
+            });
+            
+            // SoundCloud 搜尋
+            elements.soundcloudSearchBtn.addEventListener('click', () => {
+                const query = elements.soundcloudSearchInput.value;
+                searchSoundCloud(query);
+            });
+            
+            // 自訂歌曲
+            elements.addCustomSong.addEventListener('click', () => {
+                elements.customSongModal.classList.add('active');
+            });
+            
+            elements.closeCustomSongModal.addEventListener('click', () => {
+                elements.customSongModal.classList.remove('active');
+            });
+            
+            elements.cancelAddSong.addEventListener('click', () => {
+                elements.customSongModal.classList.remove('active');
+            });
+            
+            elements.addSongToPlaylist.addEventListener('click', addCustomSong);
+            
+            elements.songTypeOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    elements.songTypeOptions.forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+                    
+                    const type = option.dataset.type;
+                    elements.songUrl.placeholder = type === 'youtube' ? 'YouTube 影片連結' : 'MP3 網址';
+                });
+            });
+            
+            elements.quickUrlButtons.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    elements.songUrl.value = btn.dataset.url;
+                    elements.songTitle.value = btn.textContent;
+                    elements.songArtist.value = '範例音樂';
+                });
+            });
+            
+            // 儲存播放清單
+            elements.savePlaylist.addEventListener('click', () => {
+                savePlaylistToLocalStorage();
+                alert('播放清單已儲存');
+                elements.musicModal.classList.remove('active');
+            });
             
             // 存款相關
             elements.openDeposit.addEventListener('click', () => {
@@ -1628,9 +2494,16 @@
             
             elements.clearBet.addEventListener('click', clearBet);
             elements.placeBet.addEventListener('click', placeBet);
+            
+            // 載入儲存的播放清單
+            window.addEventListener('load', () => {
+                if (loadPlaylistFromLocalStorage()) {
+                    loadPlaylist();
+                }
+            });
         }
 
-        // 遊戲邏輯
+        // 遊戲邏輯（保持不變）
         function selectBetTarget(target) {
             if (gameState.isGameActive) return;
             
@@ -1747,7 +2620,7 @@
             elements.resultText.textContent = '請下注後開始遊戲';
         }
 
-        // 卡片和遊戲邏輯
+        // 卡片和遊戲邏輯（保持不變）
         function resetCards() {
             const playerCards = elements.playerCardsContainer.children;
             const bankerCards = elements.bankerCardsContainer.children;
@@ -1769,6 +2642,10 @@
         }
 
         async function dealGame() {
+            // 初始化牌組
+            gameState.playerCards = [null, null, null];
+            gameState.bankerCards = [null, null, null];
+            
             // 發前兩張牌
             await dealInitialCards();
             
@@ -1850,9 +2727,6 @@
         }
 
         async function dealInitialCards() {
-            gameState.playerCards = [null, null, null];
-            gameState.bankerCards = [null, null, null];
-            
             // 玩家第一張
             gameState.playerCards[0] = getRandomCard();
             await revealCard('player', 0, gameState.playerCards[0]);
@@ -2013,14 +2887,6 @@
 
         // 初始化遊戲
         init();
-        
-        // 自動播放音樂（用戶交互後）
-        document.addEventListener('click', function initMusic() {
-            if (!gameState.isPlaying) {
-                playMusic();
-            }
-            document.removeEventListener('click', initMusic);
-        });
     </script>
 </body>
 </html>
