@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>復古多媒體播放器</title>
+    <title>YouTube多媒體播放器</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -26,7 +26,7 @@
         
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 1000px;
             background-color: rgba(25, 25, 35, 0.9);
             border-radius: 20px;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
@@ -36,15 +36,15 @@
         
         header {
             padding: 25px 30px;
-            background: linear-gradient(90deg, #0f3460 0%, #1a1a2e 100%);
+            background: linear-gradient(90deg, #ff0000 0%, #1a1a2e 100%);
             text-align: center;
-            border-bottom: 2px solid #e94560;
+            border-bottom: 2px solid #ff0000;
         }
         
         h1 {
             font-size: 2.8rem;
             margin-bottom: 8px;
-            background: linear-gradient(to right, #4cc9f0, #e94560);
+            background: linear-gradient(to right, #ff0000, #4cc9f0);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
@@ -63,7 +63,7 @@
             padding: 30px;
         }
         
-        @media (min-width: 768px) {
+        @media (min-width: 900px) {
             .player-container {
                 flex-direction: row;
             }
@@ -75,7 +75,7 @@
             margin-bottom: 30px;
         }
         
-        @media (min-width: 768px) {
+        @media (min-width: 900px) {
             .media-section {
                 margin-bottom: 0;
                 margin-right: 30px;
@@ -86,14 +86,14 @@
             font-size: 1.5rem;
             margin-bottom: 15px;
             padding-bottom: 8px;
-            border-bottom: 1px solid #e94560;
+            border-bottom: 1px solid #ff0000;
             display: flex;
             align-items: center;
         }
         
         .player-title i {
             margin-right: 10px;
-            color: #4cc9f0;
+            color: #ff0000;
         }
         
         .video-container {
@@ -102,12 +102,63 @@
             overflow: hidden;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
             background-color: #000;
+            position: relative;
+            padding-top: 56.25%; /* 16:9 寬高比 */
+            height: 0;
         }
         
-        video {
+        .youtube-player {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: auto;
-            display: block;
+            height: 100%;
+            border: none;
+            border-radius: 10px;
+        }
+        
+        .video-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #000;
+            color: white;
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .video-placeholder i {
+            font-size: 4rem;
+            margin-bottom: 15px;
+            color: #ff0000;
+        }
+        
+        .video-placeholder p {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .video-placeholder .select-btn {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .video-placeholder .select-btn:hover {
+            background-color: #cc0000;
         }
         
         .audio-container {
@@ -184,8 +235,8 @@
         .control-btn.play-pause {
             width: 60px;
             height: 60px;
-            background-color: rgba(233, 69, 96, 0.3);
-            color: #e94560;
+            background-color: rgba(255, 0, 0, 0.3);
+            color: #ff0000;
             font-size: 1.5rem;
         }
         
@@ -205,7 +256,7 @@
         .progress {
             height: 100%;
             width: 0%;
-            background: linear-gradient(to right, #4cc9f0, #e94560);
+            background: linear-gradient(to right, #ff0000, #4cc9f0);
             border-radius: 4px;
             transition: width 0.1s linear;
         }
@@ -218,17 +269,17 @@
             opacity: 0.8;
         }
         
-        .playlist-section {
-            margin-top: 40px;
+        .youtube-playlist-section {
+            margin-top: 30px;
             padding: 0 30px 30px;
         }
         
         .playlist {
-            list-style: none;
-            max-height: 250px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            max-height: 350px;
             overflow-y: auto;
-            background-color: rgba(30, 30, 40, 0.8);
-            border-radius: 10px;
             padding: 10px;
         }
         
@@ -242,56 +293,77 @@
         }
         
         .playlist::-webkit-scrollbar-thumb {
-            background: linear-gradient(to bottom, #4cc9f0, #e94560);
+            background: linear-gradient(to bottom, #ff0000, #4cc9f0);
             border-radius: 4px;
         }
         
-        .playlist-item {
-            padding: 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        .youtube-item {
+            background-color: rgba(40, 40, 50, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            transition: all 0.2s ease;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
         }
         
-        .playlist-item:hover {
-            background-color: rgba(79, 201, 240, 0.1);
+        .youtube-item:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 0, 0, 0.5);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
         }
         
-        .playlist-item.active {
-            background-color: rgba(233, 69, 96, 0.2);
-            border-left: 4px solid #e94560;
+        .youtube-item.active {
+            border-color: #ff0000;
+            background-color: rgba(255, 0, 0, 0.1);
         }
         
-        .playlist-item i {
-            margin-right: 15px;
-            color: #4cc9f0;
-            width: 20px;
-            text-align: center;
+        .youtube-thumbnail {
+            width: 100%;
+            height: 160px;
+            overflow: hidden;
         }
         
-        .playlist-item .song-details {
-            flex: 1;
+        .youtube-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
         }
         
-        .playlist-item .song-name {
-            font-weight: 500;
+        .youtube-item:hover .youtube-thumbnail img {
+            transform: scale(1.05);
         }
         
-        .playlist-item .song-artist {
+        .youtube-details {
+            padding: 15px;
+        }
+        
+        .youtube-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+            color: #f0f0f0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .youtube-channel {
             font-size: 0.9rem;
-            opacity: 0.7;
+            opacity: 0.8;
+            margin-bottom: 5px;
         }
         
-        .playlist-item .song-duration {
-            font-size: 0.9rem;
-            opacity: 0.7;
+        .youtube-duration {
+            font-size: 0.85rem;
+            color: #ff0000;
+            font-weight: bold;
         }
         
         .device-warning {
-            background-color: rgba(233, 69, 96, 0.1);
-            border-left: 4px solid #e94560;
+            background-color: rgba(255, 0, 0, 0.1);
+            border-left: 4px solid #ff0000;
             padding: 15px;
             margin-top: 20px;
             border-radius: 5px;
@@ -335,6 +407,10 @@
                 width: 55px;
                 height: 55px;
             }
+            
+            .playlist {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
         }
         
         /* 觸控裝置優化 */
@@ -345,53 +421,124 @@
                 margin: 0 12px;
             }
             
-            .playlist-item {
-                padding: 18px 15px;
+            .youtube-item {
+                padding: 0;
             }
+        }
+        
+        /* 手機適配 */
+        @media (max-width: 600px) {
+            .player-container {
+                padding: 15px;
+            }
+            
+            .playlist {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+        
+        /* YouTube播放器自定義 */
+        .youtube-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .youtube-search {
+            display: flex;
+            margin-bottom: 15px;
+        }
+        
+        .youtube-search input {
+            flex: 1;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px 0 0 5px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        .youtube-search button {
+            padding: 12px 20px;
+            background-color: #ff0000;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        .youtube-search button:hover {
+            background-color: #cc0000;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-play-circle"></i> 復古多媒體播放器</h1>
-            <p class="subtitle">視訊與音樂播放器 - 支援舊版iPad (9.5.3+)</p>
+            <h1><i class="fab fa-youtube"></i> YouTube多媒體播放器</h1>
+            <p class="subtitle">YouTube影片與音樂播放器 - 支援舊版iPad (9.5.3+)</p>
         </header>
         
         <div class="player-container">
             <div class="media-section">
-                <h2 class="player-title"><i class="fas fa-video"></i> 視訊播放器</h2>
+                <h2 class="player-title"><i class="fab fa-youtube"></i> YouTube播放器</h2>
+                
+                <div class="youtube-search">
+                    <input type="text" id="youtubeSearch" placeholder="搜尋YouTube影片或輸入影片ID/URL">
+                    <button id="searchBtn"><i class="fas fa-search"></i> 搜尋</button>
+                </div>
+                
                 <div class="video-container">
-                    <video id="videoPlayer" controls preload="metadata" poster="https://images.unsplash.com/photo-1551029506-0807df4e2031?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=800&q=80">
-                        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" type="video/mp4">
-                        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.ogg" type="video/ogg">
-                        您的瀏覽器不支援HTML5視訊播放。
-                    </video>
+                    <iframe 
+                        class="youtube-player" 
+                        id="youtubePlayer"
+                        src="https://www.youtube.com/embed/jNQXAC9IVRw"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                        allowfullscreen>
+                    </iframe>
+                    
+                    <div class="video-placeholder" id="videoPlaceholder">
+                        <i class="fab fa-youtube"></i>
+                        <p>YouTube影片播放器</p>
+                        <p class="select-msg">從下方播放清單選擇影片或使用搜尋功能</p>
+                        <button class="select-btn" id="selectVideoBtn">選擇預設影片</button>
+                    </div>
                 </div>
                 
-                <div class="video-controls controls" style="margin-top: 20px;">
-                    <button class="control-btn" id="videoRewind">
-                        <i class="fas fa-backward"></i>
-                    </button>
-                    <button class="control-btn play-pause" id="videoPlayPause">
-                        <i class="fas fa-play"></i>
-                    </button>
-                    <button class="control-btn" id="videoForward">
-                        <i class="fas fa-forward"></i>
-                    </button>
-                    <button class="control-btn" id="videoVolume">
-                        <i class="fas fa-volume-up"></i>
-                    </button>
+                <div class="youtube-controls">
+                    <div class="controls">
+                        <button class="control-btn" id="videoRewind">
+                            <i class="fas fa-backward"></i>
+                        </button>
+                        <button class="control-btn play-pause" id="videoPlayPause">
+                            <i class="fas fa-play"></i>
+                        </button>
+                        <button class="control-btn" id="videoForward">
+                            <i class="fas fa-forward"></i>
+                        </button>
+                        <button class="control-btn" id="videoMute">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; margin-top: 10px;">
+                        <span style="margin-right: 10px; font-size: 0.9rem;">音量:</span>
+                        <input type="range" id="volumeSlider" min="0" max="100" value="50" style="width: 100px;">
+                    </div>
                 </div>
                 
-                <div class="progress-container">
-                    <div class="progress-bar" id="videoProgressBar">
-                        <div class="progress" id="videoProgress"></div>
-                    </div>
-                    <div class="time-display">
-                        <span id="videoCurrentTime">0:00</span>
-                        <span id="videoDuration">0:00</span>
-                    </div>
+                <div class="video-info" style="margin-top: 15px; padding: 10px; background-color: rgba(255, 255, 255, 0.05); border-radius: 5px;">
+                    <div style="font-weight: bold; margin-bottom: 5px;" id="currentVideoTitle">首個YouTube影片 (Me at the zoo)</div>
+                    <div style="font-size: 0.9rem; opacity: 0.8;" id="currentVideoChannel">YouTube頻道: jawed</div>
                 </div>
             </div>
             
@@ -399,12 +546,12 @@
                 <h2 class="player-title"><i class="fas fa-music"></i> 音樂播放器</h2>
                 <div class="audio-container">
                     <div class="album-art">
-                        <img id="albumArt" src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80" alt="專輯封面">
+                        <img id="albumArt" src="https://i.ytimg.com/vi/5qap5aO4i9A/hqdefault.jpg" alt="專輯封面">
                     </div>
                     
                     <div class="song-info">
-                        <div class="song-title" id="currentSongTitle">月光奏鳴曲</div>
-                        <div class="artist" id="currentArtist">貝多芬</div>
+                        <div class="song-title" id="currentSongTitle">lofi hip hop radio - beats to relax/study to</div>
+                        <div class="artist" id="currentArtist">Lofi Girl</div>
                     </div>
                     
                     <div class="progress-container">
@@ -435,19 +582,19 @@
             </div>
         </div>
         
-        <div class="playlist-section">
-            <h2 class="player-title"><i class="fas fa-list"></i> 播放清單</h2>
-            <ul class="playlist" id="playlist">
-                <!-- 播放清單項目將由JavaScript生成 -->
-            </ul>
+        <div class="youtube-playlist-section">
+            <h2 class="player-title"><i class="fas fa-list"></i> YouTube播放清單</h2>
+            <div class="playlist" id="youtubePlaylist">
+                <!-- YouTube播放清單項目將由JavaScript生成 -->
+            </div>
             
             <div class="device-warning" id="deviceWarning">
-                <p><i class="fas fa-info-circle"></i> <strong>相容性提示：</strong>此播放器已針對舊版iPad (iOS 9.5.3+) 優化，使用標準HTML5視訊/音訊元素確保最佳相容性。</p>
+                <p><i class="fas fa-info-circle"></i> <strong>相容性提示：</strong>此播放器使用YouTube嵌入播放器，確保在舊版iPad (iOS 9.5.3+) 上最佳相容性。若無法播放，請確保設備支援YouTube嵌入功能。</p>
             </div>
         </div>
         
         <footer>
-            <p>復古多媒體播放器 &copy; 2023 | 支援HTML5視訊/音訊 | 相容舊版iPad 9.5.3+</p>
+            <p>YouTube多媒體播放器 &copy; 2023 | YouTube為Google LLC商標 | 相容舊版iPad 9.5.3+</p>
         </footer>
     </div>
 
@@ -471,56 +618,106 @@
             document.getElementById('deviceWarning').classList.add('show');
         }
         
+        // YouTube播放清單 - 預設影片
+        const youtubePlaylist = [
+            {
+                id: "jNQXAC9IVRw",
+                title: "首個YouTube影片 - Me at the zoo",
+                channel: "jawed",
+                duration: "0:19",
+                thumbnail: "https://i.ytimg.com/vi/jNQXAC9IVRw/hqdefault.jpg",
+                description: "YouTube上傳的第一支影片"
+            },
+            {
+                id: "dQw4w9WgXcQ",
+                title: "Rick Astley - Never Gonna Give You Up",
+                channel: "Rick Astley",
+                duration: "3:33",
+                thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+                description: "經典的Rickroll歌曲"
+            },
+            {
+                id: "5qap5aO4i9A",
+                title: "lofi hip hop radio - beats to relax/study to",
+                channel: "Lofi Girl",
+                duration: "直播",
+                thumbnail: "https://i.ytimg.com/vi/5qap5aO4i9A/hqdefault.jpg",
+                description: "放鬆/學習用的lofi音樂電台"
+            },
+            {
+                id: "9bZkp7q19f0",
+                title: "PSY - GANGNAM STYLE (강남스타일) M/V",
+                channel: "officialpsy",
+                duration: "4:13",
+                thumbnail: "https://i.ytimg.com/vi/9bZkp7q19f0/hqdefault.jpg",
+                description: "全球爆紅的江南Style"
+            },
+            {
+                id: "kJQP7kiw5Fk",
+                title: "Luis Fonsi - Despacito ft. Daddy Yankee",
+                channel: "LuisFonsiVEVO",
+                duration: "4:42",
+                thumbnail: "https://i.ytimg.com/vi/kJQP7kiw5Fk/hqdefault.jpg",
+                description: "史上觀看次數最多的YouTube影片之一"
+            },
+            {
+                id: "OPf0YbXqDm0",
+                title: "Mark Ronson - Uptown Funk ft. Bruno Mars",
+                channel: "MarkRonsonVEVO",
+                duration: "4:30",
+                thumbnail: "https://i.ytimg.com/vi/OPf0YbXqDm0/hqdefault.jpg",
+                description: "暢銷單曲Uptown Funk"
+            }
+        ];
+        
         // 音樂播放清單
-        const playlist = [
+        const audioPlaylist = [
             {
-                title: "月光奏鳴曲",
-                artist: "貝多芬",
-                duration: "5:42",
-                src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-                albumArt: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+                title: "lofi hip hop radio - beats to relax/study to",
+                artist: "Lofi Girl",
+                duration: "直播",
+                src: "https://www.youtube.com/watch?v=5qap5aO4i9A",
+                albumArt: "https://i.ytimg.com/vi/5qap5aO4i9A/hqdefault.jpg"
             },
             {
-                title: "藍色多瑙河",
-                artist: "小約翰·史特勞斯",
-                duration: "4:18",
-                src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-                albumArt: "https://images.unsplash.com/photo-1511379938547-c1f69419868d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+                title: "Chillhop Music",
+                artist: "Chillhop Music",
+                duration: "直播",
+                src: "https://www.youtube.com/watch?v=5yx6BWlEVcY",
+                albumArt: "https://i.ytimg.com/vi/5yx6BWlEVcY/hqdefault.jpg"
             },
             {
-                title: "四季",
-                artist: "韋瓦第",
-                duration: "6:25",
-                src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
-                albumArt: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+                title: "Jazz Relaxing Music",
+                artist: "Relax Music",
+                duration: "3:22:15",
+                src: "https://www.youtube.com/watch?v=wJzERGXaUxM",
+                albumArt: "https://i.ytimg.com/vi/wJzERGXaUxM/hqdefault.jpg"
             },
             {
-                title: "卡農",
-                artist: "帕海貝爾",
-                duration: "5:10",
-                src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
-                albumArt: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
-            },
-            {
-                title: "命運交響曲",
-                artist: "貝多芬",
-                duration: "7:20",
-                src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
-                albumArt: "https://images.unsplash.com/photo-1551029506-0807df4e2031?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=600&q=80"
+                title: "Classical Music for Studying",
+                artist: "HALIDONMUSIC",
+                duration: "2:03:27",
+                src: "https://www.youtube.com/watch?v=wpjNeGdjKfs",
+                albumArt: "https://i.ytimg.com/vi/wpjNeGdjKfs/hqdefault.jpg"
             }
         ];
         
         // 獲取DOM元素
-        const videoPlayer = document.getElementById('videoPlayer');
+        const youtubePlayer = document.getElementById('youtubePlayer');
+        const videoPlaceholder = document.getElementById('videoPlaceholder');
         const videoPlayPauseBtn = document.getElementById('videoPlayPause');
         const videoRewindBtn = document.getElementById('videoRewind');
         const videoForwardBtn = document.getElementById('videoForward');
-        const videoVolumeBtn = document.getElementById('videoVolume');
-        const videoProgress = document.getElementById('videoProgress');
-        const videoProgressBar = document.getElementById('videoProgressBar');
-        const videoCurrentTime = document.getElementById('videoCurrentTime');
-        const videoDuration = document.getElementById('videoDuration');
+        const videoMuteBtn = document.getElementById('videoMute');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const youtubeSearch = document.getElementById('youtubeSearch');
+        const searchBtn = document.getElementById('searchBtn');
+        const selectVideoBtn = document.getElementById('selectVideoBtn');
+        const currentVideoTitle = document.getElementById('currentVideoTitle');
+        const currentVideoChannel = document.getElementById('currentVideoChannel');
+        const youtubePlaylistElement = document.getElementById('youtubePlaylist');
         
+        // 音訊播放器
         const audioPlayer = new Audio();
         const audioPlayPauseBtn = document.getElementById('audioPlayPause');
         const prevSongBtn = document.getElementById('prevSong');
@@ -533,67 +730,163 @@
         const currentSongTitle = document.getElementById('currentSongTitle');
         const currentArtist = document.getElementById('currentArtist');
         const albumArt = document.getElementById('albumArt');
-        const playlistElement = document.getElementById('playlist');
         
-        let currentSongIndex = 0;
-        let isVideoPlaying = false;
+        let currentVideoIndex = 0;
+        let currentAudioIndex = 0;
         let isAudioPlaying = false;
+        let youtubePlayerReady = false;
         
-        // 初始化播放清單
-        function initPlaylist() {
-            playlistElement.innerHTML = '';
+        // 從URL提取YouTube影片ID
+        function extractYouTubeID(url) {
+            const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[7].length === 11) ? match[7] : null;
+        }
+        
+        // 載入YouTube影片
+        function loadYouTubeVideo(videoId, title, channel) {
+            // 更新YouTube iframe src
+            youtubePlayer.src = `https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0&modestbranding=1`;
             
-            playlist.forEach((song, index) => {
-                const li = document.createElement('li');
-                li.className = `playlist-item ${index === currentSongIndex ? 'active' : ''}`;
-                li.innerHTML = `
-                    <i class="fas fa-music"></i>
-                    <div class="song-details">
-                        <div class="song-name">${song.title}</div>
-                        <div class="song-artist">${song.artist}</div>
+            // 隱藏佔位符
+            videoPlaceholder.style.display = 'none';
+            youtubePlayer.style.display = 'block';
+            
+            // 更新影片資訊
+            if (title) currentVideoTitle.textContent = title;
+            if (channel) currentVideoChannel.textContent = `YouTube頻道: ${channel}`;
+            
+            // 標記播放器為準備就緒
+            youtubePlayerReady = true;
+            
+            // 更新播放清單活躍狀態
+            updatePlaylistActiveState();
+        }
+        
+        // 初始化YouTube播放清單
+        function initYouTubePlaylist() {
+            youtubePlaylistElement.innerHTML = '';
+            
+            youtubePlaylist.forEach((video, index) => {
+                const item = document.createElement('div');
+                item.className = `youtube-item ${index === currentVideoIndex ? 'active' : ''}`;
+                item.innerHTML = `
+                    <div class="youtube-thumbnail">
+                        <img src="${video.thumbnail}" alt="${video.title}">
                     </div>
-                    <div class="song-duration">${song.duration}</div>
+                    <div class="youtube-details">
+                        <div class="youtube-title">${video.title}</div>
+                        <div class="youtube-channel">${video.channel}</div>
+                        <div class="youtube-duration">${video.duration}</div>
+                    </div>
                 `;
                 
-                li.addEventListener('click', () => {
-                    playSong(index);
+                item.addEventListener('click', () => {
+                    currentVideoIndex = index;
+                    loadYouTubeVideo(video.id, video.title, video.channel);
                 });
                 
-                playlistElement.appendChild(li);
+                youtubePlaylistElement.appendChild(item);
             });
         }
         
-        // 播放指定歌曲
-        function playSong(index) {
-            if (index < 0) index = playlist.length - 1;
-            if (index >= playlist.length) index = 0;
-            
-            currentSongIndex = index;
-            const song = playlist[currentSongIndex];
-            
-            audioPlayer.src = song.src;
-            currentSongTitle.textContent = song.title;
-            currentArtist.textContent = song.artist;
-            albumArt.src = song.albumArt;
-            
-            // 更新播放清單活躍狀態
-            document.querySelectorAll('.playlist-item').forEach((item, i) => {
-                if (i === currentSongIndex) {
+        // 更新播放清單活躍狀態
+        function updatePlaylistActiveState() {
+            document.querySelectorAll('.youtube-item').forEach((item, index) => {
+                if (index === currentVideoIndex) {
                     item.classList.add('active');
                 } else {
                     item.classList.remove('active');
                 }
             });
+        }
+        
+        // 搜尋/載入YouTube影片
+        function searchYouTube() {
+            const query = youtubeSearch.value.trim();
+            if (!query) return;
             
-            // 播放音樂
-            audioPlayer.play();
-            isAudioPlaying = true;
-            audioPlayPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            // 檢查是否是YouTube URL
+            let videoId = extractYouTubeID(query);
             
-            // 更新音樂持續時間
-            audioPlayer.addEventListener('loadedmetadata', () => {
-                audioDuration.textContent = formatTime(audioPlayer.duration);
-            });
+            if (videoId) {
+                // 如果是URL，直接載入影片
+                loadYouTubeVideo(videoId, "自訂影片", "使用者提供");
+                
+                // 添加到播放清單
+                youtubePlaylist.push({
+                    id: videoId,
+                    title: "自訂影片",
+                    channel: "使用者提供",
+                    duration: "未知",
+                    thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+                    description: "使用者自訂影片"
+                });
+                
+                // 更新播放清單
+                initYouTubePlaylist();
+                currentVideoIndex = youtubePlaylist.length - 1;
+                updatePlaylistActiveState();
+                
+            } else {
+                // 否則進行搜尋（簡化版本，實際應用中應使用YouTube API）
+                alert("搜尋功能需要YouTube API。目前僅支援直接輸入影片ID或URL。\n\n示例影片ID: jNQXAC9IVRw\n示例URL: https://www.youtube.com/watch?v=jNQXAC9IVRw");
+            }
+        }
+        
+        // 初始化音訊播放清單
+        function initAudioPlaylist() {
+            // 載入第一首歌曲
+            playAudio(currentAudioIndex);
+        }
+        
+        // 播放指定音訊
+        function playAudio(index) {
+            if (index < 0) index = audioPlaylist.length - 1;
+            if (index >= audioPlaylist.length) index = 0;
+            
+            currentAudioIndex = index;
+            const song = audioPlaylist[currentAudioIndex];
+            
+            // 注意：這裡使用YouTube連結，實際音訊播放可能需要使用直接音訊連結
+            // 為了相容性，這裡僅顯示資訊，實際播放需要用戶點擊連結
+            currentSongTitle.textContent = song.title;
+            currentArtist.textContent = song.artist;
+            albumArt.src = song.albumArt;
+            audioDuration.textContent = song.duration;
+            
+            // 模擬音訊播放
+            simulateAudioPlayback();
+        }
+        
+        // 模擬音訊播放（由於跨域限制，無法直接播放YouTube音訊）
+        function simulateAudioPlayback() {
+            // 重置進度條
+            audioProgress.style.width = '0%';
+            audioCurrentTime.textContent = '0:00';
+            
+            // 模擬播放
+            if (isAudioPlaying) {
+                // 設置間隔更新進度條
+                clearInterval(window.audioSimulation);
+                
+                window.audioSimulation = setInterval(() => {
+                    const currentWidth = parseFloat(audioProgress.style.width) || 0;
+                    if (currentWidth < 100) {
+                        audioProgress.style.width = (currentWidth + 0.5) + '%';
+                        
+                        // 計算並顯示當前時間
+                        const totalSeconds = 180; // 假設總時長3分鐘
+                        const currentSeconds = Math.floor((currentWidth / 100) * totalSeconds);
+                        const minutes = Math.floor(currentSeconds / 60);
+                        const seconds = currentSeconds % 60;
+                        audioCurrentTime.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    } else {
+                        // 播放結束，播放下一個
+                        playAudio(currentAudioIndex + 1);
+                    }
+                }, 500);
+            }
         }
         
         // 格式化時間顯示 (秒 -> 分:秒)
@@ -605,96 +898,118 @@
             return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
         }
         
-        // 更新進度條
-        function updateProgress(media, progressElement, timeElement, durationElement) {
-            if (media.duration) {
-                const percent = (media.currentTime / media.duration) * 100;
-                progressElement.style.width = `${percent}%`;
-                timeElement.textContent = formatTime(media.currentTime);
-                
-                if (durationElement && media.duration) {
-                    durationElement.textContent = formatTime(media.duration);
-                }
-            }
-        }
-        
         // 設定進度條點擊事件
-        function setupProgressBar(progressBar, media, progressElement, timeElement, durationElement) {
+        function setupProgressBar(progressBar, progressElement, timeElement, durationElement, totalDuration) {
             progressBar.addEventListener('click', (e) => {
                 const rect = progressBar.getBoundingClientRect();
                 const pos = (e.clientX - rect.left) / rect.width;
-                media.currentTime = pos * media.duration;
-                updateProgress(media, progressElement, timeElement, durationElement);
+                const newWidth = pos * 100;
+                
+                progressElement.style.width = `${newWidth}%`;
+                
+                // 更新時間顯示
+                if (totalDuration) {
+                    const currentTime = pos * totalDuration;
+                    timeElement.textContent = formatTime(currentTime);
+                }
             });
         }
         
         // 初始化
         function init() {
-            // 初始化播放清單
-            initPlaylist();
+            // 初始化YouTube播放清單
+            initYouTubePlaylist();
             
-            // 載入第一首歌曲
-            playSong(0);
+            // 初始化音訊播放清單
+            initAudioPlaylist();
             
-            // 視訊播放器事件
-            videoPlayer.addEventListener('timeupdate', () => {
-                updateProgress(videoPlayer, videoProgress, videoCurrentTime, videoDuration);
-            });
-            
-            videoPlayer.addEventListener('loadedmetadata', () => {
-                videoDuration.textContent = formatTime(videoPlayer.duration);
-            });
-            
+            // YouTube控制事件
             videoPlayPauseBtn.addEventListener('click', () => {
-                if (videoPlayer.paused) {
-                    videoPlayer.play();
-                    videoPlayPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                    isVideoPlaying = true;
+                if (youtubePlayerReady) {
+                    // 注意：由於跨域限制，無法直接控制YouTube iframe
+                    // 實際應用中需要使用YouTube IFrame API
+                    alert("YouTube控制需要YouTube IFrame API。\n\n請直接點擊影片中的播放按鈕。");
                 } else {
-                    videoPlayer.pause();
-                    videoPlayPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                    isVideoPlaying = false;
+                    // 如果播放器未準備好，載入預設影片
+                    loadYouTubeVideo(
+                        youtubePlaylist[currentVideoIndex].id,
+                        youtubePlaylist[currentVideoIndex].title,
+                        youtubePlaylist[currentVideoIndex].channel
+                    );
                 }
             });
             
             videoRewindBtn.addEventListener('click', () => {
-                videoPlayer.currentTime -= 10;
+                if (youtubePlayerReady) {
+                    alert("快退功能需要YouTube IFrame API。");
+                }
             });
             
             videoForwardBtn.addEventListener('click', () => {
-                videoPlayer.currentTime += 10;
+                if (youtubePlayerReady) {
+                    alert("快進功能需要YouTube IFrame API。");
+                }
             });
             
-            videoVolumeBtn.addEventListener('click', () => {
-                videoPlayer.muted = !videoPlayer.muted;
-                videoVolumeBtn.innerHTML = videoPlayer.muted ? 
-                    '<i class="fas fa-volume-mute"></i>' : 
-                    '<i class="fas fa-volume-up"></i>';
+            videoMuteBtn.addEventListener('click', () => {
+                if (youtubePlayerReady) {
+                    alert("靜音功能需要YouTube IFrame API。");
+                } else {
+                    // 切換靜音圖示
+                    const isMuted = videoMuteBtn.innerHTML.includes('volume-mute');
+                    videoMuteBtn.innerHTML = isMuted ? 
+                        '<i class="fas fa-volume-up"></i>' : 
+                        '<i class="fas fa-volume-mute"></i>';
+                }
+            });
+            
+            volumeSlider.addEventListener('input', (e) => {
+                // 更新音量顯示
+                const volume = e.target.value;
+                
+                if (youtubePlayerReady) {
+                    // 實際應用中需要使用YouTube IFrame API
+                }
+            });
+            
+            // 搜尋功能
+            searchBtn.addEventListener('click', searchYouTube);
+            
+            youtubeSearch.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchYouTube();
+                }
+            });
+            
+            selectVideoBtn.addEventListener('click', () => {
+                loadYouTubeVideo(
+                    youtubePlaylist[0].id,
+                    youtubePlaylist[0].title,
+                    youtubePlaylist[0].channel
+                );
+                currentVideoIndex = 0;
+                updatePlaylistActiveState();
             });
             
             // 音訊播放器事件
-            audioPlayer.addEventListener('timeupdate', () => {
-                updateProgress(audioPlayer, audioProgress, audioCurrentTime, audioDuration);
-            });
-            
             audioPlayPauseBtn.addEventListener('click', () => {
-                if (audioPlayer.paused) {
-                    audioPlayer.play();
+                isAudioPlaying = !isAudioPlaying;
+                
+                if (isAudioPlaying) {
                     audioPlayPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
-                    isAudioPlaying = true;
+                    simulateAudioPlayback();
                 } else {
-                    audioPlayer.pause();
                     audioPlayPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
-                    isAudioPlaying = false;
+                    clearInterval(window.audioSimulation);
                 }
             });
             
             prevSongBtn.addEventListener('click', () => {
-                playSong(currentSongIndex - 1);
+                playAudio(currentAudioIndex - 1);
             });
             
             nextSongBtn.addEventListener('click', () => {
-                playSong(currentSongIndex + 1);
+                playAudio(currentAudioIndex + 1);
             });
             
             audioVolumeBtn.addEventListener('click', () => {
@@ -704,13 +1019,35 @@
                     '<i class="fas fa-volume-up"></i>';
             });
             
-            // 設定進度條點擊事件
-            setupProgressBar(videoProgressBar, videoPlayer, videoProgress, videoCurrentTime, videoDuration);
-            setupProgressBar(audioProgressBar, audioPlayer, audioProgress, audioCurrentTime, audioDuration);
+            // 設定音訊進度條點擊事件
+            setupProgressBar(
+                audioProgressBar, 
+                audioProgress, 
+                audioCurrentTime, 
+                audioDuration,
+                180 // 假設總時長3分鐘
+            );
             
-            // 當歌曲結束時自動播放下一首
-            audioPlayer.addEventListener('ended', () => {
-                playSong(currentSongIndex + 1);
+            // 點擊音訊專輯封面時，載入對應的YouTube影片
+            albumArt.addEventListener('click', () => {
+                const song = audioPlaylist[currentAudioIndex];
+                // 嘗試從YouTube URL提取ID
+                const videoId = extractYouTubeID(song.src);
+                if (videoId) {
+                    // 尋找對應的影片索引
+                    const videoIndex = youtubePlaylist.findIndex(v => v.id === videoId);
+                    if (videoIndex !== -1) {
+                        currentVideoIndex = videoIndex;
+                        loadYouTubeVideo(
+                            youtubePlaylist[videoIndex].id,
+                            youtubePlaylist[videoIndex].title,
+                            youtubePlaylist[videoIndex].channel
+                        );
+                    } else {
+                        // 如果不在播放清單中，直接載入
+                        loadYouTubeVideo(videoId, song.title, song.artist);
+                    }
+                }
             });
         }
         
