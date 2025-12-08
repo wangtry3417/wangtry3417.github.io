@@ -22,6 +22,9 @@
             --player-color: #3498db;
             --banker-color: #e74c3c;
             --tie-color: #f39c12;
+            /* 新增 - 閒對/莊對顏色 */
+            --player-pair-color: #3498db;
+            --banker-pair-color: #e74c3c;
         }
 
         * {
@@ -46,6 +49,7 @@
             gap: 25px;
         }
 
+        /* 調整 Header/Logo/Wallet 樣式 (與原本代碼相似) */
         .header {
             grid-column: 1 / -1;
             background: rgba(255, 255, 255, 0.05);
@@ -78,179 +82,6 @@
         .logo-icon {
             font-size: 2.8rem;
             color: var(--primary-color);
-        }
-
-        .music-control {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex: 1;
-            max-width: 600px;
-        }
-
-        .music-player-ui {
-            background: rgba(29, 185, 84, 0.1);
-            border: 2px solid var(--spotify-green);
-            border-radius: 50px;
-            padding: 12px 25px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            width: 100%;
-            min-width: 300px;
-            backdrop-filter: blur(10px);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .music-player-ui:hover {
-            background: rgba(29, 185, 84, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .music-player-ui.youtube {
-            background: rgba(255, 0, 0, 0.1);
-            border-color: var(--youtube-red);
-        }
-
-        .music-player-ui.youtube:hover {
-            background: rgba(255, 0, 0, 0.2);
-        }
-
-        .music-player-ui.soundcloud {
-            background: rgba(255, 136, 0, 0.1);
-            border-color: var(--soundcloud-orange);
-        }
-
-        .music-player-ui.soundcloud:hover {
-            background: rgba(255, 136, 0, 0.2);
-        }
-
-        .music-player-ui.custom {
-            background: rgba(0, 208, 156, 0.1);
-            border-color: var(--primary-color);
-        }
-
-        .music-player-ui.custom:hover {
-            background: rgba(0, 208, 156, 0.2);
-        }
-
-        .platform-icon {
-            font-size: 1.8rem;
-        }
-
-        .spotify-icon {
-            color: var(--spotify-green);
-        }
-
-        .youtube-icon {
-            color: var(--youtube-red);
-        }
-
-        .soundcloud-icon {
-            color: var(--soundcloud-orange);
-        }
-
-        .custom-icon {
-            color: var(--primary-color);
-        }
-
-        .track-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .track-title {
-            font-weight: bold;
-            color: var(--spotify-green);
-            font-size: 1rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .youtube .track-title {
-            color: var(--youtube-red);
-        }
-
-        .soundcloud .track-title {
-            color: var(--soundcloud-orange);
-        }
-
-        .custom .track-title {
-            color: var(--primary-color);
-        }
-
-        .track-artist {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .music-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .music-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            color: var(--text-color);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .music-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: scale(1.1);
-        }
-
-        .music-btn.active {
-            background: var(--secondary-color);
-            color: white;
-        }
-
-        .youtube .music-btn.active {
-            background: var(--youtube-red);
-        }
-
-        .soundcloud .music-btn.active {
-            background: var(--soundcloud-orange);
-        }
-
-        .volume-slider {
-            width: 80px;
-            -webkit-appearance: none;
-            height: 4px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 2px;
-            outline: none;
-        }
-
-        .volume-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            background: var(--secondary-color);
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .youtube .volume-slider::-webkit-slider-thumb {
-            background: var(--youtube-red);
-        }
-
-        .soundcloud .volume-slider::-webkit-slider-thumb {
-            background: var(--soundcloud-orange);
         }
 
         .wallet-info {
@@ -294,6 +125,7 @@
             transform: translateY(-2px);
             box-shadow: 0 10px 20px rgba(0, 208, 156, 0.3);
         }
+        /* 遊戲區域 & 投注面板/統計面板 樣式 (與原本代碼相似) */
 
         .game-area {
             display: flex;
@@ -527,12 +359,14 @@
             transform: none !important;
         }
 
+        /* 牌路樣式 - 大路 */
         .big-road-container {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(20px);
             border-radius: 20px;
             padding: 25px;
             border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow-x: auto;
         }
 
         .big-road-container h3 {
@@ -546,73 +380,85 @@
 
         .big-road {
             background: #0a0e1a;
-            border-radius: 15px;
-            padding: 15px;
-            overflow-x: auto;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 5px;
+            width: max-content; /* 確保內容不會被容器限制 */
         }
 
         .road-grid {
             display: grid;
-            grid-template-columns: repeat(40, 30px);
-            grid-template-rows: repeat(6, 30px);
-            gap: 2px;
-            min-width: 1240px;
+            grid-template-columns: repeat(60, 20px); /* 增加到 60 欄 */
+            grid-template-rows: repeat(6, 20px);
+            gap: 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .road-cell {
-            width: 30px;
-            height: 30px;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05); /* 網格線 */
+            box-sizing: border-box;
+        }
+
+        .road-circle {
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 10px;
             font-weight: bold;
-            font-size: 14px;
-            position: relative;
         }
 
-        .player-road {
-            background: transparent;
-            border: 3px solid var(--player-color);
-            color: var(--player-color);
-        }
-
-        .banker-road {
-            background: transparent;
-            border: 3px solid var(--banker-color);
+        .banker-road-circle {
+            border: 2px solid var(--banker-color);
             color: var(--banker-color);
         }
 
-        .tie-road {
-            background: var(--tie-color);
-            border: 2px solid white;
-            transform: rotate(45deg);
-            width: 20px;
-            height: 20px;
-            margin: 5px;
+        .player-road-circle {
+            border: 2px solid var(--player-color);
+            color: var(--player-color);
         }
 
-        .empty-road {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px dashed rgba(255, 255, 255, 0.1);
-        }
-
-        .dragon-count {
+        /* 領帶/和局點 */
+        .tie-dot {
             position: absolute;
-            top: -8px;
-            right: -8px;
-            background: currentColor;
-            color: white;
-            font-size: 10px;
-            font-weight: bold;
-            width: 16px;
-            height: 16px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background: var(--tie-color);
+            right: 1px;
+            bottom: 1px;
         }
 
+        /* 莊對/閒對點 - 左下/右上 */
+        .banker-pair-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--banker-pair-color);
+            right: 1px;
+            top: 1px;
+        }
+
+        .player-pair-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--player-pair-color);
+            left: 1px;
+            bottom: 1px;
+        }
+
+        /* 投注區塊 & 統計區塊 樣式 (與原本代碼相似) */
         .sidebar {
             display: flex;
             flex-direction: column;
@@ -696,6 +542,25 @@
             background: rgba(243, 156, 18, 0.2);
             color: var(--tie-color);
             border: 2px solid var(--tie-color);
+        }
+
+        .target-btn[data-target="player_pair"].active {
+            background: rgba(52, 152, 219, 0.2);
+            color: var(--player-pair-color);
+            border: 2px solid var(--player-pair-color);
+        }
+
+        .target-btn[data-target="banker_pair"].active {
+            background: rgba(231, 76, 60, 0.2);
+            color: var(--banker-pair-color);
+            border: 2px solid var(--banker-pair-color);
+        }
+
+        .bet-target-full {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5 個投注選項 */
+            gap: 10px;
+            margin-bottom: 25px;
         }
 
         .amount-controls {
@@ -796,7 +661,7 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(3, 1fr); /* 調整為三欄 */
             gap: 15px;
         }
 
@@ -819,348 +684,7 @@
             font-size: 0.85rem;
         }
 
-        .history-panel {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            max-height: 350px;
-            overflow-y: auto;
-        }
-
-        .history-panel h3 {
-            font-size: 1.6rem;
-            margin-bottom: 20px;
-            color: var(--primary-color);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            position: sticky;
-            top: 0;
-            background: var(--card-bg);
-            padding: 10px 0;
-            z-index: 1;
-        }
-
-        .history-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 10px;
-            border-left: 4px solid;
-        }
-
-        .history-player {
-            border-left-color: var(--player-color);
-        }
-
-        .history-banker {
-            border-left-color: var(--banker-color);
-        }
-
-        .history-tie {
-            border-left-color: var(--tie-color);
-        }
-
-        /* 音樂模態框樣式 */
-        .music-modal .modal-content {
-            max-width: 800px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-
-        .music-platform-selector {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .platform-option {
-            flex: 1;
-            padding: 25px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .platform-option.active {
-            transform: translateY(-5px);
-        }
-
-        .platform-option[data-platform="spotify"].active {
-            background: rgba(29, 185, 84, 0.1);
-            border-color: var(--spotify-green);
-        }
-
-        .platform-option[data-platform="youtube"].active {
-            background: rgba(255, 0, 0, 0.1);
-            border-color: var(--youtube-red);
-        }
-
-        .platform-option[data-platform="soundcloud"].active {
-            background: rgba(255, 136, 0, 0.1);
-            border-color: var(--soundcloud-orange);
-        }
-
-        .platform-option[data-platform="custom"].active {
-            background: rgba(0, 208, 156, 0.1);
-            border-color: var(--primary-color);
-        }
-
-        .platform-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-        }
-
-        .platform-name {
-            font-size: 1.4rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .platform-desc {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        .search-section {
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 15px;
-            padding: 25px;
-            margin-top: 20px;
-            display: none;
-        }
-
-        .search-section.active {
-            display: block;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 18px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            color: var(--text-color);
-            font-size: 1.1rem;
-            margin-bottom: 20px;
-        }
-
-        .search-results {
-            max-height: 300px;
-            overflow-y: auto;
-            margin-top: 20px;
-        }
-
-        .search-result {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 10px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .search-result:hover {
-            background: rgba(255, 255, 255, 0.08);
-            transform: translateX(5px);
-        }
-
-        .result-album {
-            width: 60px;
-            height: 60px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            flex-shrink: 0;
-        }
-
-        .spotify-result .result-album {
-            background: linear-gradient(135deg, var(--spotify-green), #1ed760);
-        }
-
-        .youtube-result .result-album {
-            background: linear-gradient(135deg, var(--youtube-red), #ff5555);
-        }
-
-        .soundcloud-result .result-album {
-            background: linear-gradient(135deg, var(--soundcloud-orange), #ffaa00);
-        }
-
-        .custom-result .result-album {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        }
-
-        .result-info {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .result-title {
-            font-weight: bold;
-            margin-bottom: 5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .result-artist {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .add-song-btn {
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-color);
-            border-radius: 10px;
-            padding: 15px;
-            width: 100%;
-            font-size: 1.1rem;
-            cursor: pointer;
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.2s ease;
-        }
-
-        .add-song-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .custom-playlist {
-            margin-top: 20px;
-        }
-
-        .playlist-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .playlist-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 10px;
-            margin-bottom: 10px;
-            transition: all 0.2s ease;
-        }
-
-        .playlist-item:hover {
-            background: rgba(255, 255, 255, 0.08);
-        }
-
-        .playlist-item.active {
-            background: rgba(29, 185, 84, 0.1);
-            border-left: 4px solid var(--spotify-green);
-        }
-
-        .playlist-item.youtube.active {
-            background: rgba(255, 0, 0, 0.1);
-            border-left-color: var(--youtube-red);
-        }
-
-        .playlist-item.soundcloud.active {
-            background: rgba(255, 136, 0, 0.1);
-            border-left-color: var(--soundcloud-orange);
-        }
-
-        .playlist-item.custom.active {
-            background: rgba(0, 208, 156, 0.1);
-            border-left-color: var(--primary-color);
-        }
-
-        .playlist-item-actions {
-            margin-left: auto;
-            display: flex;
-            gap: 10px;
-        }
-
-        .playlist-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: all 0.2s ease;
-        }
-
-        .playlist-btn:hover {
-            color: var(--text-color);
-        }
-
-        /* YouTube 播放器容器 */
-        .youtube-player-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 300px;
-            height: 169px;
-            background: var(--card-bg);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-            display: none;
-            border: 2px solid var(--youtube-red);
-        }
-
-        .youtube-player-container.active {
-            display: block;
-        }
-
-        .youtube-player-header {
-            background: var(--youtube-red);
-            padding: 10px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-            font-weight: bold;
-        }
-
-        .close-youtube-player {
-            background: none;
-            border: none;
-            color: white;
-            cursor: pointer;
-            font-size: 1.2rem;
-        }
-
-        #youtubeIframe {
-            width: 100%;
-            height: calc(100% - 44px);
-            border: none;
-        }
-
-        /* 原有模態框樣式 */
+        /* 模態框樣式 */
         .modal {
             display: none;
             position: fixed;
@@ -1183,7 +707,7 @@
             background: var(--card-bg);
             border-radius: 20px;
             padding: 30px;
-            max-width: 450px;
+            max-width: 600px; /* 調整充值模態框寬度 */
             width: 90%;
             border: 2px solid rgba(255, 255, 255, 0.1);
         }
@@ -1209,2022 +733,1025 @@
             cursor: pointer;
         }
 
-        .crypto-options {
-            display: flex;
-            flex-direction: column;
+        /* 充值模態框特有樣式 */
+        .payment-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
             gap: 15px;
             margin-bottom: 25px;
         }
 
-        .crypto-option {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+        .payment-option {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
             cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
         }
 
-        .crypto-option.active {
+        .payment-option:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .payment-option.active {
             border-color: var(--primary-color);
             background: rgba(0, 208, 156, 0.1);
         }
 
-        .deposit-amount input {
+        .payment-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .payment-option[data-method="crypto"] .payment-icon {
+            color: #f7931a; /* Bitcoin orange */
+        }
+
+        .payment-option[data-method="bank"] .payment-icon {
+            color: #3498db;
+        }
+
+        .payment-option[data-method="card"] .payment-icon {
+            color: #9b59b6;
+        }
+
+        .payment-option[data-method="qr"] .payment-icon {
+            color: #e67e22;
+        }
+
+        .deposit-input {
             width: 100%;
-            padding: 18px;
+            padding: 15px;
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid rgba(255, 255, 255, 0.1);
             border-radius: 10px;
             color: var(--text-color);
             font-size: 1.1rem;
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
-        .quick-amounts {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 25px;
-        }
-
-        .quick-amount {
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: var(--text-color);
+        .deposit-message {
             text-align: center;
-            cursor: pointer;
+            color: var(--warning-color);
+            margin-bottom: 15px;
+            font-size: 0.9rem;
         }
 
-        .modal-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .modal-actions button {
-            flex: 1;
-            padding: 18px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
-
-        @keyframes cardDeal {
-            0% { transform: translateY(-100px) rotateY(0deg); opacity: 0; }
-            100% { transform: translateY(0) rotateY(360deg); opacity: 1; }
-        }
-
-        .card-dealing {
-            animation: cardDeal 0.5s ease forwards;
+        /* 隱藏音樂相關的 CSS，因為重點在百家樂和充值 */
+        .music-control, .music-player-ui, .music-modal {
+             display: none !important;
         }
 
         @media (max-width: 1200px) {
             .container {
                 grid-template-columns: 1fr;
             }
-            
             .header {
                 flex-direction: column;
                 gap: 20px;
             }
-            
-            .music-control {
+            .wallet-info {
                 width: 100%;
-                max-width: 100%;
+                justify-content: space-between;
+            }
+            .game-area {
+                order: 2;
+            }
+            .sidebar {
+                order: 1;
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
+            .betting-panel, .stats-panel, .history-panel {
+                flex: 1 1 45%;
+                min-width: 300px;
+            }
+            .big-road-container {
+                order: 3;
             }
         }
 
         @media (max-width: 768px) {
+            .sidebar {
+                flex-direction: column;
+            }
+            .betting-panel, .stats-panel, .history-panel {
+                flex: 1 1 100%;
+            }
             .cards-container {
                 flex-direction: column;
-                gap: 30px;
+                gap: 20px;
             }
-            
-            .music-player-ui {
-                min-width: 250px;
+            .game-table {
+                padding: 20px;
             }
-            
             .road-grid {
-                grid-template-columns: repeat(20, 30px);
-                min-width: 620px;
+                grid-template-columns: repeat(40, 15px); /* 在小螢幕上縮小 */
+                grid-template-rows: repeat(6, 15px);
             }
-            
-            .music-platform-selector {
-                flex-direction: column;
+            .road-cell {
+                width: 15px;
+                height: 15px;
             }
-            
-            .youtube-player-container {
-                width: calc(100% - 40px);
-                right: 20px;
-                left: 20px;
-                height: 200px;
+            .road-circle {
+                width: 12px;
+                height: 12px;
+                border-width: 1px;
+            }
+            .tie-dot, .banker-pair-dot, .player-pair-dot {
+                width: 4px;
+                height: 4px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 音效元素 -->
-    <audio id="cardSound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-card-shuffle-2467.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="dealSound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-card-game-tap-1990.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="winSound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="loseSound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="chipSound">
-        <source src="https://assets.mixkit.co/sfx/preview/mixkit-casino-chips-handling-1249.mp3" type="audio/mpeg">
-    </audio>
 
-    <!-- 真實音樂播放器 -->
-    <audio id="musicPlayer" crossorigin="anonymous"></audio>
-
-    <!-- YouTube 播放器容器 -->
-    <div class="youtube-player-container" id="youtubePlayerContainer">
-        <div class="youtube-player-header">
-            <span>YouTube 播放器</span>
-            <button class="close-youtube-player" id="closeYoutubePlayer">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        <iframe id="youtubeIframe" 
-                src=""
-                frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen>
-        </iframe>
-    </div>
-
-    <!-- 存款模態框 -->
-    <div class="modal" id="depositModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">
-                    <i class="fas fa-wallet"></i> 存款
-                </div>
-                <button class="close-modal" id="closeModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="crypto-options">
-                <div class="crypto-option active" data-crypto="BTC">
-                    <div class="crypto-icon">
-                        <i class="fab fa-bitcoin"></i>
-                    </div>
-                    <div class="crypto-info">
-                        <div class="crypto-name">比特幣</div>
-                        <div class="crypto-symbol">BTC</div>
-                    </div>
-                </div>
-                
-                <div class="crypto-option" data-crypto="ETH">
-                    <div class="crypto-icon">
-                        <i class="fab fa-ethereum"></i>
-                    </div>
-                    <div class="crypto-info">
-                        <div class="crypto-name">以太坊</div>
-                        <div class="crypto-symbol">ETH</div>
-                    </div>
-                </div>
-                
-                <div class="crypto-option" data-crypto="USDT">
-                    <div class="crypto-icon">
-                        <i class="fas fa-coins"></i>
-                    </div>
-                    <div class="crypto-info">
-                        <div class="crypto-name">泰達幣</div>
-                        <div class="crypto-symbol">USDT</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="deposit-amount">
-                <input type="number" id="depositAmount" placeholder="輸入存款金額" min="0" step="0.01">
-                <div class="quick-amounts">
-                    <div class="quick-amount" data-amount="100">100</div>
-                    <div class="quick-amount" data-amount="500">500</div>
-                    <div class="quick-amount" data-amount="1000">1,000</div>
-                    <div class="quick-amount" data-amount="5000">5,000</div>
-                    <div class="quick-amount" data-amount="10000">10,000</div>
-                    <div class="quick-amount" data-amount="50000">50,000</div>
-                </div>
-            </div>
-            
-            <div class="modal-actions">
-                <button class="btn-primary" id="confirmDeposit">
-                    確認存款
-                </button>
-                <button class="btn-secondary" id="cancelDeposit">
-                    取消
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 音樂選擇模態框 -->
-    <div class="modal music-modal" id="musicModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">
-                    <i class="fas fa-music"></i> 選擇音樂平台
-                </div>
-                <button class="close-modal" id="closeMusicModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="music-platform-selector">
-                <div class="platform-option active" data-platform="spotify">
-                    <div class="platform-icon" style="color: var(--spotify-green);">
-                        <i class="fab fa-spotify"></i>
-                    </div>
-                    <div class="platform-name">Spotify</div>
-                    <div class="platform-desc">搜尋 Spotify 歌曲</div>
-                </div>
-                
-                <div class="platform-option" data-platform="youtube">
-                    <div class="platform-icon" style="color: var(--youtube-red);">
-                        <i class="fab fa-youtube"></i>
-                    </div>
-                    <div class="platform-name">YouTube</div>
-                    <div class="platform-desc">搜尋 YouTube 音樂</div>
-                </div>
-                
-                <div class="platform-option" data-platform="soundcloud">
-                    <div class="platform-icon" style="color: var(--soundcloud-orange);">
-                        <i class="fab fa-soundcloud"></i>
-                    </div>
-                    <div class="platform-name">SoundCloud</div>
-                    <div class="platform-desc">搜尋 SoundCloud 音樂</div>
-                </div>
-                
-                <div class="platform-option" data-platform="custom">
-                    <div class="platform-icon" style="color: var(--primary-color);">
-                        <i class="fas fa-headphones"></i>
-                    </div>
-                    <div class="platform-name">自訂播放清單</div>
-                    <div class="platform-desc">管理您的歌曲</div>
-                </div>
-            </div>
-            
-            <!-- Spotify 搜尋區域 -->
-            <div class="search-section" id="spotifySearch">
-                <input type="text" class="search-input" id="spotifySearchInput" placeholder="搜尋 Spotify 歌曲...">
-                <button class="btn-primary" id="spotifySearchBtn" style="width: 100%; margin-bottom: 20px;">
-                    <i class="fas fa-search"></i> 搜尋歌曲
-                </button>
-                <div class="search-results" id="spotifyResults">
-                    <!-- 搜尋結果動態生成 -->
-                </div>
-            </div>
-            
-            <!-- YouTube 搜尋區域 -->
-            <div class="search-section" id="youtubeSearch">
-                <input type="text" class="search-input" id="youtubeSearchInput" placeholder="搜尋 YouTube 音樂...">
-                <button class="btn-primary" id="youtubeSearchBtn" style="width: 100%; margin-bottom: 20px;">
-                    <i class="fas fa-search"></i> 搜尋 YouTube 音樂
-                </button>
-                <div class="search-results" id="youtubeResults">
-                    <!-- 搜尋結果動態生成 -->
-                </div>
-            </div>
-            
-            <!-- SoundCloud 搜尋區域 -->
-            <div class="search-section" id="soundcloudSearch">
-                <input type="text" class="search-input" id="soundcloudSearchInput" placeholder="搜尋 SoundCloud 音樂...">
-                <button class="btn-primary" id="soundcloudSearchBtn" style="width: 100%; margin-bottom: 20px;">
-                    <i class="fas fa-search"></i> 搜尋音樂
-                </button>
-                <div class="search-results" id="soundcloudResults">
-                    <!-- 搜尋結果動態生成 -->
-                </div>
-            </div>
-            
-            <!-- 自訂播放清單區域 -->
-            <div class="search-section active" id="customMusic">
-                <button class="add-song-btn" id="addCustomSong">
-                    <i class="fas fa-plus"></i> 新增自訂歌曲
-                </button>
-                
-                <div class="custom-playlist">
-                    <div class="playlist-header">
-                        <h4 style="color: var(--primary-color);">
-                            <i class="fas fa-list-music"></i> 您的播放清單
-                        </h4>
-                        <span id="playlistCount">0 首歌曲</span>
-                    </div>
-                    <div class="search-results" id="customPlaylist">
-                        <!-- 播放清單動態生成 -->
-                    </div>
-                </div>
-            </div>
-            
-            <div class="modal-actions" style="margin-top: 25px;">
-                <button class="btn-secondary" id="closeMusicModalBtn">
-                    關閉
-                </button>
-                <button class="btn-primary" id="savePlaylist">
-                    儲存播放清單
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 自訂歌曲模態框 -->
-    <div class="modal" id="customSongModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">
-                    <i class="fas fa-music"></i> 新增自訂歌曲
-                </div>
-                <button class="close-modal" id="closeCustomSongModal">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <div class="crypto-options">
-                <div class="crypto-option active" data-type="mp3">
-                    <div class="crypto-icon">
-                        <i class="fas fa-file-audio"></i>
-                    </div>
-                    <div class="crypto-info">
-                        <div class="crypto-name">MP3 檔案</div>
-                        <div class="crypto-symbol">上傳或輸入網址</div>
-                    </div>
-                </div>
-                
-                <div class="crypto-option" data-type="youtube">
-                    <div class="crypto-icon">
-                        <i class="fab fa-youtube"></i>
-                    </div>
-                    <div class="crypto-info">
-                        <div class="crypto-name">YouTube</div>
-                        <div class="crypto-symbol">YouTube 連結</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="deposit-amount">
-                <input type="text" id="songTitle" placeholder="歌曲名稱" style="margin-bottom: 10px;">
-                <input type="text" id="songArtist" placeholder="歌手名稱" style="margin-bottom: 10px;">
-                <input type="text" id="songUrl" placeholder="MP3 網址或 YouTube 連結">
-                
-                <div class="quick-amounts">
-                    <div class="quick-amount" data-type="mp3" data-url="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" data-title="Casino Music" data-artist="SoundHelix">範例 1</div>
-                    <div class="quick-amount" data-type="youtube" data-url="https://www.youtube.com/watch?v=6WhGNiMH_3o" data-title="Gambling Music" data-artist="YouTube">YouTube 範例 1</div>
-                    <div class="quick-amount" data-type="youtube" data-url="https://www.youtube.com/watch?v=dQw4w9WgXcQ" data-title="Never Gonna Give You Up" data-artist="Rick Astley">YouTube 範例 2</div>
-                </div>
-            </div>
-            
-            <div class="modal-actions">
-                <button class="btn-primary" id="addSongToPlaylist">
-                    <i class="fas fa-plus"></i> 新增到播放清單
-                </button>
-                <button class="btn-secondary" id="cancelAddSong">
-                    取消
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 主遊戲介面 -->
     <div class="container">
         <div class="header">
             <div class="logo">
-                <div class="logo-icon">
-                    <i class="fas fa-dice"></i>
-                </div>
+                <i class="fas fa-gem logo-icon"></i>
                 <h1>加密百家樂</h1>
             </div>
-            
-            <div class="music-control">
-                <div class="music-player-ui" id="musicPlayerUI">
-                    <i class="fab fa-spotify spotify-icon platform-icon" id="platformIcon"></i>
-                    <div class="track-info">
-                        <div class="track-title" id="trackTitle">點擊選擇音樂</div>
-                        <div class="track-artist" id="trackArtist">選擇您的播放清單</div>
-                    </div>
-                    <div class="music-controls">
-                        <button class="music-btn" id="prevTrack" title="上一首">
-                            <i class="fas fa-step-backward"></i>
-                        </button>
-                        <button class="music-btn" id="playPause" title="播放/暫停">
-                            <i class="fas fa-play"></i>
-                        </button>
-                        <button class="music-btn" id="nextTrack" title="下一首">
-                            <i class="fas fa-step-forward"></i>
-                        </button>
-                        <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50" title="音量">
-                        <button class="music-btn" id="openMusicModal" title="選擇音樂">
-                            <i class="fas fa-music"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
             <div class="wallet-info">
                 <div class="balance-display">
-                    <div class="total-balance" id="totalBalance">0.00</div>
-                    <div class="balance-label">總餘額 (USDT)</div>
+                    <div class="total-balance" id="totalBalance">100,000.00 USDT</div>
+                    <div class="balance-label">當前餘額</div>
                 </div>
-                <button class="deposit-btn" id="openDeposit">
-                    <i class="fas fa-plus-circle"></i>
-                    存款
+                <button class="deposit-btn" id="openDepositModal">
+                    <i class="fas fa-wallet"></i> 充值
                 </button>
             </div>
         </div>
-
         <div class="game-area">
             <div class="game-table">
                 <div class="table-content">
                     <div class="cards-container">
-                        <div class="player-side" id="playerSide">
-                            <div class="side-label player-label">玩家 PLAYER</div>
-                            <div class="cards" id="playerCards">
-                                <div class="card placeholder">
-                                    <div class="card-front"></div>
-                                    <div class="card-back">
-                                        <i class="fas fa-question"></i>
-                                    </div>
-                                </div>
-                                <div class="card placeholder">
-                                    <div class="card-front"></div>
-                                    <div class="card-back">
-                                        <i class="fas fa-question"></i>
-                                    </div>
-                                </div>
-                                <div class="card placeholder">
-                                    <div class="card-front"></div>
-                                    <div class="card-back">
-                                        <i class="fas fa-plus"></i>
-                                    </div>
-                                </div>
+                        <div class="player-side">
+                            <div class="side-label player-label">閒家</div>
+                            <div class="cards" id="player-cards">
+                                <div class="card placeholder"></div>
+                                <div class="card placeholder"></div>
                             </div>
-                            <div class="points-display player-points" id="playerPoints">0</div>
+                            <div class="points-display player-points" id="player-points">0</div>
                         </div>
-                        
-                        <div class="banker-side" id="bankerSide">
-                            <div class="side-label banker-label">莊家 BANKER</div>
-                            <div class="cards" id="bankerCards">
-                                <div class="card placeholder">
-                                    <div class="card-front"></div>
-                                    <div class="card-back">
-                                        <i class="fas fa-question"></i>
-                                    </div>
-                                </div>
-                                <div class="card placeholder">
-                                    <div class="card-front"></div>
-                                    <div class="card-back">
-                                        <i class="fas fa-question"></i>
-                                    </div>
-                                </div>
-                                <div class="card placeholder">
-                                    <div class="card-front"></div>
-                                    <div class="card-back">
-                                        <i class="fas fa-plus"></i>
-                                    </div>
-                                </div>
+                        <div class="banker-side">
+                            <div class="side-label banker-label">莊家</div>
+                            <div class="cards" id="banker-cards">
+                                <div class="card placeholder"></div>
+                                <div class="card placeholder"></div>
                             </div>
-                            <div class="points-display banker-points" id="bankerPoints">0</div>
+                            <div class="points-display banker-points" id="banker-points">0</div>
                         </div>
                     </div>
-                    
+
                     <div class="result-area">
-                        <div class="result-text" id="resultText">請下注後開始遊戲</div>
-                    </div>
-                    
-                    <div class="game-controls">
-                        <button class="btn btn-primary" id="dealBtn">
-                            <i class="fas fa-play"></i>
-                            發牌
-                        </button>
-                        <button class="btn btn-secondary" id="newRoundBtn">
-                            <i class="fas fa-redo"></i>
-                            新一局
-                        </button>
+                        <div class="result-text winner-tie" id="result-text">請下注</div>
+                        <div class="game-controls">
+                            <button class="btn btn-secondary" id="reset-button" disabled><i class="fas fa-undo"></i> 重設</button>
+                            <button class="btn btn-primary" id="deal-button" disabled><i class="fas fa-play"></i> 發牌</button>
+                        </div>
                     </div>
                 </div>
             </div>
-            
+
             <div class="big-road-container">
-                <h3><i class="fas fa-chart-line"></i> 大路圖</h3>
+                <h3><i class="fas fa-chart-line"></i> 大路牌路</h3>
                 <div class="big-road">
-                    <div class="road-grid" id="roadGrid">
-                        <!-- 大路圖動態生成 -->
-                    </div>
+                    <div class="road-grid" id="big-road-grid">
+                        </div>
                 </div>
             </div>
         </div>
 
         <div class="sidebar">
             <div class="betting-panel">
-                <h3><i class="fas fa-coins"></i> 下注控制</h3>
-                
+                <h3><i class="fas fa-money-bill-wave"></i> 投注區</h3>
                 <div class="bet-amount-display">
-                    <div class="bet-amount-value" id="betAmountValue">0</div>
-                    <div id="betTargetLabel">尚未選擇下注目標</div>
+                    <div class="bet-label">總投注</div>
+                    <div class="bet-amount-value" id="current-bet-display">0.00</div>
                 </div>
-                
-                <div class="bet-target-display">
-                    <button class="target-btn" data-target="player">
-                        <i class="fas fa-user"></i>
-                        <span>玩家</span>
-                        <small>賠率 1.95</small>
-                    </button>
-                    <button class="target-btn" data-target="banker">
-                        <i class="fas fa-landmark"></i>
-                        <span>莊家</span>
-                        <small>賠率 1.95</small>
-                    </button>
-                    <button class="target-btn" data-target="tie">
-                        <i class="fas fa-handshake"></i>
-                        <span>和局</span>
-                        <small>賠率 8.00</small>
-                    </button>
+
+                <div class="bet-target-full" id="bet-targets">
+                    <button class="target-btn" data-target="player">閒家 (1:1)</button>
+                    <button class="target-btn" data-target="banker">莊家 (0.95:1)</button>
+                    <button class="target-btn" data-target="tie">和局 (8:1)</button>
+                    <button class="target-btn" data-target="player_pair">閒對 (11:1)</button>
+                    <button class="target-btn" data-target="banker_pair">莊對 (11:1)</button>
                 </div>
-                
-                <div class="amount-controls">
+
+                <div class="amount-controls" id="chip-amounts">
+                    <button class="amount-btn" data-amount="1">1</button>
+                    <button class="amount-btn" data-amount="5">5</button>
                     <button class="amount-btn" data-amount="10">10</button>
-                    <button class="amount-btn" data-amount="50">50</button>
+                    <button class="amount-btn" data-amount="25">25</button>
                     <button class="amount-btn" data-amount="100">100</button>
                     <button class="amount-btn" data-amount="500">500</button>
-                    <button class="amount-btn" data-amount="1000">1,000</button>
-                    <button class="amount-btn" data-amount="5000">5,000</button>
                 </div>
-                
-                <div class="custom-amount">
-                    <input type="number" id="customAmount" placeholder="自訂金額" min="0">
-                    <button id="setCustomAmount">設定</button>
-                </div>
-                
+
                 <div class="bet-actions">
-                    <button class="btn-clear" id="clearBet">
-                        清除
-                    </button>
-                    <button class="btn-primary" id="placeBet">
-                        確認下注
-                    </button>
+                    <button class="btn btn-clear" id="clear-bet-button"><i class="fas fa-times"></i> 清除</button>
                 </div>
             </div>
-            
+
             <div class="stats-panel">
-                <h3><i class="fas fa-chart-bar"></i> 遊戲統計</h3>
+                <h3><i class="fas fa-tachometer-alt"></i> 局數統計</h3>
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <div class="stat-value" id="totalRounds">0</div>
+                        <div class="stat-value" id="player-wins">0</div>
+                        <div class="stat-label" style="color: var(--player-color);">閒勝</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="banker-wins">0</div>
+                        <div class="stat-label" style="color: var(--banker-color);">莊勝</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="tie-count">0</div>
+                        <div class="stat-label" style="color: var(--tie-color);">和局</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="player-pair-count">0</div>
+                        <div class="stat-label" style="color: var(--player-pair-color);">閒對</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="banker-pair-count">0</div>
+                        <div class="stat-label" style="color: var(--banker-pair-color);">莊對</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="total-rounds">0</div>
                         <div class="stat-label">總局數</div>
                     </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="playerWins">0</div>
-                        <div class="stat-label">玩家勝</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="bankerWins">0</div>
-                        <div class="stat-label">莊家勝</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="tieGames">0</div>
-                        <div class="stat-label">和局</div>
-                    </div>
                 </div>
             </div>
-            
+
             <div class="history-panel">
-                <h3><i class="fas fa-history"></i> 交易紀錄</h3>
-                <div class="history-list" id="historyList">
-                    <div class="history-item" style="text-align: center; color: var(--text-secondary); padding: 30px;">
-                        尚未有交易紀錄
+                <h3><i class="fas fa-list-alt"></i> 局數紀錄</h3>
+                <div class="history-list" id="history-list">
                     </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="depositModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-plus-circle"></i> 資金充值</h2>
+                <button class="close-modal" id="closeDepositModal">&times;</button>
+            </div>
+            <div class="deposit-message">
+                **注意：這只是前端介面演示。實際充值需要後端與支付服務整合。**
+            </div>
+            <div class="payment-options" id="payment-options">
+                <div class="payment-option active" data-method="crypto">
+                    <i class="fab fa-bitcoin payment-icon"></i>
+                    <div class="payment-name">加密貨幣 (USDT)</div>
+                </div>
+                <div class="payment-option" data-method="bank">
+                    <i class="fas fa-university payment-icon"></i>
+                    <div class="payment-name">銀行轉帳</div>
+                </div>
+                <div class="payment-option" data-method="card">
+                    <i class="fas fa-credit-card payment-icon"></i>
+                    <div class="payment-name">信用卡/金融卡</div>
+                </div>
+                <div class="payment-option" data-method="qr">
+                    <i class="fas fa-qrcode payment-icon"></i>
+                    <div class="payment-name">行動支付/QR Code</div>
                 </div>
             </div>
+            <input type="number" id="depositAmount" class="deposit-input" placeholder="輸入充值金額 (USDT)" min="1" step="0.01">
+            <button class="btn btn-primary" id="confirmDepositBtn" style="width: 100%;">
+                <i class="fas fa-check"></i> 確認充值
+            </button>
         </div>
     </div>
 
+
     <script>
-        // 遊戲狀態
-        const gameState = {
-            balance: 1000,
-            currentBet: 0,
-            currentBetTarget: null,
-            isGameActive: false,
-            isBetPlaced: false,
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- DOM 元素獲取 ---
+            const totalBalanceEl = document.getElementById('totalBalance');
+            const currentBetDisplay = document.getElementById('current-bet-display');
+            const betTargets = document.getElementById('bet-targets');
+            const chipAmounts = document.getElementById('chip-amounts');
+            const clearBetButton = document.getElementById('clear-bet-button');
+            const dealButton = document.getElementById('deal-button');
+            const resetButton = document.getElementById('reset-button');
+            const playerCardsEl = document.getElementById('player-cards');
+            const bankerCardsEl = document.getElementById('banker-cards');
+            const playerPointsEl = document.getElementById('player-points');
+            const bankerPointsEl = document.getElementById('banker-points');
+            const resultTextEl = document.getElementById('result-text');
+            const bigRoadGridEl = document.getElementById('big-road-grid');
+            const historyListEl = document.getElementById('history-list');
             
-            totalRounds: 0,
-            playerWins: 0,
-            bankerWins: 0,
-            tieGames: 0,
-            totalProfit: 0,
-            
-            bigRoad: [],
-            roadPosition: { row: 0, col: 0 },
-            
-            // 音樂狀態
-            musicMode: 'custom',
-            currentTrackIndex: 0,
-            isPlaying: false,
-            currentVolume: 50,
-            isYouTubePlaying: false,
-            currentYouTubeVideoId: null,
-            
-            // 播放清單
-            defaultPlaylist: [
-                {
-                    id: '1',
-                    title: 'Poker Face',
-                    artist: 'Lady Gaga',
-                    album: 'The Fame',
-                    previewUrl: 'https://p.scdn.co/mp3-preview/64b8992f7f81d1f1fd25c575cfebec0ae033c23a',
-                    duration: 238000,
-                    popularity: 85,
-                    platform: 'spotify'
-                },
-                {
-                    id: '2',
-                    title: 'Viva Las Vegas',
-                    artist: 'Elvis Presley',
-                    album: 'Viva Las Vegas',
-                    previewUrl: 'https://p.scdn.co/mp3-preview/5ee8048e933dd2c4f3a3899cc77401719cf8308c',
-                    duration: 152000,
-                    popularity: 78,
-                    platform: 'spotify'
-                },
-                {
-                    id: '3',
-                    title: 'The Gambler',
-                    artist: 'Kenny Rogers',
-                    album: 'The Gambler',
-                    previewUrl: 'https://p.scdn.co/mp3-preview/772b7dd53465a6432e8e44776787b1c0913c75e9',
-                    duration: 208000,
-                    popularity: 72,
-                    platform: 'spotify'
-                }
-            ],
-            
-            customPlaylist: [
-                {
-                    id: 'custom-1',
-                    title: 'Casino Background Music',
-                    artist: 'Casino Vibes',
-                    album: 'Gambling Music',
-                    previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-                    duration: 180000,
-                    platform: 'custom'
-                },
-                {
-                    id: 'youtube-1',
-                    title: 'Gambling Music Mix',
-                    artist: 'Casino Music Channel',
-                    album: 'YouTube',
-                    previewUrl: 'https://www.youtube.com/watch?v=6WhGNiMH_3o',
-                    duration: 3600000,
-                    platform: 'youtube',
-                    videoId: '6WhGNiMH_3o'
-                }
-            ],
-            
-            currentPlaylist: [],
-            searchResults: {
-                spotify: [],
-                youtube: [],
-                soundcloud: []
-            }
-        };
+            // 統計面板
+            const playerWinsEl = document.getElementById('player-wins');
+            const bankerWinsEl = document.getElementById('banker-wins');
+            const tieCountEl = document.getElementById('tie-count');
+            const playerPairCountEl = document.getElementById('player-pair-count');
+            const bankerPairCountEl = document.getElementById('banker-pair-count');
+            const totalRoundsEl = document.getElementById('total-rounds');
 
-        // DOM元素
-        const elements = {
-            // 音樂控制
-            trackTitle: document.getElementById('trackTitle'),
-            trackArtist: document.getElementById('trackArtist'),
-            playPause: document.getElementById('playPause'),
-            prevTrack: document.getElementById('prevTrack'),
-            nextTrack: document.getElementById('nextTrack'),
-            volumeSlider: document.getElementById('volumeSlider'),
-            musicPlayer: document.getElementById('musicPlayer'),
-            musicPlayerUI: document.getElementById('musicPlayerUI'),
-            platformIcon: document.getElementById('platformIcon'),
-            openMusicModal: document.getElementById('openMusicModal'),
-            
-            // YouTube 播放器
-            youtubePlayerContainer: document.getElementById('youtubePlayerContainer'),
-            youtubeIframe: document.getElementById('youtubeIframe'),
-            closeYoutubePlayer: document.getElementById('closeYoutubePlayer'),
-            
-            // 模態框
-            musicModal: document.getElementById('musicModal'),
-            closeMusicModal: document.getElementById('closeMusicModal'),
-            closeMusicModalBtn: document.getElementById('closeMusicModalBtn'),
-            platformOptions: document.querySelectorAll('.platform-option'),
-            
-            // 搜尋區域
-            spotifySearch: document.getElementById('spotifySearch'),
-            youtubeSearch: document.getElementById('youtubeSearch'),
-            soundcloudSearch: document.getElementById('soundcloudSearch'),
-            customMusic: document.getElementById('customMusic'),
-            
-            // Spotify 搜尋
-            spotifySearchInput: document.getElementById('spotifySearchInput'),
-            spotifySearchBtn: document.getElementById('spotifySearchBtn'),
-            spotifyResults: document.getElementById('spotifyResults'),
-            
-            // YouTube 搜尋
-            youtubeSearchInput: document.getElementById('youtubeSearchInput'),
-            youtubeSearchBtn: document.getElementById('youtubeSearchBtn'),
-            youtubeResults: document.getElementById('youtubeResults'),
-            
-            // SoundCloud 搜尋
-            soundcloudSearchInput: document.getElementById('soundcloudSearchInput'),
-            soundcloudSearchBtn: document.getElementById('soundcloudSearchBtn'),
-            soundcloudResults: document.getElementById('soundcloudResults'),
-            
-            // 自訂播放清單
-            customPlaylistContainer: document.getElementById('customPlaylist'),
-            playlistCount: document.getElementById('playlistCount'),
-            addCustomSong: document.getElementById('addCustomSong'),
-            savePlaylist: document.getElementById('savePlaylist'),
-            
-            // 自訂歌曲模態框
-            customSongModal: document.getElementById('customSongModal'),
-            closeCustomSongModal: document.getElementById('closeCustomSongModal'),
-            cancelAddSong: document.getElementById('cancelAddSong'),
-            addSongToPlaylist: document.getElementById('addSongToPlaylist'),
-            songTitle: document.getElementById('songTitle'),
-            songArtist: document.getElementById('songArtist'),
-            songUrl: document.getElementById('songUrl'),
-            songTypeOptions: document.querySelectorAll('[data-type]'),
-            quickUrlButtons: document.querySelectorAll('[data-url]'),
-            
-            // 存款相關
-            totalBalance: document.getElementById('totalBalance'),
-            depositModal: document.getElementById('depositModal'),
-            openDeposit: document.getElementById('openDeposit'),
-            closeModal: document.getElementById('closeModal'),
-            cancelDeposit: document.getElementById('cancelDeposit'),
-            confirmDeposit: document.getElementById('confirmDeposit'),
-            depositAmount: document.getElementById('depositAmount'),
-            cryptoOptions: document.querySelectorAll('.crypto-option'),
-            quickAmounts: document.querySelectorAll('.quick-amount'),
-            
-            // 遊戲控制
-            playerCardsContainer: document.getElementById('playerCards'),
-            bankerCardsContainer: document.getElementById('bankerCards'),
-            playerPoints: document.getElementById('playerPoints'),
-            bankerPoints: document.getElementById('bankerPoints'),
-            resultText: document.getElementById('resultText'),
-            dealBtn: document.getElementById('dealBtn'),
-            newRoundBtn: document.getElementById('newRoundBtn'),
-            
-            // 大路圖
-            roadGrid: document.getElementById('roadGrid'),
-            
-            // 下注控制
-            betAmountValue: document.getElementById('betAmountValue'),
-            betTargetLabel: document.getElementById('betTargetLabel'),
-            targetButtons: document.querySelectorAll('.target-btn'),
-            amountButtons: document.querySelectorAll('.amount-btn'),
-            customAmount: document.getElementById('customAmount'),
-            setCustomAmount: document.getElementById('setCustomAmount'),
-            clearBet: document.getElementById('clearBet'),
-            placeBet: document.getElementById('placeBet'),
-            
-            // 統計數據
-            totalRounds: document.getElementById('totalRounds'),
-            playerWins: document.getElementById('playerWins'),
-            bankerWins: document.getElementById('bankerWins'),
-            tieGames: document.getElementById('tieGames'),
-            
-            // 歷史紀錄
-            historyList: document.getElementById('historyList')
-        };
+            // 充值模態框
+            const depositModal = document.getElementById('depositModal');
+            const openDepositModalBtn = document.getElementById('openDepositModal');
+            const closeDepositModalBtn = document.getElementById('closeDepositModal');
+            const depositAmountInput = document.getElementById('depositAmount');
+            const confirmDepositBtn = document.getElementById('confirmDepositBtn');
+            const paymentOptions = document.getElementById('payment-options');
 
-        // 音效元素
-        const audioElements = {
-            cardSound: document.getElementById('cardSound'),
-            dealSound: document.getElementById('dealSound'),
-            winSound: document.getElementById('winSound'),
-            loseSound: document.getElementById('loseSound'),
-            chipSound: document.getElementById('chipSound')
-        };
 
-        // 初始化
-        function init() {
-            setupEventListeners();
-            setupMusicSystem();
-            updateUI();
-            initRoadGrid();
-            loadPlaylist();
-        }
-
-        // 音樂系統設置
-        function setupMusicSystem() {
-            // 設置音量
-            Object.values(audioElements).forEach(audio => {
-                if (audio) audio.volume = gameState.currentVolume / 100;
-            });
-            elements.musicPlayer.volume = gameState.currentVolume / 100;
-            
-            // 設置音量滑塊
-            elements.volumeSlider.value = gameState.currentVolume;
-            elements.volumeSlider.addEventListener('input', (e) => {
-                gameState.currentVolume = e.target.value;
-                updateVolume();
-            });
-            
-            // 音樂播放器事件監聽
-            elements.musicPlayer.addEventListener('ended', nextTrack);
-            elements.musicPlayer.addEventListener('error', handleMusicError);
-        }
-
-        function loadPlaylist() {
-            // 載入儲存的播放清單
-            if (loadPlaylistFromLocalStorage()) {
-                console.log('已載入儲存的播放清單');
-            }
-            
-            // 合併預設和自訂播放清單
-            gameState.currentPlaylist = [...gameState.defaultPlaylist, ...gameState.customPlaylist];
-            
-            // 更新播放清單顯示
-            updateCustomPlaylist();
-            
-            // 載入第一首歌
-            if (gameState.currentPlaylist.length > 0) {
-                const track = gameState.currentPlaylist[gameState.currentTrackIndex];
-                updateTrackInfo(track);
-                updatePlayerUI(track);
-            }
-        }
-
-        function updateTrackInfo(track) {
-            elements.trackTitle.textContent = track.title;
-            elements.trackArtist.textContent = `${track.artist} • ${getPlatformName(track.platform)}`;
-        }
-
-        function updatePlayerUI(track) {
-            const playerUI = elements.musicPlayerUI;
-            const platformIcon = elements.platformIcon;
-            
-            // 重置所有類別
-            playerUI.className = 'music-player-ui';
-            platformIcon.className = 'platform-icon';
-            
-            // 根據平台設置樣式
-            switch(track.platform) {
-                case 'spotify':
-                    playerUI.classList.add('spotify');
-                    platformIcon.classList.add('fab', 'fa-spotify', 'spotify-icon');
-                    break;
-                case 'youtube':
-                    playerUI.classList.add('youtube');
-                    platformIcon.classList.add('fab', 'fa-youtube', 'youtube-icon');
-                    break;
-                case 'soundcloud':
-                    playerUI.classList.add('soundcloud');
-                    platformIcon.classList.add('fab', 'fa-soundcloud', 'soundcloud-icon');
-                    break;
-                default:
-                    playerUI.classList.add('custom');
-                    platformIcon.classList.add('fas', 'fa-headphones', 'custom-icon');
-            }
-            
-            updateTrackInfo(track);
-            updatePlayPauseButton();
-        }
-
-        function getPlatformName(platform) {
-            switch(platform) {
-                case 'spotify': return 'Spotify';
-                case 'youtube': return 'YouTube';
-                case 'soundcloud': return 'SoundCloud';
-                default: return '自訂歌曲';
-            }
-        }
-
-        function updateVolume() {
-            const volume = gameState.currentVolume / 100;
-            elements.musicPlayer.volume = volume;
-            Object.values(audioElements).forEach(audio => {
-                if (audio) audio.volume = volume;
-            });
-        }
-
-        function playSound(sound) {
-            if (!sound) return;
-            sound.currentTime = 0;
-            sound.play().catch(e => console.log('音效播放失敗:', e));
-        }
-
-        // 音樂控制函數
-        function togglePlayPause() {
-            const currentTrack = gameState.currentPlaylist[gameState.currentTrackIndex];
-            
-            if (!currentTrack) {
-                alert('播放清單為空，請先新增歌曲');
-                return;
-            }
-            
-            if (currentTrack.platform === 'youtube') {
-                toggleYouTubePlayback(currentTrack);
-            } else {
-                if (gameState.isPlaying) {
-                    pauseMusic();
-                } else {
-                    playMusic();
-                }
-            }
-        }
-
-        function playMusic() {
-            if (gameState.currentPlaylist.length === 0) {
-                alert('播放清單為空，請先新增歌曲');
-                return;
-            }
-            
-            const track = gameState.currentPlaylist[gameState.currentTrackIndex];
-            
-            if (track.platform === 'youtube') {
-                playYouTubeVideo(track);
-                return;
-            }
-            
-            if (!track.previewUrl) {
-                alert('此曲目沒有可播放的音頻');
-                return;
-            }
-            
-            elements.musicPlayer.src = track.previewUrl;
-            
-            elements.musicPlayer.play().then(() => {
-                gameState.isPlaying = true;
-                updatePlayPauseButton();
-            }).catch(e => {
-                console.log('音樂播放失敗:', e);
-                alert('無法播放音樂，請檢查網路連線或音頻連結');
-            });
-        }
-
-        function pauseMusic() {
-            elements.musicPlayer.pause();
-            gameState.isPlaying = false;
-            updatePlayPauseButton();
-        }
-
-        function updatePlayPauseButton() {
-            const icon = elements.playPause.querySelector('i');
-            const currentTrack = gameState.currentPlaylist[gameState.currentTrackIndex];
-            
-            if (!currentTrack) {
-                icon.className = 'fas fa-play';
-                elements.playPause.classList.remove('active');
-                return;
-            }
-            
-            const isActive = currentTrack.platform === 'youtube' ? 
-                gameState.isYouTubePlaying : gameState.isPlaying;
-            
-            if (isActive) {
-                icon.className = 'fas fa-pause';
-                elements.playPause.classList.add('active');
-            } else {
-                icon.className = 'fas fa-play';
-                elements.playPause.classList.remove('active');
-            }
-        }
-
-        function prevTrack() {
-            if (gameState.currentPlaylist.length === 0) return;
-            
-            // 暫停當前播放
-            const currentTrack = gameState.currentPlaylist[gameState.currentTrackIndex];
-            if (currentTrack.platform === 'youtube') {
-                stopYouTubePlayback();
-            } else {
-                pauseMusic();
-            }
-            
-            // 切換到上一首
-            gameState.currentTrackIndex = (gameState.currentTrackIndex - 1 + gameState.currentPlaylist.length) % gameState.currentPlaylist.length;
-            const track = gameState.currentPlaylist[gameState.currentTrackIndex];
-            
-            updatePlayerUI(track);
-            updateCustomPlaylist();
-            
-            // 自動播放下一首
-            if (gameState.isPlaying || gameState.isYouTubePlaying) {
-                if (track.platform === 'youtube') {
-                    playYouTubeVideo(track);
-                } else {
-                    setTimeout(playMusic, 100);
-                }
-            }
-        }
-
-        function nextTrack() {
-            if (gameState.currentPlaylist.length === 0) return;
-            
-            // 暫停當前播放
-            const currentTrack = gameState.currentPlaylist[gameState.currentTrackIndex];
-            if (currentTrack.platform === 'youtube') {
-                stopYouTubePlayback();
-            } else {
-                pauseMusic();
-            }
-            
-            // 切換到下一首
-            gameState.currentTrackIndex = (gameState.currentTrackIndex + 1) % gameState.currentPlaylist.length;
-            const track = gameState.currentPlaylist[gameState.currentTrackIndex];
-            
-            updatePlayerUI(track);
-            updateCustomPlaylist();
-            
-            // 自動播放下一首
-            if (gameState.isPlaying || gameState.isYouTubePlaying) {
-                if (track.platform === 'youtube') {
-                    playYouTubeVideo(track);
-                } else {
-                    setTimeout(playMusic, 100);
-                }
-            }
-        }
-
-        function handleMusicError(e) {
-            console.log('音樂播放錯誤:', e);
-            alert('音樂播放失敗，正在切換到下一首');
-            nextTrack();
-        }
-
-        // YouTube 播放功能
-        function playYouTubeVideo(track) {
-            let videoId = track.videoId;
-            
-            // 從 YouTube URL 提取 videoId
-            if (!videoId && track.previewUrl.includes('youtube.com')) {
-                videoId = extractYouTubeVideoId(track.previewUrl);
-            }
-            
-            if (!videoId) {
-                alert('無效的 YouTube 連結');
-                return;
-            }
-            
-            gameState.currentYouTubeVideoId = videoId;
-            gameState.isYouTubePlaying = true;
-            
-            // 設置 iframe 來源
-            const iframeSrc = `https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&rel=0&modestbranding=1&playsinline=1`;
-            elements.youtubeIframe.src = iframeSrc;
-            
-            // 顯示 YouTube 播放器
-            elements.youtubePlayerContainer.classList.add('active');
-            
-            updatePlayPauseButton();
-        }
-
-        function toggleYouTubePlayback(track) {
-            if (gameState.isYouTubePlaying) {
-                stopYouTubePlayback();
-            } else {
-                playYouTubeVideo(track);
-            }
-        }
-
-        function stopYouTubePlayback() {
-            if (elements.youtubeIframe.src) {
-                elements.youtubeIframe.src = elements.youtubeIframe.src.replace('autoplay=1', 'autoplay=0');
-            }
-            elements.youtubePlayerContainer.classList.remove('active');
-            gameState.isYouTubePlaying = false;
-            gameState.currentYouTubeVideoId = null;
-            updatePlayPauseButton();
-        }
-
-        function extractYouTubeVideoId(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
-
-        // Spotify 搜尋功能（模擬）
-        function searchSpotify(query) {
-            if (!query.trim()) {
-                alert('請輸入搜尋關鍵字');
-                return;
-            }
-            
-            const mockResults = [
-                {
-                    id: `spotify-${Date.now()}-1`,
-                    title: `${query} - Casino Mix`,
-                    artist: 'Various Artists',
-                    album: 'Gambling Music 2024',
-                    previewUrl: 'https://p.scdn.co/mp3-preview/64b8992f7f81d1f1fd25c575cfebec0ae033c23a',
-                    duration: 180000,
-                    platform: 'spotify'
-                },
-                {
-                    id: `spotify-${Date.now()}-2`,
-                    title: `Poker Night ${query}`,
-                    artist: 'DJ Casino',
-                    album: 'Card Game Anthems',
-                    previewUrl: 'https://p.scdn.co/mp3-preview/5ee8048e933dd2c4f3a3899cc77401719cf8308c',
-                    duration: 210000,
-                    platform: 'spotify'
-                }
-            ];
-            
-            gameState.searchResults.spotify = mockResults;
-            displaySearchResults('spotify');
-        }
-
-        // YouTube 搜尋功能（模擬）
-        function searchYouTube(query) {
-            if (!query.trim()) {
-                alert('請輸入搜尋關鍵字');
-                return;
-            }
-            
-            const mockResults = [
-                {
-                    id: `youtube-${Date.now()}-1`,
-                    title: `${query} Casino Music Mix`,
-                    artist: 'Music for Gambling',
-                    album: 'YouTube Music',
-                    previewUrl: 'https://www.youtube.com/watch?v=6WhGNiMH_3o',
-                    duration: 3600000,
-                    platform: 'youtube',
-                    videoId: '6WhGNiMH_3o'
-                },
-                {
-                    id: `youtube-${Date.now()}-2`,
-                    title: `Best ${query} Songs for Casino`,
-                    artist: 'Casino Vibes',
-                    album: 'YouTube Playlist',
-                    previewUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-                    duration: 212000,
-                    platform: 'youtube',
-                    videoId: 'dQw4w9WgXcQ'
-                },
-                {
-                    id: `youtube-${Date.now()}-3`,
-                    title: 'Casino Royale Theme',
-                    artist: 'Movie Soundtracks',
-                    album: 'YouTube',
-                    previewUrl: 'https://www.youtube.com/watch?v=7N_7NfCgA-Q',
-                    duration: 156000,
-                    platform: 'youtube',
-                    videoId: '7N_7NfCgA-Q'
-                }
-            ];
-            
-            gameState.searchResults.youtube = mockResults;
-            displaySearchResults('youtube');
-        }
-
-        // SoundCloud 搜尋功能（模擬）
-        function searchSoundCloud(query) {
-            if (!query.trim()) {
-                alert('請輸入搜尋關鍵字');
-                return;
-            }
-            
-            const mockResults = [
-                {
-                    id: `soundcloud-${Date.now()}-1`,
-                    title: `${query} Beats`,
-                    artist: 'Cloud Beats',
-                    album: 'SoundCloud Mix',
-                    previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
-                    duration: 220000,
-                    platform: 'soundcloud'
-                },
-                {
-                    id: `soundcloud-${Date.now()}-2`,
-                    title: `${query} Vibes`,
-                    artist: 'Underground Sounds',
-                    album: 'Independent Music',
-                    previewUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-                    duration: 190000,
-                    platform: 'soundcloud'
-                }
-            ];
-            
-            gameState.searchResults.soundcloud = mockResults;
-            displaySearchResults('soundcloud');
-        }
-
-        function displaySearchResults(platform) {
-            const results = gameState.searchResults[platform];
-            const containerId = `${platform}Results`;
-            const container = document.getElementById(containerId);
-            
-            container.innerHTML = '';
-            
-            if (!results || results.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 30px;">沒有找到相關結果</div>';
-                return;
-            }
-            
-            results.forEach((track, index) => {
-                const resultElement = document.createElement('div');
-                resultElement.className = `search-result ${platform}-result`;
-                resultElement.innerHTML = `
-                    <div class="result-album">
-                        <i class="fas ${platform === 'youtube' ? 'fa-youtube' : platform === 'soundcloud' ? 'fa-soundcloud' : 'fa-music'}"></i>
-                    </div>
-                    <div class="result-info">
-                        <div class="result-title">${track.title}</div>
-                        <div class="result-artist">${track.artist} • ${track.album}</div>
-                    </div>
-                    <button class="playlist-btn add-to-playlist" data-index="${index}" data-platform="${platform}" title="新增到播放清單">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                `;
-                container.appendChild(resultElement);
-            });
-            
-            // 添加事件監聽器
-            document.querySelectorAll(`.add-to-playlist[data-platform="${platform}"]`).forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const index = parseInt(btn.dataset.index);
-                    addToCustomPlaylist(gameState.searchResults[platform][index]);
-                });
-            });
-        }
-
-        // 自訂播放清單功能
-        function updateCustomPlaylist() {
-            const playlistContainer = elements.customPlaylistContainer;
-            const playlistCount = elements.playlistCount;
-            
-            playlistContainer.innerHTML = '';
-            
-            if (gameState.customPlaylist.length === 0) {
-                playlistContainer.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 30px;">播放清單為空，請新增歌曲</div>';
-                playlistCount.textContent = '0 首歌曲';
-                return;
-            }
-            
-            playlistCount.textContent = `${gameState.customPlaylist.length} 首歌曲`;
-            
-            gameState.customPlaylist.forEach((track, index) => {
-                const isActive = gameState.currentTrackIndex === (gameState.defaultPlaylist.length + index) && 
-                               gameState.currentPlaylist[gameState.currentTrackIndex]?.id === track.id;
-                
-                const playlistItem = document.createElement('div');
-                playlistItem.className = `playlist-item ${track.platform} ${isActive ? 'active' : ''}`;
-                playlistItem.innerHTML = `
-                    <div class="result-album">
-                        <i class="${track.platform === 'youtube' ? 'fab fa-youtube' : track.platform === 'soundcloud' ? 'fab fa-soundcloud' : track.platform === 'spotify' ? 'fab fa-spotify' : 'fas fa-music'}"></i>
-                    </div>
-                    <div class="result-info">
-                        <div class="result-title">${track.title}</div>
-                        <div class="result-artist">${track.artist}</div>
-                    </div>
-                    <div class="playlist-item-actions">
-                        <button class="playlist-btn play-now" data-index="${index}" title="立即播放">
-                            <i class="fas fa-play"></i>
-                        </button>
-                        <button class="playlist-btn remove-song" data-index="${index}" title="移除歌曲">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                `;
-                playlistContainer.appendChild(playlistItem);
-            });
-            
-            // 添加事件監聽器
-            document.querySelectorAll('.play-now').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const index = parseInt(btn.dataset.index);
-                    playCustomTrack(index);
-                });
-            });
-            
-            document.querySelectorAll('.remove-song').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const index = parseInt(btn.dataset.index);
-                    removeFromCustomPlaylist(index);
-                });
-            });
-        }
-
-        function addToCustomPlaylist(track) {
-            // 檢查是否已經存在
-            const exists = gameState.customPlaylist.some(item => 
-                item.title === track.title && item.artist === track.artist
-            );
-            
-            if (exists) {
-                alert('此歌曲已經在播放清單中');
-                return;
-            }
-            
-            // 處理 YouTube 影片
-            let processedTrack = { ...track };
-            if (track.platform === 'youtube') {
-                processedTrack.videoId = extractYouTubeVideoId(track.previewUrl);
-            }
-            
-            gameState.customPlaylist.push(processedTrack);
-            gameState.currentPlaylist = [...gameState.defaultPlaylist, ...gameState.customPlaylist];
-            
-            updateCustomPlaylist();
-            savePlaylistToLocalStorage();
-            alert('已新增到播放清單');
-        }
-
-        function removeFromCustomPlaylist(index) {
-            if (confirm('確定要移除這首歌曲嗎？')) {
-                const trackToRemove = gameState.customPlaylist[index];
-                
-                // 如果是當前正在播放的 YouTube 影片，先停止播放
-                if (trackToRemove.platform === 'youtube' && 
-                    gameState.currentYouTubeVideoId === trackToRemove.videoId) {
-                    stopYouTubePlayback();
-                }
-                
-                gameState.customPlaylist.splice(index, 1);
-                gameState.currentPlaylist = [...gameState.defaultPlaylist, ...gameState.customPlaylist];
-                
-                // 如果移除的是當前播放的歌曲，切換到下一首
-                const currentTrack = gameState.currentPlaylist[gameState.currentTrackIndex];
-                if (!currentTrack || !gameState.customPlaylist.some(track => track.id === currentTrack.id)) {
-                    gameState.currentTrackIndex = Math.max(0, Math.min(gameState.currentTrackIndex, gameState.currentPlaylist.length - 1));
-                    if (gameState.currentPlaylist.length > 0) {
-                        const newTrack = gameState.currentPlaylist[gameState.currentTrackIndex];
-                        updatePlayerUI(newTrack);
-                    }
-                }
-                
-                updateCustomPlaylist();
-                savePlaylistToLocalStorage();
-            }
-        }
-
-        function playCustomTrack(index) {
-            const trackIndex = gameState.defaultPlaylist.length + index;
-            gameState.currentTrackIndex = trackIndex;
-            
-            const track = gameState.currentPlaylist[trackIndex];
-            updatePlayerUI(track);
-            
-            // 如果當前正在播放 YouTube，先停止
-            if (gameState.isYouTubePlaying) {
-                stopYouTubePlayback();
-            } else if (gameState.isPlaying) {
-                pauseMusic();
-            }
-            
-            // 播放選中的歌曲
-            if (track.platform === 'youtube') {
-                playYouTubeVideo(track);
-                gameState.isYouTubePlaying = true;
-            } else {
-                playMusic();
-            }
-            
-            updateCustomPlaylist();
-        }
-
-        function addCustomSong() {
-            const title = elements.songTitle.value.trim();
-            const artist = elements.songArtist.value.trim();
-            const url = elements.songUrl.value.trim();
-            const type = document.querySelector('.crypto-option.active[data-type]')?.dataset.type;
-            
-            if (!title || !artist || !url) {
-                alert('請填寫所有欄位');
-                return;
-            }
-            
-            if (!url.startsWith('http')) {
-                alert('請輸入有效的網址');
-                return;
-            }
-            
-            const newSong = {
-                id: `${type}-${Date.now()}`,
-                title: title,
-                artist: artist,
-                album: type === 'youtube' ? 'YouTube' : '自訂歌曲',
-                previewUrl: url,
-                duration: type === 'youtube' ? 3600000 : 180000,
-                platform: type
+            // --- 遊戲狀態變量 ---
+            let totalBalance = 0.00;
+            let currentBet = {
+                player: 0,
+                banker: 0,
+                tie: 0,
+                player_pair: 0,
+                banker_pair: 0
             };
-            
-            if (type === 'youtube') {
-                newSong.videoId = extractYouTubeVideoId(url);
-            }
-            
-            gameState.customPlaylist.push(newSong);
-            gameState.currentPlaylist = [...gameState.defaultPlaylist, ...gameState.customPlaylist];
-            
-            updateCustomPlaylist();
-            savePlaylistToLocalStorage();
-            
-            // 清空表單
-            elements.songTitle.value = '';
-            elements.songArtist.value = '';
-            elements.songUrl.value = '';
-            
-            // 關閉模態框
-            elements.customSongModal.classList.remove('active');
-            
-            alert('歌曲已新增到播放清單');
-        }
+            let chipValue = 0; // 當前選擇的籌碼面額
+            let gameInProgress = false;
+            let currentDeck = [];
+            let gameHistory = []; // 存儲遊戲結果: { winner: 'P'/'B'/'T', hasPlayerPair: bool, hasBankerPair: bool }
+            let stats = {
+                playerWins: 0,
+                bankerWins: 0,
+                tieCount: 0,
+                playerPairCount: 0,
+                bankerPairCount: 0,
+                totalRounds: 0
+            };
+            let bigRoadData = []; // 大路數據結構
 
-        function savePlaylistToLocalStorage() {
-            try {
-                localStorage.setItem('baccaratCustomPlaylist', JSON.stringify(gameState.customPlaylist));
-                console.log('播放清單已儲存');
-            } catch (e) {
-                console.log('無法儲存播放清單:', e);
-            }
-        }
 
-        function loadPlaylistFromLocalStorage() {
-            try {
-                const saved = localStorage.getItem('baccaratCustomPlaylist');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    if (Array.isArray(parsed)) {
-                        gameState.customPlaylist = parsed;
-                        return true;
+            // --- 充值模態框邏輯 ---
+            openDepositModalBtn.onclick = () => depositModal.classList.add('active');
+            closeDepositModalBtn.onclick = () => depositModal.classList.remove('active');
+            window.onclick = (event) => {
+                if (event.target === depositModal) {
+                    depositModal.classList.remove('active');
+                }
+            };
+
+            // 選擇付款方式
+            paymentOptions.querySelectorAll('.payment-option').forEach(option => {
+                option.onclick = () => {
+                    paymentOptions.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('active'));
+                    option.classList.add('active');
+                };
+            });
+
+            // 確認充值 (模擬)
+            confirmDepositBtn.onclick = () => {
+                const amount = parseFloat(depositAmountInput.value);
+                if (isNaN(amount) || amount <= 0) {
+                    alert('請輸入有效的充值金額！');
+                    return;
+                }
+
+                // 模擬充值成功
+                totalBalance += amount;
+                updateBalanceDisplay();
+                depositAmountInput.value = '';
+                depositModal.classList.remove('active');
+                alert(`成功充值 ${amount.toFixed(2)} USDT！`);
+            };
+
+            // --- UI 更新函數 ---
+            function updateBalanceDisplay() {
+                totalBalanceEl.textContent = `${totalBalance.toFixed(2)} USDT`;
+            }
+
+            function updateBetDisplay() {
+                const totalBet = Object.values(currentBet).reduce((sum, val) => sum + val, 0);
+                currentBetDisplay.textContent = totalBet.toFixed(2);
+
+                dealButton.disabled = totalBet === 0 || gameInProgress;
+                resetButton.disabled = totalBet === 0 || gameInProgress;
+            }
+
+            function updateStats() {
+                playerWinsEl.textContent = stats.playerWins;
+                bankerWinsEl.textContent = stats.bankerWins;
+                tieCountEl.textContent = stats.tieCount;
+                playerPairCountEl.textContent = stats.playerPairCount;
+                bankerPairCountEl.textContent = stats.bankerPairCount;
+                totalRoundsEl.textContent = stats.totalRounds;
+            }
+
+            function resetCards() {
+                playerCardsEl.innerHTML = '<div class="card placeholder"></div><div class="card placeholder"></div>';
+                bankerCardsEl.innerHTML = '<div class="card placeholder"></div><div class="card placeholder"></div>';
+                playerPointsEl.textContent = '0';
+                bankerPointsEl.textContent = '0';
+                resultTextEl.textContent = '請下注';
+                resultTextEl.className = 'result-text winner-tie'; // 預設為和局顏色
+            }
+
+            // --- 遊戲邏輯 - 澳門百家樂規則 ---
+
+            /**
+             * 獲取單張牌的分數。A=1, 10/J/Q/K=0, 2-9=面值。
+             * @param {string} card - 牌的字串，例如 'S-A' (黑桃A)
+             * @returns {number} 牌的分數
+             */
+            function getCardValue(card) {
+                const rank = card.split('-')[1];
+                if (['10', 'J', 'Q', 'K'].includes(rank)) return 0;
+                if (rank === 'A') return 1;
+                return parseInt(rank);
+            }
+
+            /**
+             * 計算一手牌的總點數。
+             * @param {string[]} hand - 牌組陣列
+             * @returns {number} 總點數 (0-9)
+             */
+            function getHandPoints(hand) {
+                const total = hand.reduce((sum, card) => sum + getCardValue(card), 0);
+                return total % 10;
+            }
+
+            /**
+             * 檢查是否有對子。
+             * @param {string[]} hand - 牌組陣列
+             * @returns {boolean} 是否有對子
+             */
+            function hasPair(hand) {
+                if (hand.length < 2) return false;
+                // 比較前兩張牌的點數
+                return hand[0].split('-')[1] === hand[1].split('-')[1];
+            }
+
+            /**
+             * 根據澳門百家樂規則判斷是否需要補第三張牌。
+             * @param {string[]} playerHand - 閒家牌組
+             * @param {string[]} bankerHand - 莊家牌組
+             * @returns {Object} { playerDraw: bool, bankerDraw: bool }
+             */
+            function shouldDrawThirdCard(playerHand, bankerHand) {
+                const pPoints = getHandPoints(playerHand);
+                const bPoints = getHandPoints(bankerHand);
+                const result = { playerDraw: false, bankerDraw: false };
+
+                // 閒家和莊家任何一方獲得 8 或 9 點 (天牌)，雙方不補牌，牌局結束
+                if (pPoints >= 8 || bPoints >= 8) {
+                    return result;
+                }
+
+                // 閒家規則
+                if (pPoints <= 5) {
+                    result.playerDraw = true;
+                }
+
+                // 莊家規則
+                if (!result.playerDraw) {
+                    // 閒家沒有補牌（閒家點數 6 或 7）
+                    if (bPoints <= 5) {
+                        result.bankerDraw = true;
+                    }
+                } else {
+                    // 閒家補牌後，莊家決定是否補牌
+                    const playerThirdCardValue = getCardValue(playerHand[2]);
+                    switch (bPoints) {
+                        case 0:
+                        case 1:
+                        case 2:
+                            result.bankerDraw = true;
+                            break;
+                        case 3:
+                            // 閒家第三張牌不是 8 (牌值)
+                            result.bankerDraw = (playerThirdCardValue !== 8);
+                            break;
+                        case 4:
+                            // 閒家第三張牌是 2-7 (牌值)
+                            result.bankerDraw = (playerThirdCardValue >= 2 && playerThirdCardValue <= 7);
+                            break;
+                        case 5:
+                            // 閒家第三張牌是 4-7 (牌值)
+                            result.bankerDraw = (playerThirdCardValue >= 4 && playerThirdCardValue <= 7);
+                            break;
+                        case 6:
+                            // 閒家第三張牌是 6 或 7 (牌值)
+                            result.bankerDraw = (playerThirdCardValue === 6 || playerThirdCardValue === 7);
+                            break;
+                        case 7:
+                            result.bankerDraw = false;
+                            break;
                     }
                 }
-            } catch (e) {
-                console.log('無法載入播放清單:', e);
+                return result;
             }
-            return false;
-        }
 
-        // 事件監聽器設置
-        function setupEventListeners() {
-            // 音樂控制
-            elements.playPause.addEventListener('click', togglePlayPause);
-            elements.prevTrack.addEventListener('click', prevTrack);
-            elements.nextTrack.addEventListener('click', nextTrack);
-            elements.musicPlayerUI.addEventListener('click', () => {
-                elements.musicModal.classList.add('active');
-            });
-            elements.openMusicModal.addEventListener('click', () => {
-                elements.musicModal.classList.add('active');
-            });
-            
-            // YouTube 播放器控制
-            elements.closeYoutubePlayer.addEventListener('click', stopYouTubePlayback);
-            
-            // 音樂模態框
-            elements.closeMusicModal.addEventListener('click', () => {
-                elements.musicModal.classList.remove('active');
-            });
-            elements.closeMusicModalBtn.addEventListener('click', () => {
-                elements.musicModal.classList.remove('active');
-            });
-            
-            // 平台選擇
-            elements.platformOptions.forEach(option => {
-                option.addEventListener('click', () => {
-                    elements.platformOptions.forEach(opt => opt.classList.remove('active'));
-                    option.classList.add('active');
-                    
-                    const platform = option.dataset.platform;
-                    
-                    // 隱藏所有搜尋區域
-                    elements.spotifySearch.classList.remove('active');
-                    elements.youtubeSearch.classList.remove('active');
-                    elements.soundcloudSearch.classList.remove('active');
-                    elements.customMusic.classList.remove('active');
-                    
-                    // 顯示對應的搜尋區域
-                    document.getElementById(`${platform}Search`).classList.add('active');
-                });
-            });
-            
-            // Spotify 搜尋
-            elements.spotifySearchBtn.addEventListener('click', () => {
-                const query = elements.spotifySearchInput.value;
-                searchSpotify(query);
-            });
-            
-            // YouTube 搜尋
-            elements.youtubeSearchBtn.addEventListener('click', () => {
-                const query = elements.youtubeSearchInput.value;
-                searchYouTube(query);
-            });
-            
-            // SoundCloud 搜尋
-            elements.soundcloudSearchBtn.addEventListener('click', () => {
-                const query = elements.soundcloudSearchInput.value;
-                searchSoundCloud(query);
-            });
-            
-            // 自訂歌曲
-            elements.addCustomSong.addEventListener('click', () => {
-                elements.customSongModal.classList.add('active');
-            });
-            
-            elements.closeCustomSongModal.addEventListener('click', () => {
-                elements.customSongModal.classList.remove('active');
-            });
-            
-            elements.cancelAddSong.addEventListener('click', () => {
-                elements.customSongModal.classList.remove('active');
-            });
-            
-            elements.addSongToPlaylist.addEventListener('click', addCustomSong);
-            
-            elements.songTypeOptions.forEach(option => {
-                option.addEventListener('click', () => {
-                    elements.songTypeOptions.forEach(opt => opt.classList.remove('active'));
-                    option.classList.add('active');
-                    
-                    const type = option.dataset.type;
-                    elements.songUrl.placeholder = type === 'youtube' ? 'YouTube 影片連結' : 'MP3 網址';
-                });
-            });
-            
-            elements.quickUrlButtons.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const type = btn.dataset.type;
-                    elements.songUrl.value = btn.dataset.url;
-                    elements.songTitle.value = btn.dataset.title;
-                    elements.songArtist.value = btn.dataset.artist;
-                    
-                    // 自動選擇對應的類型
-                    elements.songTypeOptions.forEach(opt => opt.classList.remove('active'));
-                    document.querySelector(`[data-type="${type}"]`).classList.add('active');
-                });
-            });
-            
-            // 儲存播放清單
-            elements.savePlaylist.addEventListener('click', () => {
-                savePlaylistToLocalStorage();
-                alert('播放清單已儲存');
-                elements.musicModal.classList.remove('active');
-            });
-            
-            // 存款相關
-            elements.openDeposit.addEventListener('click', () => {
-                elements.depositModal.classList.add('active');
-            });
-            
-            elements.closeModal.addEventListener('click', () => {
-                elements.depositModal.classList.remove('active');
-            });
-            
-            elements.cancelDeposit.addEventListener('click', () => {
-                elements.depositModal.classList.remove('active');
-            });
-            
-            elements.confirmDeposit.addEventListener('click', confirmDeposit);
-            
-            elements.cryptoOptions.forEach(option => {
-                option.addEventListener('click', () => {
-                    elements.cryptoOptions.forEach(opt => opt.classList.remove('active'));
-                    option.classList.add('active');
-                });
-            });
-            
-            elements.quickAmounts.forEach(amount => {
-                amount.addEventListener('click', () => {
-                    elements.depositAmount.value = amount.dataset.amount;
-                });
-            });
-            
-            // 遊戲控制
-            elements.dealBtn.addEventListener('click', dealCards);
-            elements.newRoundBtn.addEventListener('click', newRound);
-            
-            // 下注控制
-            elements.targetButtons.forEach(btn => {
-                btn.addEventListener('click', () => selectBetTarget(btn.dataset.target));
-            });
-            
-            elements.amountButtons.forEach(btn => {
-                btn.addEventListener('click', () => addToBet(parseFloat(btn.dataset.amount)));
-            });
-            
-            elements.setCustomAmount.addEventListener('click', () => {
-                const amount = parseFloat(elements.customAmount.value);
-                if (amount > 0) setBetAmount(amount);
-            });
-            
-            elements.clearBet.addEventListener('click', clearBet);
-            elements.placeBet.addEventListener('click', placeBet);
-            
-            // 載入儲存的播放清單
-            window.addEventListener('load', () => {
-                if (loadPlaylistFromLocalStorage()) {
-                    loadPlaylist();
-                }
-            });
-        }
+            // --- 牌組和發牌邏輯 ---
 
-        // 遊戲邏輯（保持不變）
-        function selectBetTarget(target) {
-            if (gameState.isGameActive) return;
-            
-            elements.targetButtons.forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`[data-target="${target}"]`).classList.add('active');
-            
-            gameState.currentBetTarget = target;
-            elements.betTargetLabel.textContent = `下注: ${target === 'player' ? '玩家' : target === 'banker' ? '莊家' : '和局'}`;
-            playSound(audioElements.chipSound);
-        }
-
-        function addToBet(amount) {
-            if (gameState.isGameActive) return;
-            
-            const newAmount = gameState.currentBet + amount;
-            if (newAmount > gameState.balance) {
-                alert('餘額不足！');
-                return;
-            }
-            
-            gameState.currentBet = newAmount;
-            updateBetUI();
-            playSound(audioElements.chipSound);
-        }
-
-        function setBetAmount(amount) {
-            if (gameState.isGameActive) return;
-            
-            if (amount > gameState.balance) {
-                alert('餘額不足！');
-                return;
-            }
-            
-            gameState.currentBet = amount;
-            updateBetUI();
-            playSound(audioElements.chipSound);
-        }
-
-        function clearBet() {
-            if (gameState.isGameActive) return;
-            
-            gameState.currentBet = 0;
-            gameState.currentBetTarget = null;
-            gameState.isBetPlaced = false;
-            
-            elements.targetButtons.forEach(btn => btn.classList.remove('active'));
-            updateBetUI();
-            elements.resultText.textContent = '請下注後開始遊戲';
-            playSound(audioElements.chipSound);
-        }
-
-        function placeBet() {
-            if (gameState.isGameActive) {
-                alert('遊戲進行中！');
-                return;
-            }
-            
-            if (gameState.currentBet <= 0) {
-                alert('請選擇下注金額！');
-                return;
-            }
-            
-            if (!gameState.currentBetTarget) {
-                alert('請選擇下注目標！');
-                return;
-            }
-            
-            if (gameState.currentBet > gameState.balance) {
-                alert('餘額不足！');
-                return;
-            }
-            
-            gameState.isBetPlaced = true;
-            gameState.balance -= gameState.currentBet;
-            
-            updateUI();
-            elements.resultText.textContent = '下注成功！準備發牌...';
-            playSound(audioElements.chipSound);
-        }
-
-        async function dealCards() {
-            if (!gameState.isBetPlaced) {
-                alert('請先下注！');
-                return;
-            }
-            
-            if (gameState.isGameActive) {
-                alert('遊戲進行中！');
-                return;
-            }
-            
-            gameState.isGameActive = true;
-            elements.dealBtn.disabled = true;
-            
-            // 重置卡片顯示
-            resetCards();
-            
-            // 發牌邏輯
-            await dealGame();
-            
-            gameState.isGameActive = false;
-            gameState.isBetPlaced = false;
-            elements.dealBtn.disabled = false;
-        }
-
-        function newRound() {
-            if (gameState.isGameActive) {
-                alert('遊戲進行中！');
-                return;
-            }
-            
-            clearBet();
-            resetCards();
-            elements.resultText.textContent = '請下注後開始遊戲';
-        }
-
-        // 卡片和遊戲邏輯（保持不變）
-        function resetCards() {
-            const playerCards = elements.playerCardsContainer.children;
-            const bankerCards = elements.bankerCardsContainer.children;
-            
-            for (let i = 0; i < 3; i++) {
-                playerCards[i].className = 'card placeholder';
-                playerCards[i].children[0].textContent = '';
-                playerCards[i].children[1].innerHTML = i === 2 ? '<i class="fas fa-plus"></i>' : '<i class="fas fa-question"></i>';
-                playerCards[i].style.opacity = i === 2 ? '0.5' : '1';
-                
-                bankerCards[i].className = 'card placeholder';
-                bankerCards[i].children[0].textContent = '';
-                bankerCards[i].children[1].innerHTML = i === 2 ? '<i class="fas fa-plus"></i>' : '<i class="fas fa-question"></i>';
-                bankerCards[i].style.opacity = i === 2 ? '0.5' : '1';
-            }
-            
-            elements.playerPoints.textContent = '0';
-            elements.bankerPoints.textContent = '0';
-        }
-
-        async function dealGame() {
-            // 初始化牌組
-            gameState.playerCards = [null, null, null];
-            gameState.bankerCards = [null, null, null];
-            
-            // 發前兩張牌
-            await dealInitialCards();
-            
-            // 計算點數
-            const playerFirstTwo = calculatePoints([gameState.playerCards[0], gameState.playerCards[1]]);
-            const bankerFirstTwo = calculatePoints([gameState.bankerCards[0], gameState.bankerCards[1]]);
-            
-            // 玩家補牌
-            if (playerFirstTwo <= 5) {
-                await dealThirdCard('player');
-            }
-            
-            // 莊家補牌
-            const playerThird = gameState.playerCards[2];
-            let bankerDraws = false;
-            
-            if (bankerFirstTwo <= 2) {
-                bankerDraws = true;
-            } else if (bankerFirstTwo === 3) {
-                if (playerThird && getCardValue(playerThird) !== 8) bankerDraws = true;
-            } else if (bankerFirstTwo === 4) {
-                if (playerThird && getCardValue(playerThird) >= 2 && getCardValue(playerThird) <= 7) bankerDraws = true;
-            } else if (bankerFirstTwo === 5) {
-                if (playerThird && getCardValue(playerThird) >= 4 && getCardValue(playerThird) <= 7) bankerDraws = true;
-            } else if (bankerFirstTwo === 6) {
-                if (playerThird && (getCardValue(playerThird) === 6 || getCardValue(playerThird) === 7)) bankerDraws = true;
-            }
-            
-            if (bankerDraws) {
-                await dealThirdCard('banker');
-            }
-            
-            // 計算最終結果
-            const playerFinal = calculatePoints(gameState.playerCards.filter(c => c));
-            const bankerFinal = calculatePoints(gameState.bankerCards.filter(c => c));
-            
-            elements.playerPoints.textContent = playerFinal;
-            elements.bankerPoints.textContent = bankerFinal;
-            
-            // 判斷勝負
-            let result = '';
-            if (playerFinal > bankerFinal) {
-                result = 'player';
-                elements.resultText.textContent = '玩家勝！';
-                elements.resultText.className = 'result-text winner-player';
-            } else if (playerFinal < bankerFinal) {
-                result = 'banker';
-                elements.resultText.textContent = '莊家勝！';
-                elements.resultText.className = 'result-text winner-banker';
-            } else {
-                result = 'tie';
-                elements.resultText.textContent = '和局！';
-                elements.resultText.className = 'result-text winner-tie';
-            }
-            
-            // 計算盈利
-            const profit = calculateProfit(result);
-            gameState.balance += profit;
-            gameState.totalProfit += profit - gameState.currentBet;
-            
-            // 更新統計
-            gameState.totalRounds++;
-            if (result === 'player') gameState.playerWins++;
-            else if (result === 'banker') gameState.bankerWins++;
-            else gameState.tieGames++;
-            
-            // 更新大路圖
-            updateBigRoad(result);
-            
-            // 更新UI
-            updateUI();
-            
-            // 播放音效
-            if (profit > gameState.currentBet) {
-                playSound(audioElements.winSound);
-            } else {
-                playSound(audioElements.loseSound);
-            }
-        }
-
-        async function dealInitialCards() {
-            // 玩家第一張
-            gameState.playerCards[0] = getRandomCard();
-            await revealCard('player', 0, gameState.playerCards[0]);
-            
-            // 莊家第一張
-            gameState.bankerCards[0] = getRandomCard();
-            await revealCard('banker', 0, gameState.bankerCards[0]);
-            
-            // 玩家第二張
-            gameState.playerCards[1] = getRandomCard();
-            await revealCard('player', 1, gameState.playerCards[1]);
-            
-            // 莊家第二張
-            gameState.bankerCards[1] = getRandomCard();
-            await revealCard('banker', 1, gameState.bankerCards[1]);
-        }
-
-        async function dealThirdCard(side) {
-            if (side === 'player') {
-                gameState.playerCards[2] = getRandomCard();
-                await revealCard('player', 2, gameState.playerCards[2]);
-            } else {
-                gameState.bankerCards[2] = getRandomCard();
-                await revealCard('banker', 2, gameState.bankerCards[2]);
-            }
-        }
-
-        async function revealCard(side, index, card) {
-            const container = side === 'player' ? elements.playerCardsContainer : elements.bankerCardsContainer;
-            const cardElement = container.children[index];
-            
-            playSound(audioElements.dealSound);
-            
-            cardElement.classList.remove('placeholder');
-            cardElement.classList.add('card-dealing');
-            
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            cardElement.classList.add('flipped');
-            await new Promise(resolve => setTimeout(resolve, 300));
-            
-            const color = Math.random() > 0.5 ? 'red' : 'black';
-            cardElement.children[0].textContent = card;
-            cardElement.children[0].classList.add(color);
-            
-            await new Promise(resolve => setTimeout(resolve, 200));
-        }
-
-        // 卡片相關函數
-        function getRandomCard() {
-            const cards = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-            return cards[Math.floor(Math.random() * cards.length)];
-        }
-
-        function getCardValue(card) {
-            if (!card) return 0;
-            if (card === 'A') return 1;
-            if (card === '10' || card === 'J' || card === 'Q' || card === 'K') return 0;
-            return parseInt(card);
-        }
-
-        function calculatePoints(cards) {
-            let total = 0;
-            cards.forEach(card => {
-                if (card) total += getCardValue(card);
-            });
-            return total % 10;
-        }
-
-        function calculateProfit(result) {
-            if (result === gameState.currentBetTarget) {
-                switch(result) {
-                    case 'player':
-                    case 'banker':
-                        return gameState.currentBet * 1.95;
-                    case 'tie':
-                        return gameState.currentBet * 8.00;
-                }
-            } else if (result === 'tie') {
-                return gameState.currentBet;
-            }
-            return 0;
-        }
-
-        // 大路圖函數
-        function initRoadGrid() {
-            elements.roadGrid.innerHTML = '';
-            for (let row = 0; row < 6; row++) {
-                for (let col = 0; col < 40; col++) {
-                    const cell = document.createElement('div');
-                    cell.className = 'road-cell empty-road';
-                    cell.dataset.row = row;
-                    cell.dataset.col = col;
-                    elements.roadGrid.appendChild(cell);
-                }
-            }
-        }
-
-        function updateBigRoad(result) {
-            gameState.bigRoad.push(result);
-            
-            // 標準大路圖算法
-            let placed = false;
-            for (let col = 0; col < 40 && !placed; col++) {
-                for (let row = 0; row < 6 && !placed; row++) {
-                    const cellIndex = row * 40 + col;
-                    const cell = elements.roadGrid.children[cellIndex];
-                    
-                    if (cell.classList.contains('empty-road')) {
-                        cell.className = 'road-cell';
-                        if (result === 'player') {
-                            cell.classList.add('player-road');
-                            cell.textContent = 'P';
-                        } else if (result === 'banker') {
-                            cell.classList.add('banker-road');
-                            cell.textContent = 'B';
-                        } else {
-                            cell.classList.add('tie-road');
+            /**
+             * 建立一副完整的牌組 (8 副牌)。
+             */
+            function createDeck() {
+                const suits = ['S', 'H', 'D', 'C']; // Spades, Hearts, Diamonds, Clubs
+                const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+                let deck = [];
+                for (let i = 0; i < 8; i++) { // 8 副牌
+                    for (const suit of suits) {
+                        for (const rank of ranks) {
+                            deck.push(`${suit}-${rank}`);
                         }
-                        placed = true;
                     }
                 }
+                return shuffleDeck(deck);
             }
-        }
 
-        // UI更新
-        function updateUI() {
-            elements.totalBalance.textContent = gameState.balance.toFixed(2);
-            elements.totalRounds.textContent = gameState.totalRounds;
-            elements.playerWins.textContent = gameState.playerWins;
-            elements.bankerWins.textContent = gameState.bankerWins;
-            elements.tieGames.textContent = gameState.tieGames;
-        }
-
-        function updateBetUI() {
-            elements.betAmountValue.textContent = gameState.currentBet.toFixed(2);
-        }
-
-        // 存款功能
-        function confirmDeposit() {
-            const amount = parseFloat(elements.depositAmount.value);
-            if (!amount || amount <= 0) {
-                alert('請輸入有效的存款金額');
-                return;
-            }
-            
-            gameState.balance += amount;
-            updateUI();
-            elements.depositModal.classList.remove('active');
-            elements.resultText.textContent = `存款成功！存入 ${amount} USDT`;
-            
-            setTimeout(() => {
-                if (!gameState.isBetPlaced) {
-                    elements.resultText.textContent = '請下注後開始遊戲';
+            /**
+             * 洗牌。
+             */
+            function shuffleDeck(deck) {
+                for (let i = deck.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [deck[i], deck[j]] = [deck[j], deck[i]];
                 }
-            }, 3000);
-        }
-
-        // 初始化遊戲
-        init();
-        
-        // 頁面卸載時停止 YouTube 播放
-        window.addEventListener('beforeunload', () => {
-            if (gameState.isYouTubePlaying) {
-                stopYouTubePlayback();
+                return deck;
             }
+
+            // 初始化牌組
+            function initializeDeck() {
+                currentDeck = createDeck();
+            }
+            initializeDeck();
+
+
+            // --- 牌路邏輯：大路生成 ---
+            
+            /**
+             * 將遊戲結果轉換為大路格式。
+             * @param {string} winner - 'P' (Player), 'B' (Banker), 'T' (Tie)
+             * @param {boolean} pPair - 閒對
+             * @param {boolean} bPair - 莊對
+             */
+            function updateBigRoad(winner, pPair, bPair) {
+                // 如果是和局，只在上一局結果上標記，不開新列
+                if (winner === 'T') {
+                    if (bigRoadData.length > 0) {
+                        // 增加和局計數和對子標記
+                        const lastResult = bigRoadData[bigRoadData.length - 1];
+                        lastResult.ties++;
+                        if (pPair) lastResult.pPair = true;
+                        if (bPair) lastResult.bPair = true;
+                    }
+                    return; // 和局不新增列
+                }
+
+                const newWinner = winner; // 'P' or 'B'
+                let newColumn = false; // 是否需要開新列
+
+                if (bigRoadData.length === 0) {
+                    // 第一局必須開新列
+                    newColumn = true;
+                } else {
+                    const lastResult = bigRoadData[bigRoadData.length - 1];
+                    const lastWinner = lastResult.type;
+
+                    if (lastWinner === newWinner) {
+                        // 連勝：在同一列向下新增
+                        newColumn = false;
+                    } else {
+                        // 換邊：開新列
+                        newColumn = true;
+                    }
+                }
+
+                if (newColumn) {
+                    bigRoadData.push({
+                        type: newWinner, // 'P' or 'B'
+                        results: [{ p: pPair, b: bPair, t: 0 }],
+                        ties: 0,
+                        pPair: pPair,
+                        bPair: bPair
+                    });
+                } else {
+                    // 在當前列的最後一個結果中，新增一個結果
+                    const lastResult = bigRoadData[bigRoadData.length - 1];
+                    lastResult.results.push({ p: pPair, b: bPair, t: 0 });
+                    if (pPair) lastResult.pPair = true;
+                    if (bPair) lastResult.bPair = true;
+                }
+            }
+
+
+            /**
+             * 渲染大路網格。
+             */
+            function renderBigRoad() {
+                bigRoadGridEl.innerHTML = ''; // 清空網格
+                const numRows = 6;
+                const numCols = 60; // 顯示 60 欄
+
+                // 1. 初始化網格單元格
+                const cells = Array.from({ length: numRows }, () => Array(numCols).fill(null));
+
+                let currentColumn = 0;
+
+                // 2. 填充大路數據
+                for (const columnData of bigRoadData) {
+                    let currentRow = 0;
+                    
+                    // 遍歷該連勝（列）中的所有結果
+                    for (const result of columnData.results) {
+                        if (currentColumn >= numCols) break; // 超出顯示範圍
+
+                        // 確保不超過 6 行
+                        if (currentRow < numRows) {
+                            cells[currentRow][currentColumn] = {
+                                type: columnData.type,
+                                hasTie: columnData.ties > 0 && currentRow === columnData.results.length - 1, // 只有連勝尾部標記總和局
+                                pPair: result.p,
+                                bPair: result.b,
+                                tieCount: columnData.ties,
+                                isColumnStart: currentRow === 0
+                            };
+                            currentRow++;
+                        } else {
+                            // 數據下移 ('Dragon') - 只處理該列的第一行
+                            // 從第二行開始的數據，只要行數超過 6，就平移到下一列的第一行（這是複雜的牌路邏輯，這裡僅簡單表示下移）
+                            let overflowRow = currentRow;
+                            let overflowCol = currentColumn;
+                            
+                            while (overflowRow < columnData.results.length) {
+                                overflowCol++;
+                                if (overflowCol >= numCols) break; // 超出顯示範圍
+                                cells[numRows - 1][overflowCol] = {
+                                    type: columnData.type,
+                                    hasTie: false, // 龍尾巴不標記和
+                                    pPair: columnData.results[overflowRow].p,
+                                    bPair: columnData.results[overflowRow].b,
+                                    tieCount: 0,
+                                    isColumnStart: false
+                                };
+                                overflowRow++;
+                            }
+                        }
+                    }
+
+                    // 只有在當前列沒有溢出的情況下，才移動到下一列
+                    if (currentRow <= numRows) {
+                        currentColumn++;
+                    }
+                    
+                }
+
+                // 3. 渲染網格
+                for (let r = 0; r < numRows; r++) {
+                    for (let c = 0; c < numCols; c++) {
+                        const cellData = cells[r][c];
+                        const cellDiv = document.createElement('div');
+                        cellDiv.classList.add('road-cell');
+                        
+                        if (cellData) {
+                            const circleDiv = document.createElement('div');
+                            circleDiv.classList.add('road-circle');
+                            
+                            if (cellData.type === 'B') {
+                                circleDiv.classList.add('banker-road-circle');
+                            } else if (cellData.type === 'P') {
+                                circleDiv.classList.add('player-road-circle');
+                            }
+                            
+                            // 標記和局
+                            if (cellData.hasTie && cellData.tieCount > 0) {
+                                const tieDot = document.createElement('div');
+                                tieDot.classList.add('tie-dot');
+                                cellDiv.appendChild(tieDot);
+                                // 在和局點上顯示和局計數（可選）
+                                // circleDiv.textContent = cellData.tieCount; 
+                            }
+                            
+                            // 標記對子
+                            if (cellData.pPair) {
+                                const ppDot = document.createElement('div');
+                                ppDot.classList.add('player-pair-dot');
+                                cellDiv.appendChild(ppDot);
+                            }
+                            if (cellData.bPair) {
+                                const bpDot = document.createElement('div');
+                                bpDot.classList.add('banker-pair-dot');
+                                cellDiv.appendChild(bpDot);
+                            }
+
+                            cellDiv.appendChild(circleDiv);
+                        }
+                        
+                        bigRoadGridEl.appendChild(cellDiv);
+                    }
+                }
+                
+                // 滾動到最右邊顯示最新的結果
+                bigRoadGridEl.parentElement.scrollLeft = bigRoadGridEl.scrollWidth;
+            }
+
+            // --- 遊戲流程控制 ---
+            
+            /**
+             * 處理單局遊戲流程。
+             */
+            async function dealCards() {
+                if (Object.values(currentBet).every(bet => bet === 0)) {
+                    alert('請先下注！');
+                    return;
+                }
+                gameInProgress = true;
+                dealButton.disabled = true;
+                resetButton.disabled = true;
+                clearBetButton.disabled = true;
+
+                // 1. 扣除總餘額
+                const totalBet = Object.values(currentBet).reduce((sum, val) => sum + val, 0);
+                totalBalance -= totalBet;
+                updateBalanceDisplay();
+
+                // 2. 檢查牌數，不足則重新洗牌 (假設剩餘 20 張牌時重新洗牌)
+                if (currentDeck.length < 20) {
+                    initializeDeck();
+                    console.log('牌組重洗，新牌數:', currentDeck.length);
+                }
+
+                // 3. 發首四張牌
+                let pHand = [currentDeck.pop(), currentDeck.pop()]; // P1, B1
+                let bHand = [currentDeck.pop(), currentDeck.pop()]; // P2, B2 (發牌順序 P1, B1, P2, B2)
+                
+                // 修正發牌順序：P1, B1, P2, B2
+                pHand = [pHand[0], bHand[0]];
+                bHand = [pHand[1], bHand[1]];
+                
+                pHand = [currentDeck.pop(), currentDeck.pop()]; // P1, P2
+                bHand = [currentDeck.pop(), currentDeck.pop()]; // B1, B2
+
+                // 延遲顯示卡牌
+                const renderCard = (hand, element) => {
+                    element.innerHTML = '';
+                    hand.forEach((card, index) => {
+                        const [suit, rank] = card.split('-');
+                        const colorClass = ['H', 'D'].includes(suit) ? 'red' : 'black';
+                        const suitIcon = { 'S': '♠', 'H': '♥', 'D': '♦', 'C': '♣' }[suit];
+                        const cardHtml = `
+                            <div class="card flipped ${colorClass}">
+                                <div class="card-back"><i class="fas fa-question-circle"></i></div>
+                                <div class="card-front">
+                                    <div style="font-size: 1.5rem; position: absolute; top: 10px; left: 10px;">${rank} ${suitIcon}</div>
+                                    <div style="font-size: 4rem;">${rank}</div>
+                                    <div style="font-size: 1.5rem; position: absolute; bottom: 10px; right: 10px; transform: rotate(180deg);">${rank} ${suitIcon}</div>
+                                </div>
+                            </div>
+                        `;
+                        element.innerHTML += cardHtml;
+                    });
+                };
+                
+                renderCard(pHand, playerCardsEl);
+                renderCard(bHand, bankerCardsEl);
+
+                await new Promise(r => setTimeout(r, 1000));
+                
+                // 翻開卡牌 (這裡簡化，直接顯示點數)
+                const flipCards = (hand, element) => {
+                    const cards = element.querySelectorAll('.card');
+                    cards.forEach(card => card.classList.remove('flipped'));
+                    // 更新點數
+                    if (hand === pHand) playerPointsEl.textContent = getHandPoints(pHand);
+                    if (hand === bHand) bankerPointsEl.textContent = getHandPoints(bHand);
+                }
+                
+                flipCards(pHand, playerCardsEl);
+                flipCards(bHand, bankerCardsEl);
+
+                await new Promise(r => setTimeout(r, 1500));
+
+
+                // 4. 判斷是否補牌
+                const drawRules = shouldDrawThirdCard(pHand, bHand);
+
+                let pCard3 = null;
+                let bCard3 = null;
+
+                if (drawRules.playerDraw) {
+                    pCard3 = currentDeck.pop();
+                    pHand.push(pCard3);
+                    renderCard(pHand, playerCardsEl);
+                    await new Promise(r => setTimeout(r, 1000));
+                    flipCards(pHand, playerCardsEl); // 刷新閒家點數
+                    await new Promise(r => setTimeout(r, 500));
+                }
+
+                if (drawRules.bankerDraw) {
+                    bCard3 = currentDeck.pop();
+                    bHand.push(bCard3);
+                    renderCard(bHand, bankerCardsEl);
+                    await new Promise(r => setTimeout(r, 1000));
+                    flipCards(bHand, bankerCardsEl); // 刷新莊家點數
+                    await new Promise(r => setTimeout(r, 500));
+                }
+
+
+                // 5. 判斷結果和派彩
+                const pPoints = getHandPoints(pHand);
+                const bPoints = getHandPoints(bHand);
+                const pPair = hasPair(pHand);
+                const bPair = hasPair(bHand);
+
+                let winner = '';
+                let winColorClass = '';
+                if (pPoints > bPoints) {
+                    winner = 'Player';
+                    winColorClass = 'winner-player';
+                    stats.playerWins++;
+                } else if (bPoints > pPoints) {
+                    winner = 'Banker';
+                    winColorClass = 'winner-banker';
+                    stats.bankerWins++;
+                } else {
+                    winner = 'Tie';
+                    winColorClass = 'winner-tie';
+                    stats.tieCount++;
+                }
+                
+                // 更新統計數據中的對子數
+                if (pPair) stats.playerPairCount++;
+                if (bPair) stats.bankerPairCount++;
+                stats.totalRounds++;
+                updateStats();
+
+                resultTextEl.textContent = `${winner.toUpperCase()} 勝！ (${pPoints} - ${bPoints})`;
+                resultTextEl.className = `result-text ${winColorClass}`;
+
+                // 6. 派彩
+                let winAmount = 0;
+
+                // 閒家/莊家/和局
+                if (winner === 'Player') {
+                    winAmount += currentBet.player * 2.0; // 1:1
+                } else if (winner === 'Banker') {
+                    // 澳門百家樂莊家贏扣 5% 佣金
+                    winAmount += currentBet.banker * (1 + 0.95); // 0.95:1
+                } else { // Tie
+                    winAmount += currentBet.player;
+                    winAmount += currentBet.banker;
+                    winAmount += currentBet.tie * 9.0; // 8:1 (賠 9 倍，贏 8)
+                }
+                
+                // 對子派彩
+                if (pPair && currentBet.player_pair > 0) {
+                    winAmount += currentBet.player_pair * 12.0; // 11:1 (賠 12 倍，贏 11)
+                    if (winner === 'Player') resultTextEl.textContent += ' (閒對)';
+                }
+                if (bPair && currentBet.banker_pair > 0) {
+                    winAmount += currentBet.banker_pair * 12.0; // 11:1 (賠 12 倍，贏 11)
+                    if (winner === 'Banker') resultTextEl.textContent += ' (莊對)';
+                }
+
+                totalBalance += winAmount;
+                updateBalanceDisplay();
+
+                // 7. 記錄歷史和牌路
+                const historyResult = {
+                    winner: winner[0],
+                    player: pPoints,
+                    banker: bPoints,
+                    pPair: pPair,
+                    bPair: bPair,
+                    totalBet: totalBet,
+                    winAmount: winAmount - totalBet // 淨贏利
+                };
+                gameHistory.push(historyResult);
+                
+                // 更新大路
+                updateBigRoad(historyResult.winner, historyResult.pPair, historyResult.bPair);
+                renderBigRoad();
+
+                // 更新歷史列表
+                renderHistoryList(historyResult);
+
+                // 8. 重設投注和狀態
+                currentBet = { player: 0, banker: 0, tie: 0, player_pair: 0, banker_pair: 0 };
+                updateBetDisplay();
+
+                gameInProgress = false;
+                dealButton.disabled = true;
+                resetButton.disabled = false; // 允許重設盤口
+                clearBetButton.disabled = false;
+            }
+
+            // 渲染單局歷史
+            function renderHistoryList(result) {
+                const item = document.createElement('div');
+                let resultClass = '';
+                if (result.winner === 'P') resultClass = 'history-player';
+                else if (result.winner === 'B') resultClass = 'history-banker';
+                else resultClass = 'history-tie';
+                
+                let winLossClass = result.winAmount >= 0 ? 'color: var(--primary-color);' : 'color: var(--danger-color);';
+                
+                const pairText = (result.pPair ? '閒對 ' : '') + (result.bPair ? '莊對' : '');
+
+                item.classList.add('history-item', resultClass);
+                item.innerHTML = `
+                    <div>局數 #${stats.totalRounds} (${result.player}-${result.banker})</div>
+                    <div>
+                        <span style="font-weight: bold;">${result.winner === 'P' ? '閒勝' : result.winner === 'B' ? '莊勝' : '和局'}</span>
+                        ${pairText ? `(${pairText})` : ''}
+                    </div>
+                    <div style="${winLossClass}">${result.winAmount >= 0 ? '+' : ''}${result.winAmount.toFixed(2)}</div>
+                `;
+                historyListEl.prepend(item); // 最新結果在最上面
+            }
+
+
+            // --- 事件監聽器 ---
+
+            // 選擇籌碼面額
+            chipAmounts.addEventListener('click', (e) => {
+                if (e.target.classList.contains('amount-btn')) {
+                    chipAmounts.querySelectorAll('.amount-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    chipValue = parseFloat(e.target.dataset.amount);
+                }
+            });
+            // 預設選擇第一個籌碼
+            chipAmounts.querySelector('.amount-btn').classList.add('active');
+
+            // 選擇投注目標
+            betTargets.addEventListener('click', (e) => {
+                const targetBtn = e.target.closest('.target-btn');
+                if (targetBtn && !gameInProgress) {
+                    const target = targetBtn.dataset.target;
+                    
+                    if (totalBalance < chipValue) {
+                        alert('餘額不足，請充值或選擇較小籌碼。');
+                        return;
+                    }
+
+                    // 更新投注金額和總餘額
+                    currentBet[target] += chipValue;
+                    totalBalance -= chipValue; // 先扣除籌碼
+                    
+                    updateBetDisplay();
+                    updateBalanceDisplay();
+                    
+                    // 簡單標記選中的投注目標 (可以改為更複雜的籌碼堆疊 UI)
+                    targetBtn.textContent = `${targetBtn.textContent.split('(')[0].trim()} (${currentBet[target].toFixed(2)})`;
+
+                    // 啟用發牌按鈕
+                    dealButton.disabled = false;
+                }
+            });
+
+            // 清除投注
+            clearBetButton.addEventListener('click', () => {
+                if (gameInProgress) return;
+                
+                const totalBet = Object.values(currentBet).reduce((sum, val) => sum + val, 0);
+                totalBalance += totalBet; // 返還所有投注金額
+                updateBalanceDisplay();
+
+                currentBet = { player: 0, banker: 0, tie: 0, player_pair: 0, banker_pair: 0 };
+                updateBetDisplay();
+                
+                // 重置按鈕文字
+                betTargets.querySelectorAll('.target-btn').forEach(btn => {
+                    const target = btn.dataset.target;
+                    const defaultText = {
+                        'player': '閒家 (1:1)',
+                        'banker': '莊家 (0.95:1)',
+                        'tie': '和局 (8:1)',
+                        'player_pair': '閒對 (11:1)',
+                        'banker_pair': '莊對 (11:1)'
+                    };
+                    btn.textContent = defaultText[target];
+                });
+            });
+
+            // 發牌按鈕
+            dealButton.addEventListener('click', dealCards);
+            
+            // 重設按鈕
+            resetButton.addEventListener('click', () => {
+                resetCards();
+                // 這裡只清空牌桌，不影響投注和歷史記錄
+                dealButton.disabled = Object.values(currentBet).every(bet => bet === 0);
+                resetButton.disabled = true;
+            });
+
+
+            // --- 初始設置 ---
+            updateBalanceDisplay();
+            updateBetDisplay();
+            updateStats();
+            renderBigRoad(); // 初始化牌路網格
+
         });
     </script>
 </body>
