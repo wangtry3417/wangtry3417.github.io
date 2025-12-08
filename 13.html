@@ -29,7 +29,6 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* 模擬木紋背景 */
             background: url('https://www.transparenttextures.com/patterns/dark-wood.png'); 
             opacity: 0.2;
             z-index: -2;
@@ -41,7 +40,6 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* 輕微的鑽石/斜紋圖案 */
             background-image:
                 radial-gradient(circle at 25% 25%, rgba(212, 175, 55, 0.05) 1px, transparent 1px),
                 radial-gradient(circle at 75% 75%, rgba(212, 175, 55, 0.05) 1px, transparent 1px);
@@ -52,7 +50,7 @@
         /* 頂級導航欄 (HEADER) */
         .luxury-header {
             background: linear-gradient(to bottom, rgba(10, 10, 15, 0.95), rgba(10, 10, 15, 0.8));
-            backdrop-filter: blur(5px); /* 略微模糊背景 */
+            backdrop-filter: blur(5px);
             border-bottom: 3px solid #d4af37;
             padding: 15px 30px;
             display: flex;
@@ -79,7 +77,7 @@
 
         .logo-text {
             font-family: 'Cinzel', serif;
-            font-size: 2.2rem; /* 略微增大 */
+            font-size: 2.2rem;
             font-weight: 700;
             background: linear-gradient(to right, #d4af37, #f7ef8a);
             -webkit-background-clip: text;
@@ -115,7 +113,7 @@
             padding: 12px 20px;
             display: flex;
             flex-direction: column;
-            align-items: flex-end; /* 調整為右對齊 */
+            align-items: flex-end;
             min-width: 180px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
             text-align: right;
@@ -160,6 +158,7 @@
             gap: 8px;
             text-transform: uppercase;
             font-size: 0.95rem;
+            justify-content: center;
         }
 
         .action-btn:hover {
@@ -183,13 +182,13 @@
             margin: 30px auto;
             padding: 0 30px;
             display: grid;
-            grid-template-columns: 1fr 350px; /* 略微減小控制面板寬度 */
+            grid-template-columns: 1fr 350px;
             gap: 30px;
         }
 
         .royal-table {
             background: radial-gradient(ellipse at center, #1b3a4b 0%, #0d1b2a 70%, #0a0a0f 100%);
-            border: 4px solid #d4af37; /* 加粗邊框 */
+            border: 4px solid #d4af37;
             border-radius: 30px;
             height: 700px;
             position: relative;
@@ -234,12 +233,11 @@
             align-items: center;
             gap: 10px;
             transition: all 0.3s ease;
-            width: 150px; /* 固定寬度，減少擁擠 */
+            width: 150px;
         }
 
         .player-seat.active {
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5); /* 當前回合玩家提示 */
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
         }
 
         .seat-name {
@@ -252,26 +250,36 @@
             text-align: center;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             font-size: 1rem;
-            white-space: nowrap; /* 防止名稱換行 */
+            white-space: nowrap;
         }
         
-        /* 玩家位置定位 (可根據牌桌形狀調整) */
-        .seat-1-area { bottom: 0; left: 50%; transform: translateX(-50%); } /* 玩家手牌單獨處理 */
-        .seat-2 { top: 30px; left: 50%; transform: translateX(-50%); }
-        .seat-3 { left: 50px; top: 150px; }
-        .seat-4 { right: 50px; top: 150px; }
-        .seat-5 { left: 50%; transform: translateX(-50%) translateY(30px); top: 300px; } /* 調整為 5 人桌樣式，如果只有 4 個電腦，可以刪除 */
-        /* 由於您的 HTML 只有 4 個電腦玩家 (2-5)，我們調整為 4 人桌樣式，並把 seat-5 刪除 */
-        .seat-3 { left: 20px; top: 50%; transform: translateY(-50%); }
-        .seat-4 { right: 20px; top: 50%; transform: translateY(-50%); }
-        .seat-5 { left: 50%; top: 200px; transform: translateX(-50%); } /* 變為中間上方位置 */
+        /* 玩家位置定位 (修正為 4 個電腦玩家 + 1 玩家) */
+        .seat-1-area { bottom: 20px; left: 50%; transform: translateX(-50%); } 
+        .seat-2 { top: 30px; left: 50%; transform: translateX(-50%); } /* 正上方 */
+        .seat-3 { left: 50px; top: 150px; } /* 左上 */
+        .seat-4 { right: 50px; top: 150px; } /* 右上 */
+        .seat-5 { left: 50%; top: 300px; transform: translateX(-50%); } /* 中間下方 (如果不需要 5 人，可以刪除這個位置或調整為中間左右) */
+        /* 由於您的 HTML 只有 4 個電腦玩家 (2-5)，我們調整為 4 人桌樣式 */
+        .seat-3 { left: 20px; top: 50%; transform: translateY(-50%); } /* 左中 */
+        .seat-4 { right: 20px; top: 50%; transform: translateY(-50%); } /* 右中 */
+        .seat-5 { left: 50%; top: 200px; transform: translateX(-50%); } /* 中間上方 */
 
 
         .player-cards {
             display: flex;
-            gap: -20px; /* 輕微重疊 */
             justify-content: center;
+            /* 調整電腦玩家牌的重疊，避免佔用太多空間 */
+            gap: 0; 
         }
+        
+        .player-cards .luxury-card {
+             margin-right: -30px; /* 電腦牌重疊更多 */
+        }
+        
+        .player-cards .luxury-card:last-child {
+             margin-right: 0;
+        }
+
 
         /* 奢華卡牌設計 (CARDS) */
         .luxury-card {
@@ -336,7 +344,7 @@
         .player-hand-cards {
             display: flex;
             justify-content: center;
-            gap: 0; /* 讓手牌重疊，優化手機空間 */
+            gap: 0;
             flex-wrap: nowrap;
         }
 
@@ -345,8 +353,8 @@
             height: 85px;
             cursor: pointer;
             margin-right: -25px; /* 輕微重疊 */
-            border-width: 3px; /* 邊框更明顯 */
-            z-index: 1; /* 確保重疊時可點擊 */
+            border-width: 3px;
+            z-index: 1;
             transition: all 0.2s ease;
         }
         
@@ -356,11 +364,11 @@
         
         .player-hand-cards .luxury-card:hover {
             transform: translateY(-8px) scale(1.05);
-            z-index: 10; /* 懸停時置頂 */
+            z-index: 10;
         }
 
         .player-hand-cards .luxury-card.selected-to-play {
-            border-color: #ff4500; /* 橙紅色突出顯示選中的牌 */
+            border-color: #ff4500;
             box-shadow: 0 0 15px rgba(255, 69, 0, 0.8);
             transform: translateY(-15px);
             z-index: 15;
@@ -433,7 +441,7 @@
         }
         
         .deposit-bonus {
-            color: #4caf50; /* 綠色突出獎勵 */
+            color: #4caf50;
             font-weight: bold;
         }
 
@@ -493,7 +501,7 @@
 
         .deposit-btn {
             width: 100%;
-            background: linear-gradient(145deg, #4caf50, #81c784); /* 綠色調 */
+            background: linear-gradient(145deg, #4caf50, #81c784);
             color: white;
             padding: 15px;
             border: none;
@@ -514,6 +522,36 @@
         }
 
         /* --- 管理員按鈕與模態框 (ADMIN) --- */
+        .admin-access {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .admin-btn {
+            background: rgba(50, 50, 50, 0.7);
+            color: #d4af37;
+            border: 2px solid #d4af37;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            line-height: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .admin-btn:hover {
+            background: #d4af37;
+            color: #1a1a2e;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.8);
+        }
+
         .admin-modal {
             display: none;
             position: fixed;
@@ -527,7 +565,7 @@
             align-items: center;
         }
 
-        .admin-modal.show { display: flex; } /* 顯示控制 */
+        .admin-modal.show { display: flex; }
 
         .admin-modal-content {
             background: linear-gradient(145deg, #0a0a0f, #1a1a2e);
@@ -617,20 +655,6 @@
             font-size: 1rem;
         }
         
-        .control-item:has(#winProbability) {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-        }
-        
-        #winProbValue {
-            min-width: 50px;
-            text-align: right;
-            font-weight: bold;
-            color: #ffd700;
-        }
-
-
         /* --- 動畫與效果 (ANIMATION) --- */
         @keyframes glow {
             0% { box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
@@ -662,7 +686,7 @@
             }
             
             .control-panel {
-                order: -1; /* 將控制面板移到上方 */
+                order: -1;
             }
         }
 
@@ -706,11 +730,11 @@
             }
 
             .royal-table {
-                height: 400px;
+                height: 400px; /* 牌桌高度進一步縮小 */
                 border-radius: 20px;
             }
 
-            /* 手牌區域優化：確保 13 張牌能顯示 */
+            /* 玩家手牌優化：確保 13 張牌能顯示 */
             .player-hand-cards .luxury-card {
                 width: 38px;
                 height: 60px;
@@ -727,7 +751,7 @@
             }
             
             .chip-options, .deposit-options {
-                grid-template-columns: repeat(2, 1fr); /* 手機上變為 2 欄 */
+                grid-template-columns: repeat(2, 1fr);
             }
             
             .control-panel {
@@ -738,13 +762,19 @@
             .admin-header { padding: 15px; }
             .admin-title { font-size: 1.3rem; }
             .admin-body { padding: 15px; gap: 15px; }
-            .control-group { grid-template-columns: 1fr; } /* 管理員面板在手機上變為單欄 */
+            .control-group { grid-template-columns: 1fr; }
             
             /* 調整玩家座位位置以適應小螢幕 */
             .seat-2 { top: 10px; }
             .seat-3 { left: 10px; top: 100px; }
             .seat-4 { right: 10px; top: 100px; }
             .seat-5 { top: 200px; }
+            
+            .admin-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
         }
     </style>
 </head>
@@ -767,7 +797,7 @@
             <div class="balance-display">
                 <div class="balance-label">尊貴籌碼</div>
                 <div class="balance-amount">
-                    <span id="balanceAmount">0</span>
+                    <span id="balanceAmount">100,000</span>
                     <span class="currency">HKD</span>
                 </div>
             </div>
@@ -811,9 +841,9 @@
                     <div class="player-hand-cards" id="player1Cards">
                         </div>
                     <div class="player-hand-piles" id="playerHandPiles" style="display:flex; gap: 20px; margin-top: 10px; font-size: 0.9rem; color: #a89b7a;">
-                        <span id="pile1Count">頭道: 3/3</span>
-                        <span id="pile2Count">中道: 5/5</span>
-                        <span id="pile3Count">尾道: 5/5</span>
+                        <span id="pile1Count">頭道: 0/3</span>
+                        <span id="pile2Count">中道: 0/5</span>
+                        <span id="pile3Count">尾道: 0/5</span>
                     </div>
                 </div>
             </div>
@@ -866,16 +896,16 @@
             
             <div class="game-info">
                 <div class="info-row">
+                    <span>當前底注 (單道)：</span>
+                    <span class="info-value" id="currentBet">100 HKD</span>
+                </div>
+                <div class="info-row">
                     <span>當前總底注：</span>
                     <span class="info-value" id="currentTotalBet">300 HKD</span>
                 </div>
                 <div class="info-row">
                     <span>獎金池 (4人)：</span>
                     <span class="info-value" id="potAmount">1200 HKD</span>
-                </div>
-                <div class="info-row">
-                    <span>本局回合：</span>
-                    <span class="info-value" id="currentRound">0</span>
                 </div>
                 <div class="info-row">
                     <span>您的預計勝率：</span>
@@ -969,475 +999,287 @@
                             <label class="checkbox-label">允許同花順出現</label>
                         </div>
                         
-                        <div class="control-item control-checkbox">
-                            <input type="checkbox" id="enableFourOfAKind" checked>
-                            <label class="checkbox-label">允許鐵支出現</label>
+                         <div class="control-item control-checkbox">
+                            <input type="checkbox" id="instantWin" >
+                            <label class="checkbox-label">即時勝利 (測試)</label>
                         </div>
                     </div>
                 </div>
                 
                 <div class="admin-section">
-                    <div class="section-title"><i class="fas fa-user-circle"></i> 玩家控制設定</div>
+                    <div class="section-title"><i class="fas fa-coins"></i> 籌碼調整</div>
                     <div class="control-group">
                         <div class="control-item">
-                            <label class="control-label">設定玩家籌碼</label>
-                            <input type="number" class="control-input" id="setPlayerBalance" value="0" min="0" step="1000">
+                            <label for="playerBalance" class="control-label">玩家 (您) 籌碼</label>
+                            <input type="number" id="playerBalance" class="control-input" value="100000">
                         </div>
-                        
-                        <div class="control-item">
-                            <label class="control-label">設定勝利機率 (%)</label>
-                            <input type="range" class="control-input" id="winProbability" min="0" max="100" value="50">
-                            <span id="winProbValue">50%</span>
-                        </div>
+                        <button class="action-btn" style="margin-top: auto;" onclick="updateBalance()">
+                            <i class="fas fa-plus-minus"></i> 調整籌碼
+                        </button>
                     </div>
                 </div>
-                
-                <div class="admin-section">
-                    <div class="section-title"><i class="fas fa-robot"></i> 電腦玩家難度</div>
-                    <div class="control-group">
-                        <div class="control-item">
-                            <label class="control-label">電腦玩家 1 難度</label>
-                            <select class="control-input" id="computer1Difficulty">
-                                <option value="easy">簡單</option>
-                                <option value="medium" selected>中等</option>
-                                <option value="hard">困難</option>
-                                <option value="expert">專家</option>
-                            </select>
-                        </div>
-                        
-                        <div class="control-item">
-                            <label class="control-label">電腦玩家 2 難度</label>
-                            <select class="control-input" id="computer2Difficulty">
-                                <option value="easy">簡單</option>
-                                <option value="medium" selected>中等</option>
-                                <option value="hard">困難</option>
-                                <option value="expert">專家</option>
-                            </select>
-                        </div>
-                        
-                        <div class="control-item">
-                            <label class="control-label">電腦玩家 3 難度</label>
-                            <select class="control-input" id="computer3Difficulty">
-                                <option value="easy">簡單</option>
-                                <option value="medium" selected>中等</option>
-                                <option value="hard">困難</option>
-                                <option value="expert">專家</option>
-                            </select>
-                        </div>
-                        
-                        <div class="control-item">
-                            <label class="control-label">電腦玩家 4 難度</label>
-                            <select class="control-input" id="computer4Difficulty">
-                                <option value="easy">簡單</option>
-                                <option value="medium" selected>中等</option>
-                                <option value="hard">困難</option>
-                                <option value="expert">專家</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                
-                <button class="action-btn" id="saveAdminSettingsBtn" style="width: 100%; background: linear-gradient(145deg, #4caf50, #81c784);">
-                    <i class="fas fa-save"></i> **儲存管理員設定**
-                </button>
             </div>
         </div>
     </div>
-
+    
     <script>
-        // 玩家狀態變數
-        let playerBalance = 0; // 初始為 0，從 localStorage 或預設值載入
-        let currentBaseBet = 100; // 每道底注
-        const NUM_PLAYERS = 5; // 玩家總數 (1 玩家 + 4 電腦)
-        const NUM_PILES = 3; // 三道牌 (頭/中/尾)
-        const PILE_CARDS = [3, 5, 5]; // 每道牌的張數
+        // --- 變數初始化 ---
+        const adminAccessBtn = document.getElementById('adminAccessBtn');
+        const adminModal = document.getElementById('adminModal');
+        const closeAdminBtn = document.getElementById('closeAdminBtn');
+        const balanceAmountSpan = document.getElementById('balanceAmount');
+        const playerBalanceInput = document.getElementById('playerBalance');
+        const startGameBtn = document.getElementById('startGameBtn');
+        const player1CardsContainer = document.getElementById('player1Cards');
+        const chipOptions = document.querySelectorAll('.chip-option');
+        const depositBtn = document.getElementById('depositBtn');
+        const cancelDepositBtn = document.getElementById('cancelDepositBtn');
+        const depositSection = document.getElementById('depositSection');
+        const betSection = document.getElementById('betSection');
+        const currentBetSpan = document.getElementById('currentBet');
+        const currentTotalBetSpan = document.getElementById('currentTotalBet');
+        const potAmountSpan = document.getElementById('potAmount');
+
+
+        let currentBet = 100;
+
+        // --- 1. 管理員模態框控制 ---
         
-        // 管理員設定物件
-        let adminSettings = {
-            forceHandType: 'none',
-            forceWinner: 'random',
-            enableStraightFlush: true,
-            enableFourOfAKind: true,
-            enableFullHouse: true,
-            winProbability: 50,
-            computer1Difficulty: 'medium',
-            computer2Difficulty: 'medium',
-            computer3Difficulty: 'medium',
-            computer4Difficulty: 'medium'
-        };
+        // 開啟管理員模態框
+        adminAccessBtn.addEventListener('click', () => {
+            // 從 UI 更新到輸入框
+            playerBalanceInput.value = parseInt(balanceAmountSpan.textContent.replace(/,/g, ''));
+            adminModal.classList.add('show');
+        });
 
-        // --- 數據持久化鍵名 ---
-        const ADMIN_SETTINGS_KEY = 'adminSettings_VIP';
-        const PLAYER_BALANCE_KEY = 'playerBalance_VIP';
+        // 關閉管理員模態框
+        closeAdminBtn.addEventListener('click', () => {
+            adminModal.classList.remove('show');
+        });
 
-        // --- 核心卡牌/遊戲邏輯模擬 ---
-        const suits = ['♠', '♥', '♦', '♣'];
-        const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        // 點擊背景關閉
+        adminModal.addEventListener('click', (e) => {
+            if (e.target === adminModal) {
+                adminModal.classList.remove('show');
+            }
+        });
 
-        /**
-         * 創建卡牌 HTML 元素
-         * @param {string} suit 花色
-         * @param {string} rank 牌值
-         * @param {boolean} isFaceUp 是否正面朝上
-         * @returns {HTMLElement} 卡牌 DOM 元素
-         */
-        function createCardElement(suit, rank, isFaceUp = true) {
+        // 管理員調整籌碼 (演示功能)
+        window.updateBalance = function() {
+            const newBalance = parseInt(playerBalanceInput.value);
+            if (!isNaN(newBalance) && newBalance >= 0) {
+                balanceAmountSpan.textContent = newBalance.toLocaleString('en-US'); // 格式化數字
+                alert(`玩家籌碼已更新至 ${newBalance.toLocaleString('en-US')} HKD`);
+            } else {
+                 alert('請輸入有效的籌碼數字！');
+            }
+        }
+        
+        // --- 2. 籌碼/購買控制 ---
+        
+        // 選擇底注籌碼
+        chipOptions.forEach(chip => {
+            chip.addEventListener('click', () => {
+                chipOptions.forEach(c => c.classList.remove('selected'));
+                chip.classList.add('selected');
+                
+                // 更新底注顯示
+                currentBet = parseInt(chip.getAttribute('data-bet'));
+                currentBetSpan.textContent = `${currentBet} HKD`;
+                currentTotalBetSpan.textContent = `${currentBet * 3} HKD`;
+                potAmountSpan.textContent = `${currentBet * 3 * 4} HKD`;
+            });
+        });
+        
+        // 點擊購買籌碼按鈕
+        depositBtn.addEventListener('click', () => {
+            betSection.style.display = 'none';
+            depositSection.style.display = 'flex';
+            depositSection.style.flexDirection = 'column';
+            depositBtn.style.display = 'none';
+        });
+
+        // 點擊返回牌局按鈕
+        cancelDepositBtn.addEventListener('click', () => {
+            depositSection.style.display = 'none';
+            betSection.style.display = 'block';
+            depositBtn.style.display = 'flex';
+        });
+        
+        // 模擬確認購買
+        document.getElementById('confirmDepositBtn').addEventListener('click', () => {
+            const selectedDeposit = document.querySelector('.deposit-option.selected');
+            const amount = parseInt(selectedDeposit.getAttribute('data-amount'));
+            let currentBalance = parseInt(balanceAmountSpan.textContent.replace(/,/g, ''));
+            
+            // 簡化: 假設贈金是 8%
+            const bonus = amount * 0.08; 
+            currentBalance += amount + bonus;
+            
+            balanceAmountSpan.textContent = currentBalance.toLocaleString('en-US');
+            
+            alert(`成功購買 ${amount} HKD，獲得 ${bonus} 贈金，總籌碼: ${currentBalance.toLocaleString('en-US')} HKD`);
+            
+            // 返回牌局
+            depositSection.style.display = 'none';
+            betSection.style.display = 'block';
+            depositBtn.style.display = 'flex';
+        });
+
+
+        // --- 3. 遊戲與發牌邏輯 ---
+
+        // 模擬的牌組生成函數
+        function createCard(suit, rank) {
             const card = document.createElement('div');
             card.className = 'luxury-card card-deal';
-            card.dataset.suit = suit;
-            card.dataset.rank = rank;
+            card.setAttribute('data-rank', rank);
+            card.setAttribute('data-suit', suit);
+            card.setAttribute('data-value', getCardValue(rank)); // 增加數值方便理牌
             
-            if (isFaceUp) {
-                const color = (suit === '♥' || suit === '♦') ? 'red' : 'black';
-                card.style.color = color;
+            const rankColor = (suit === '♥' || suit === '♦') ? 'red' : 'black';
 
-                card.innerHTML = `
-                    <div class="card-corner top-left">${rank}<br>${suit}</div>
-                    <div class="card-center">${suit}</div>
-                    <div class="card-corner bottom-right">${rank}<br>${suit}</div>
-                `;
-                // 只有玩家手牌可點擊
-                if (document.getElementById('player1Cards').contains(card.parentElement)) {
-                     card.onclick = () => toggleCardSelection(card);
-                }
-            } else {
-                card.classList.add('card-back');
-            }
+            card.innerHTML = `
+                <div class="card-corner top-left" style="color: ${rankColor}">${rank} ${suit}</div>
+                <div class="card-center" style="color: ${rankColor}">${suit}</div>
+                <div class="card-corner bottom-right" style="color: ${rankColor}">${rank} ${suit}</div>
+            `;
+            
+            // **手機互動優化：點擊選牌邏輯**
+            card.addEventListener('click', () => {
+                card.classList.toggle('selected-to-play');
+                updatePileCounts();
+            });
+
             return card;
         }
+        
+        function getCardValue(rank) {
+            if (rank === 'A') return 14;
+            if (rank === 'K') return 13;
+            if (rank === 'Q') return 12;
+            if (rank === 'J') return 11;
+            return parseInt(rank) || 0;
+        }
 
-        /**
-         * 模擬發牌 (13 張)
-         * @param {string} playerId 玩家 ID (e.g., 'player1')
-         * @param {number} numCards 發牌數量
-         * @param {boolean} isPlayer 是否為主玩家 (決定牌面是否朝上)
-         */
-        function dealCards(playerId, numCards, isPlayer) {
-            const cardContainer = document.getElementById(playerId + 'Cards');
-            cardContainer.innerHTML = ''; 
+        // 更新牌道計數器 (簡化)
+        function updatePileCounts() {
+            const selectedCards = document.querySelectorAll('#player1Cards .luxury-card.selected-to-play');
+            const count = selectedCards.length;
             
-            // 模擬隨機牌組 - 確保發出 13 張
-            const cardDeck = [];
-            for (const s of suits) {
-                for (const r of ranks) {
-                    cardDeck.push({suit: s, rank: r});
-                }
-            }
-            // 隨機洗牌
-            for (let i = cardDeck.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [cardDeck[i], cardDeck[j]] = [cardDeck[j], cardDeck[i]];
-            }
-            const cards = cardDeck.slice(0, numCards); 
+            // 這裡只是演示選牌計數，實際的 13 張遊戲需要更複雜的牌道分類邏輯
+            document.getElementById('pile1Count').textContent = `頭道: ${Math.min(count, 3)}/3`;
+            document.getElementById('pile2Count').textContent = `中道: ${Math.min(Math.max(0, count - 3), 5)}/5`;
+            document.getElementById('pile3Count').textContent = `尾道: ${Math.min(Math.max(0, count - 8), 5)}/5`;
+        }
 
-            cards.forEach((cardData, index) => {
-                const isFaceUp = isPlayer; 
-                const cardElement = createCardElement(cardData.suit, cardData.rank, isFaceUp);
-                cardElement.style.animationDelay = `${index * 0.05}s`; 
-                cardContainer.appendChild(cardElement);
-                // 移除動畫類以確保之後的 UI 變更不會觸發動畫
-                setTimeout(() => cardElement.classList.remove('card-deal'), index * 50 + 500);
+
+        // 模擬發牌 (13張)
+        function dealPlayerHand() {
+            player1CardsContainer.innerHTML = '';
+            
+            // 生成一副牌
+            const suits = ['♠', '♥', '♦', '♣'];
+            const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+            let deck = [];
+            suits.forEach(suit => {
+                ranks.forEach(rank => {
+                    deck.push({ suit, rank });
+                });
             });
-        }
-        
-        /**
-         * 點擊卡牌選擇/取消選擇 (僅適用於玩家手牌)
-         * @param {HTMLElement} cardElement 被點擊的卡牌元素
-         */
-        function toggleCardSelection(cardElement) {
-            if (cardElement.parentElement.id !== 'player1Cards') return; 
 
-            cardElement.classList.toggle('selected-to-play');
-            
-            // 這裡可以加入更複雜的理牌邏輯，例如限制選取數量、檢查是否能組成牌型等。
-            // 模擬: 當選中 13 張牌時，自動啟用提交按鈕 (實際遊戲中應該是選 3, 5, 5 分道)
-            const selectedCards = document.querySelectorAll('#player1Cards .selected-to-play').length;
-            document.getElementById('submitHandBtn').disabled = selectedCards !== 13;
-        }
-
-
-        // --- UI 交互函數 ---
-
-        /** 更新玩家籌碼顯示 */
-        function updateBalanceUI() {
-            document.getElementById('balanceAmount').textContent = playerBalance.toLocaleString('en-US');
-            
-            // 更新管理員面板的值
-            const setPlayerBalanceInput = document.getElementById('setPlayerBalance');
-            if (document.activeElement !== setPlayerBalanceInput) {
-                 setPlayerBalanceInput.value = playerBalance; 
+            // 隨機洗牌
+            for (let i = deck.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
             }
-        }
-        
-        /** 更新底注顯示 */
-        function updateBetUI() {
-            const totalBet = currentBaseBet * NUM_PILES;
-            const potAmount = totalBet * NUM_PLAYERS;
-            document.getElementById('currentTotalBet').textContent = `${totalBet.toLocaleString('en-US')} HKD`;
-            document.getElementById('potAmount').textContent = `${potAmount.toLocaleString('en-US')} HKD`;
-        }
 
-        /**
-         * 購買籌碼 (僅模擬)
-         */
-        function confirmDeposit() {
-            const selectedOption = document.querySelector('.deposit-option.selected');
-            if (!selectedOption) return;
+            // 發給玩家 13 張牌
+            const playerHand = deck.slice(0, 13);
+            
+            // 發牌並加入動畫
+            playerHand.forEach((cardData, index) => {
+                const cardElement = createCard(cardData.suit, cardData.rank);
+                cardElement.style.animationDelay = `${index * 0.05}s`;
+                player1CardsContainer.appendChild(cardElement);
+            });
+            
+            updatePileCounts(); // 更新計數為 0/3, 0/5, 0/5
 
-            const depositAmount = parseInt(selectedOption.dataset.amount);
-            const bonus = parseInt(selectedOption.querySelector('.deposit-bonus').textContent.replace(/[^\d]/g, ''));
+            // 模擬電腦發牌 (背面)
+            const computerSeats = ['player2Cards', 'player3Cards', 'player4Cards', 'player5Cards'];
+            computerSeats.forEach(id => {
+                const seat = document.getElementById(id);
+                seat.innerHTML = '';
+                for (let i = 0; i < 13; i++) {
+                    const backCard = document.createElement('div');
+                    backCard.className = 'luxury-card card-back card-deal';
+                    backCard.style.animationDelay = `${(i + 13) * 0.03}s`;
+                    seat.appendChild(backCard);
+                }
+            });
             
-            playerBalance += depositAmount + bonus;
-            updateBalanceUI();
-            
-            // 隱藏存款介面，顯示下注介面
-            document.getElementById('depositSection').style.display = 'none';
-            document.getElementById('betSection').style.display = 'block';
-            document.getElementById('depositBtn').textContent = '💎 購買籌碼';
-            alert(`成功購買 ${depositAmount} HKD 籌碼，並獲得 ${bonus} HKD 贈金！當前餘額：${playerBalance.toLocaleString('en-US')} HKD`);
-            savePlayerState();
-        }
-        
-        /** * 開始遊戲 (核心邏輯模擬)
-         */
-        function startGame() {
-            const totalBet = currentBaseBet * NUM_PILES;
-            if (playerBalance < totalBet) {
-                alert('籌碼不足！底注總額為 ' + totalBet + ' HKD，請先購買籌碼。');
-                return;
-            }
-            
-            playerBalance -= totalBet; // 扣除底注
-            updateBalanceUI();
-            
-            document.getElementById('gameStatus').textContent = '牌局進行中 • 請理牌';
-            document.getElementById('startGameBtn').disabled = true;
+            document.getElementById('gameStatus').textContent = '牌局進行中 • 請整理牌型';
+            startGameBtn.disabled = true;
             document.getElementById('sortCardsBtn').disabled = false;
-            document.getElementById('submitHandBtn').disabled = true;
-            
-            // 模擬發牌給所有玩家
-            dealCards('player1', 13, true); 
-            dealCards('player2', 13, false); 
-            dealCards('player3', 13, false);
-            dealCards('player4', 13, false);
-            dealCards('player5', 13, false); 
-
-            // 模擬遊戲狀態更新
-            setTimeout(() => {
-                document.getElementById('gameStatus').textContent = '請選擇牌型並提交';
-            }, 3000);
-            
-            savePlayerState();
-            console.log("當前管理員設定:", adminSettings);
-        }
-
-        /**
-         * 模擬自動理牌 (僅移除 selected 狀態，實際應實現理牌算法)
-         */
-        function sortCards() {
-            const cards = document.querySelectorAll('#player1Cards .luxury-card');
-            cards.forEach(card => card.classList.remove('selected-to-play'));
-            alert('模擬自動理牌完成。請手動檢查牌型並提交。');
             document.getElementById('submitHandBtn').disabled = false;
         }
 
-        /**
-         * 模擬提交牌型
-         */
-        function submitHand() {
-            document.getElementById('gameStatus').textContent = '正在結算結果...';
-            document.getElementById('submitHandBtn').disabled = true;
-            document.getElementById('sortCardsBtn').disabled = true;
+        // 遊戲開始按鈕事件
+        startGameBtn.addEventListener('click', dealPlayerHand);
 
-            // 模擬遊戲結算，根據管理員設定的勝率決定勝負
-            const isWinner = Math.random() * 100 < adminSettings.winProbability;
-            
-            setTimeout(() => {
-                const totalBet = currentBaseBet * NUM_PILES;
-                let resultMessage = '';
-                
-                if (adminSettings.forceWinner === 'player' || (adminSettings.forceWinner === 'random' && isWinner)) {
-                    // 模擬贏得獎金 (總獎金池/人數，這裡簡單按 4 倍計算)
-                    const winnings = totalBet * 4; 
-                    playerBalance += winnings;
-                    resultMessage = `🎉 恭喜！您贏得了本局牌局！獲得 ${winnings.toLocaleString('en-US')} HKD！`;
-                } else {
-                    resultMessage = `😭 本局由電腦玩家獲勝。請再接再厲！`;
+        // 模擬自動理牌 (AI) 功能
+        document.getElementById('sortCardsBtn').addEventListener('click', () => {
+            // 這裡應呼叫 AI 演算法，但在此僅模擬按花色和大小排序
+            const cards = Array.from(player1CardsContainer.children);
+            cards.sort((a, b) => {
+                const suitOrder = { '♠': 4, '♥': 3, '♦': 2, '♣': 1 };
+                const rankA = getCardValue(a.getAttribute('data-rank'));
+                const rankB = getCardValue(b.getAttribute('data-rank'));
+                const suitA = suitOrder[a.getAttribute('data-suit')];
+                const suitB = suitOrder[b.getAttribute('data-suit')];
+
+                if (rankB !== rankA) {
+                    return rankB - rankA; // 按數字從大到小
                 }
-                
-                updateBalanceUI();
-                document.getElementById('gameStatus').textContent = resultMessage;
-                document.getElementById('startGameBtn').disabled = false;
-                
-                alert(resultMessage);
-                savePlayerState();
+                return suitB - suitA; // 數字相同按花色
+            });
 
-                // 清空牌桌 (電腦牌面翻開邏輯可在此添加)
+            player1CardsContainer.innerHTML = '';
+            cards.forEach(card => player1CardsContainer.appendChild(card));
+            
+            // 清除所有選中狀態 (理牌後重新開始排牌)
+            cards.forEach(card => card.classList.remove('selected-to-play'));
+            updatePileCounts();
+
+            document.getElementById('gameStatus').textContent = '牌型已排序，請手動分牌';
+            alert('已使用 AI 協助排序牌面！');
+        });
+
+        // 模擬提交牌型
+        document.getElementById('submitHandBtn').addEventListener('click', () => {
+            const selectedCards = document.querySelectorAll('#player1Cards .luxury-card.selected-to-play');
+            if (selectedCards.length !== 13) {
+                 alert('您必須選取所有 13 張牌並正確排列成三道！ (頭道 3, 中道 5, 尾道 5)');
+                 return;
+            }
+            
+            // 這裡應執行牌道檢查 (頭道不能大於中道, 中道不能大於尾道) 和結果結算
+            document.getElementById('gameStatus').textContent = '牌型提交成功！等待電腦結算...';
+            
+            // 模擬結算後重置
+            setTimeout(() => {
+                alert('結算完成！遊戲結束！');
+                startGameBtn.disabled = false;
+                document.getElementById('sortCardsBtn').disabled = true;
+                document.getElementById('submitHandBtn').disabled = true;
+                document.getElementById('gameStatus').textContent = '尊貴牌局 • 請按開始重新發牌';
+                player1CardsContainer.innerHTML = '';
                 document.querySelectorAll('.player-cards').forEach(container => container.innerHTML = '');
-            }, 2000);
-        }
-
-        // --- 管理員設定與持久化邏輯 ---
-
-        /** * 從本地儲存載入管理員設定和玩家餘額
-         */
-        function loadSettings() {
-            // 載入管理員設定
-            const savedSettings = localStorage.getItem(ADMIN_SETTINGS_KEY);
-            if (savedSettings) {
-                adminSettings = JSON.parse(savedSettings);
-            }
-            
-            // 載入玩家餘額
-            const savedBalance = localStorage.getItem(PLAYER_BALANCE_KEY);
-            if (savedBalance !== null) {
-                playerBalance = parseInt(savedBalance);
-            } else {
-                playerBalance = 10000; // 首次載入給予預設值
-            }
-            
-            updateBalanceUI();
-            updateBetUI();
-            updateAdminUI();
-            console.log("設定已載入:", adminSettings);
-        }
-
-        /**
-         * 將管理員設定和玩家餘額儲存到本地儲存
-         */
-        function saveSettings() {
-            localStorage.setItem(ADMIN_SETTINGS_KEY, JSON.stringify(adminSettings));
-            savePlayerState();
-            alert('管理員設定已儲存！');
-        }
-        
-        /**
-         * 儲存玩家狀態 (餘額)
-         */
-        function savePlayerState() {
-             localStorage.setItem(PLAYER_BALANCE_KEY, playerBalance);
-        }
-
-        /**
-         * 更新管理員面板的 UI 以匹配當前設定
-         */
-        function updateAdminUI() {
-            document.getElementById('forceHandType').value = adminSettings.forceHandType;
-            document.getElementById('forceWinner').value = adminSettings.forceWinner;
-            document.getElementById('enableStraightFlush').checked = adminSettings.enableStraightFlush;
-            document.getElementById('enableFourOfAKind').checked = adminSettings.enableFourOfAKind;
-            document.getElementById('enableFullHouse').checked = adminSettings.enableFullHouse;
-            document.getElementById('winProbability').value = adminSettings.winProbability;
-            document.getElementById('winProbValue').textContent = `${adminSettings.winProbability}%`;
-            document.getElementById('setPlayerBalance').value = playerBalance;
-            
-            document.getElementById('computer1Difficulty').value = adminSettings.computer1Difficulty;
-            document.getElementById('computer2Difficulty').value = adminSettings.computer2Difficulty;
-            document.getElementById('computer3Difficulty').value = adminSettings.computer3Difficulty;
-            document.getElementById('computer4Difficulty').value = adminSettings.computer4Difficulty;
-        }
-
-        // --- 事件監聽器 (EVENT LISTENERS) ---
-        
-        document.addEventListener('DOMContentLoaded', loadSettings);
-
-        // 籌碼選擇
-        document.querySelectorAll('.chip-option').forEach(option => {
-            option.addEventListener('click', function() {
-                document.querySelectorAll('.chip-option').forEach(o => o.classList.remove('selected'));
-                this.classList.add('selected');
-                currentBaseBet = parseInt(this.dataset.bet);
-                updateBetUI();
-            });
-        });
-
-        // 存款選擇
-        document.querySelectorAll('.deposit-option').forEach(option => {
-            option.addEventListener('click', function() {
-                document.querySelectorAll('.deposit-option').forEach(o => o.classList.remove('selected'));
-                this.classList.add('selected');
-            });
-        });
-
-        // 頂部按鈕切換到存款模式
-        document.getElementById('depositBtn').addEventListener('click', function() {
-            const depositSection = document.getElementById('depositSection');
-            const betSection = document.getElementById('betSection');
-            
-            if (depositSection.style.display === 'none' || depositSection.style.display === '') {
-                depositSection.style.display = 'block';
-                betSection.style.display = 'none';
-                this.textContent = '返回牌局';
-                this.style.background = '#555';
-            } else {
-                depositSection.style.display = 'none';
-                betSection.style.display = 'block';
-                this.innerHTML = '<i class="fas fa-gem"></i> 購買籌碼';
-                this.style.background = '';
-            }
+                updatePileCounts();
+            }, 3000);
         });
         
-        document.getElementById('cancelDepositBtn').addEventListener('click', function() {
-             document.getElementById('depositSection').style.display = 'none';
-             document.getElementById('betSection').style.display = 'block';
-             document.getElementById('depositBtn').innerHTML = '<i class="fas fa-gem"></i> 購買籌碼';
-             document.getElementById('depositBtn').style.background = '';
-        });
-
-        // 遊戲動作按鈕
-        document.getElementById('confirmDepositBtn').addEventListener('click', confirmDeposit);
-        document.getElementById('startGameBtn').addEventListener('click', startGame);
-        document.getElementById('sortCardsBtn').addEventListener('click', sortCards);
-        document.getElementById('submitHandBtn').addEventListener('click', submitHand);
-        
-        // 管理員面板切換
-        const adminModal = document.getElementById('adminModal');
-        document.getElementById('adminAccessBtn').addEventListener('click', () => {
-             updateAdminUI(); // 開啟時確保 UI 同步
-             adminModal.classList.add('show');
-        });
-        document.getElementById('closeAdminBtn').addEventListener('click', () => {
-             adminModal.classList.remove('show');
-        });
-
-        // 管理員設定保存
-        document.getElementById('saveAdminSettingsBtn').addEventListener('click', () => {
-            adminSettings.forceHandType = document.getElementById('forceHandType').value;
-            adminSettings.forceWinner = document.getElementById('forceWinner').value;
-            adminSettings.enableStraightFlush = document.getElementById('enableStraightFlush').checked;
-            adminSettings.enableFourOfAKind = document.getElementById('enableFourOfAKind').checked;
-            adminSettings.enableFullHouse = document.getElementById('enableFullHouse').checked;
-            adminSettings.winProbability = parseInt(document.getElementById('winProbability').value);
-            
-            const newBalance = parseInt(document.getElementById('setPlayerBalance').value);
-            if (playerBalance !== newBalance) {
-                playerBalance = newBalance;
-                updateBalanceUI();
-            }
-
-            adminSettings.computer1Difficulty = document.getElementById('computer1Difficulty').value;
-            adminSettings.computer2Difficulty = document.getElementById('computer2Difficulty').value;
-            adminSettings.computer3Difficulty = document.getElementById('computer3Difficulty').value;
-            adminSettings.computer4Difficulty = document.getElementById('computer4Difficulty').value;
-            
-            saveSettings();
-        });
-        
-        // 勝利機率滑塊實時更新
-        document.getElementById('winProbability').addEventListener('input', function() {
-            document.getElementById('winProbValue').textContent = `${this.value}%`;
-        });
-        
-        // 玩家籌碼輸入框同步更新
-         document.getElementById('setPlayerBalance').addEventListener('change', function() {
-            const newBalance = parseInt(this.value);
-            if (!isNaN(newBalance) && newBalance >= 0) {
-                 playerBalance = newBalance;
-                 updateBalanceUI();
-                 savePlayerState();
-            }
-        });
-
     </script>
 </body>
 </html>
