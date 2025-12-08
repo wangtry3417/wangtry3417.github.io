@@ -2,15 +2,17 @@
 <html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>13張棋牌 - 經典港式撲克遊戲</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>13張棋牌 - 手機優化版</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* 重置和基礎樣式 */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         
         body {
@@ -18,37 +20,39 @@
             color: #f0f0f0;
             min-height: 100vh;
             overflow-x: hidden;
+            font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif;
+            padding-bottom: env(safe-area-inset-bottom);
         }
         
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+        /* 手機專用容器 */
+        .mobile-container {
+            max-width: 100%;
+            padding: 10px;
         }
         
-        /* 頁頭樣式 */
-        header {
+        /* 頁頭 - 手機優化 */
+        .mobile-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 30px;
+            padding: 12px 0;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
         }
         
         .logo {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
         }
         
         .logo i {
-            font-size: 2.5rem;
+            font-size: 1.8rem;
             color: #ffcc00;
         }
         
         .logo-text {
-            font-size: 2rem;
+            font-size: 1.4rem;
             font-weight: 700;
             background: linear-gradient(to right, #ffcc00, #ff9900);
             -webkit-background-clip: text;
@@ -56,164 +60,115 @@
             color: transparent;
         }
         
-        .user-info {
+        /* 餘額區域 */
+        .mobile-balance {
             display: flex;
             align-items: center;
-            gap: 20px;
-        }
-        
-        .balance {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px 20px;
-            border-radius: 50px;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 8px 15px;
+            border-radius: 20px;
             border: 1px solid rgba(255, 204, 0, 0.3);
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
         
         .balance-amount {
             color: #ffcc00;
             font-weight: 700;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
         
-        .add-funds {
-            background: linear-gradient(to right, #00c853, #64dd17);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .add-funds:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 200, 83, 0.3);
-        }
-        
-        /* 遊戲區域樣式 */
-        .game-area {
-            display: grid;
-            grid-template-columns: 1fr 300px;
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-        
-        .game-table {
+        /* 遊戲區域 - 手機專用 */
+        .game-table-mobile {
             background: linear-gradient(to bottom right, #0d3b2a, #1a5c3c);
-            border-radius: 20px;
-            padding: 25px;
+            border-radius: 15px;
+            padding: 15px;
+            margin-bottom: 15px;
             position: relative;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-            border: 3px solid #d4af37;
-            min-height: 600px;
+            min-height: 40vh;
+            border: 2px solid #d4af37;
             overflow: hidden;
         }
         
-        .table-center {
+        /* 牌桌中心 */
+        .table-center-mobile {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 200px;
-            height: 200px;
-            background: rgba(0, 0, 0, 0.2);
+            width: 120px;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 50%;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            border: 2px dashed rgba(255, 255, 255, 0.1);
-            color: #ffcc00;
+            border: 1px dashed rgba(255, 255, 255, 0.1);
             z-index: 5;
         }
         
-        .table-center .game-title {
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-        
-        .table-center .game-status {
-            font-size: 1.2rem;
-            margin-top: 5px;
-        }
-        
-        /* 玩家區域 */
-        .player-area {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            padding: 20px;
-        }
-        
-        .player {
-            position: absolute;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-        }
-        
-        .player.active {
-            transform: scale(1.05);
-        }
-        
-        .player-name {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-weight: 600;
-            min-width: 120px;
+        .game-status-mobile {
+            font-size: 0.9rem;
             text-align: center;
-            border: 1px solid rgba(255, 204, 0, 0.5);
+            color: #ffcc00;
+            padding: 0 10px;
         }
         
-        .player-cards {
+        /* 手機玩家手牌區域 */
+        .player-hand-mobile {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 95%;
+            z-index: 20;
+        }
+        
+        .player-cards-container {
             display: flex;
+            overflow-x: auto;
+            padding: 10px 5px;
             gap: 5px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            scroll-behavior: smooth;
         }
         
-        .card {
-            width: 60px;
-            height: 85px;
+        .player-cards-container::-webkit-scrollbar {
+            display: none;
+        }
+        
+        /* 卡牌樣式 - 手機優化 */
+        .card-mobile {
+            width: 55px;
+            height: 75px;
             background: white;
-            border-radius: 8px;
+            border-radius: 6px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            padding: 6px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
             position: relative;
-            transition: transform 0.3s ease;
+            flex-shrink: 0;
+            user-select: none;
+            transition: transform 0.2s ease;
         }
         
-        .card:hover {
-            transform: translateY(-10px);
-        }
-        
-        .card-back {
-            background: linear-gradient(45deg, #c62828, #e53935);
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.8rem;
+        .card-mobile.dragging {
+            transform: scale(1.1);
+            z-index: 100;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5);
         }
         
         .card-value {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: 700;
             color: #333;
         }
         
         .card-suit {
-            font-size: 1.6rem;
+            font-size: 1.4rem;
             align-self: flex-end;
         }
         
@@ -225,96 +180,87 @@
             color: #212121;
         }
         
-        /* 玩家位置 */
-        .player-1 {
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        .player-2 {
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        
-        .player-3 {
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        .player-4 {
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        .player-5 {
-            left: 20%;
-            top: 20%;
-        }
-        
-        /* 玩家手牌區域 */
-        .player-hand {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 10;
-        }
-        
-        .player-hand .player-name {
-            background: linear-gradient(to right, #ff9800, #ff5722);
-            margin-bottom: 15px;
-        }
-        
-        .player-hand .card {
-            cursor: pointer;
-        }
-        
-        /* 側邊欄 */
-        .sidebar {
+        .card-back {
+            background: linear-gradient(45deg, #c62828, #e53935);
+            color: white;
             display: flex;
-            flex-direction: column;
-            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
         }
         
-        .game-controls, .game-info, .chat-box {
+        /* 牌道區域 */
+        .card-sections {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding: 0 10px;
+            gap: 10px;
+        }
+        
+        .section {
             background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            min-height: 100px;
+            flex: 1;
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .section.active-drop {
+            border-color: #ffcc00;
+            background: rgba(255, 204, 0, 0.1);
         }
         
         .section-title {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
+            text-align: center;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
             color: #ffcc00;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .controls {
+        .section-cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            min-height: 80px;
+        }
+        
+        .section-card {
+            width: 35px;
+            height: 50px;
+            background: white;
+            border-radius: 4px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            justify-content: space-between;
+            padding: 4px;
+            font-size: 0.9rem;
         }
         
-        .btn {
-            padding: 14px;
+        /* 控制按鈕 - 手機優化 */
+        .controls-mobile {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 0 5px;
+        }
+        
+        .btn-mobile {
+            padding: 14px 10px;
             border-radius: 10px;
             border: none;
             font-weight: 600;
-            font-size: 1rem;
+            font-size: 0.95rem;
             cursor: pointer;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
+            text-align: center;
         }
         
         .btn-primary {
@@ -332,563 +278,468 @@
             color: white;
         }
         
-        .btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        .btn-mobile:active {
+            transform: scale(0.98);
         }
         
-        .game-stats {
+        /* 功能按鈕 */
+        .action-buttons {
             display: flex;
-            flex-direction: column;
-            gap: 12px;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 0 5px;
         }
         
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 8px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        .stat-value {
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        /* 電腦玩家區域 */
+        .computer-players {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .computer-player {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+        }
+        
+        .player-name {
+            font-size: 0.9rem;
+            margin-bottom: 8px;
             color: #ffcc00;
         }
         
-        .chat-messages {
-            height: 200px;
-            overflow-y: auto;
-            margin-bottom: 15px;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-        }
-        
-        .chat-message {
-            margin-bottom: 10px;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-        }
-        
-        .chat-input {
+        .player-cards-small {
             display: flex;
-            gap: 10px;
+            justify-content: center;
+            gap: 3px;
         }
         
-        .chat-input input {
-            flex: 1;
-            padding: 12px;
-            border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            background: rgba(0, 0, 0, 0.3);
+        .card-small {
+            width: 25px;
+            height: 35px;
+            background: #c62828;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
+            font-size: 0.8rem;
         }
         
-        .chat-input button {
-            padding: 12px 20px;
-            background: #2196f3;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        
-        /* 支付模態框 */
-        .modal {
+        /* 充值模態框 - 手機優化 */
+        .modal-mobile {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 100;
-            justify-content: center;
-            align-items: center;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
-        .modal-content {
+        .modal-content-mobile {
             background: linear-gradient(to bottom right, #1a3a5f, #0c2b4b);
-            width: 90%;
-            max-width: 500px;
-            border-radius: 20px;
+            width: 95%;
+            max-width: 400px;
+            margin: 20px auto;
+            border-radius: 15px;
             overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
             border: 2px solid #ffcc00;
         }
         
-        .modal-header {
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.3);
+        .modal-header-mobile {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.4);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
         
-        .modal-title {
-            font-size: 1.5rem;
-            color: #ffcc00;
+        .modal-body-mobile {
+            padding: 20px;
         }
         
-        .close-modal {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.8rem;
-            cursor: pointer;
-        }
-        
-        .modal-body {
-            padding: 25px;
-        }
-        
-        .payment-options {
+        /* 支付選項 */
+        .payment-options-mobile {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
+            gap: 12px;
+            margin-bottom: 20px;
         }
         
-        .payment-option {
+        .payment-option-mobile {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
-            padding: 15px;
+            padding: 15px 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
             border: 2px solid transparent;
         }
         
-        .payment-option.selected {
+        .payment-option-mobile.selected {
             border-color: #ffcc00;
-            background: rgba(255, 204, 0, 0.1);
         }
         
-        .payment-option i {
-            font-size: 2.5rem;
-        }
-        
-        .payment-option.alipay i {
-            color: #009fe8;
-        }
-        
-        .payment-option.wechat i {
-            color: #07c160;
-        }
-        
-        .amount-options {
+        /* 金額選項 */
+        .amount-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 25px;
+            gap: 10px;
+            margin-bottom: 20px;
         }
         
-        .amount-option {
+        .amount-option-mobile {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
-            padding: 15px 10px;
+            padding: 12px 8px;
             text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
         }
         
-        .amount-option:hover, .amount-option.selected {
+        .amount-option-mobile.selected {
             background: rgba(255, 204, 0, 0.2);
-            border-color: #ffcc00;
+            border: 2px solid #ffcc00;
         }
         
-        .amount-value {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #ffcc00;
-        }
-        
-        .confirm-payment {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(to right, #00c853, #1b5e20);
+        /* 提示訊息 */
+        .hint-message {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
             color: white;
-            border: none;
+            padding: 12px 20px;
             border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            z-index: 1001;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+            border: 1px solid #ffcc00;
         }
         
-        .confirm-payment:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 200, 83, 0.3);
+        /* 指示器 */
+        .drag-hint {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: #ffcc00;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            display: none;
         }
         
-        /* 響應式設計 */
-        @media (max-width: 1024px) {
-            .game-area {
-                grid-template-columns: 1fr;
-            }
-            
-            .player .card {
-                width: 40px;
-                height: 60px;
-            }
-            
-            .player-hand .card {
+        /* 響應式調整 */
+        @media (max-width: 360px) {
+            .card-mobile {
                 width: 50px;
                 height: 70px;
             }
+            
+            .section-card {
+                width: 30px;
+                height: 45px;
+                font-size: 0.8rem;
+            }
+            
+            .btn-mobile {
+                font-size: 0.85rem;
+                padding: 12px 8px;
+            }
         }
         
-        @media (max-width: 768px) {
-            .game-table {
-                min-height: 500px;
-            }
-            
-            .table-center {
-                width: 150px;
-                height: 150px;
-            }
-            
-            .player-name {
-                min-width: 100px;
-                font-size: 0.9rem;
-                padding: 6px 12px;
-            }
-            
-            .user-info {
-                flex-direction: column;
-                align-items: flex-end;
-                gap: 10px;
-            }
-            
-            .payment-options {
-                grid-template-columns: 1fr;
+        @media (min-width: 768px) {
+            .mobile-container {
+                max-width: 768px;
+                margin: 0 auto;
             }
         }
         
         /* 動畫 */
-        @keyframes dealCard {
-            0% { transform: translateY(-50px) rotate(0deg); opacity: 0; }
-            100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
         }
         
-        .card-deal {
-            animation: dealCard 0.5s ease-out forwards;
-        }
-        
-        /* 遊戲規則提示 */
-        .rules-hint {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 10px 15px;
-            border-radius: 10px;
-            border-left: 4px solid #ffcc00;
-            max-width: 250px;
-            font-size: 0.9rem;
-            z-index: 20;
+        .pulse {
+            animation: pulse 1s infinite;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 頁頭 -->
-        <header>
+    <div class="mobile-container">
+        <!-- 手機頁頭 -->
+        <header class="mobile-header">
             <div class="logo">
                 <i class="fas fa-spade"></i>
-                <div class="logo-text">13張棋牌</div>
+                <div class="logo-text">13張</div>
             </div>
-            <div class="user-info">
-                <div class="balance">
-                    <i class="fas fa-coins" style="color: #ffcc00;"></i>
-                    <span>餘額：</span>
-                    <span class="balance-amount" id="balanceAmount">1,250</span>
-                    <span>HKD</span>
-                </div>
-                <button class="add-funds" id="addFundsBtn">
-                    <i class="fas fa-plus-circle"></i> 充值
+            <div class="mobile-balance">
+                <i class="fas fa-coins" style="color: #ffcc00;"></i>
+                <span>餘額：</span>
+                <span class="balance-amount" id="balanceAmount">1,250</span>
+                <span>HKD</span>
+                <button class="btn-mobile btn-primary" id="addFundsBtn" style="margin-left: 10px; padding: 6px 12px; font-size: 0.8rem;">
+                    <i class="fas fa-plus"></i> 充值
                 </button>
             </div>
         </header>
         
-        <!-- 遊戲區域 -->
-        <div class="game-area">
-            <!-- 遊戲主桌 -->
-            <div class="game-table">
-                <!-- 規則提示 -->
-                <div class="rules-hint">
-                    <strong>遊戲規則：</strong> 將13張牌分成3道（前、中、後），前道3張，中道和後道各5張。後道 > 中道 > 前道。
+        <!-- 遊戲狀態 -->
+        <div class="game-status-mobile" id="gameStatus">
+            長按卡片拖動到下方牌道進行理牌
+        </div>
+        
+        <!-- 遊戲桌 -->
+        <div class="game-table-mobile">
+            <div class="table-center-mobile">
+                <div style="font-size: 1.2rem; font-weight: bold; color: #ffcc00;">13張</div>
+                <div style="font-size: 0.8rem; margin-top: 5px;">牌局進行中</div>
+            </div>
+            
+            <!-- 電腦玩家 -->
+            <div class="computer-players">
+                <div class="computer-player">
+                    <div class="player-name">電腦玩家 1</div>
+                    <div class="player-cards-small" id="player2Cards"></div>
                 </div>
-                
-                <!-- 桌子中心 -->
-                <div class="table-center">
-                    <div class="game-title">13張</div>
-                    <div class="game-status" id="gameStatus">等待玩家下注...</div>
+                <div class="computer-player">
+                    <div class="player-name">電腦玩家 2</div>
+                    <div class="player-cards-small" id="player3Cards"></div>
                 </div>
-                
-                <!-- 電腦玩家區域 -->
-                <div class="player-area">
-                    <div class="player player-2" id="player2">
-                        <div class="player-name">電腦玩家 1</div>
-                        <div class="player-cards" id="player2Cards"></div>
-                    </div>
-                    
-                    <div class="player player-3" id="player3">
-                        <div class="player-name">電腦玩家 2</div>
-                        <div class="player-cards" id="player3Cards"></div>
-                    </div>
-                    
-                    <div class="player player-4" id="player4">
-                        <div class="player-name">電腦玩家 3</div>
-                        <div class="player-cards" id="player4Cards"></div>
-                    </div>
-                    
-                    <div class="player player-5" id="player5">
-                        <div class="player-name">電腦玩家 4</div>
-                        <div class="player-cards" id="player5Cards"></div>
-                    </div>
+                <div class="computer-player">
+                    <div class="player-name">電腦玩家 3</div>
+                    <div class="player-cards-small" id="player4Cards"></div>
                 </div>
-                
-                <!-- 玩家手牌區域 -->
-                <div class="player-hand" id="playerHand">
-                    <div class="player-name">您 (玩家 1)</div>
-                    <div class="player-cards" id="player1Cards"></div>
+                <div class="computer-player">
+                    <div class="player-name">電腦玩家 4</div>
+                    <div class="player-cards-small" id="player5Cards"></div>
                 </div>
             </div>
             
-            <!-- 側邊欄 -->
-            <div class="sidebar">
-                <!-- 遊戲控制 -->
-                <div class="game-controls">
-                    <h3 class="section-title">遊戲控制</h3>
-                    <div class="controls">
-                        <button class="btn btn-primary" id="startGameBtn">
-                            <i class="fas fa-play"></i> 開始新遊戲
-                        </button>
-                        <button class="btn btn-success" id="sortCardsBtn">
-                            <i class="fas fa-sort-amount-down"></i> 自動理牌
-                        </button>
-                        <button class="btn btn-warning" id="submitHandBtn">
-                            <i class="fas fa-check-double"></i> 提交牌型
-                        </button>
-                        <button class="btn btn-primary" id="betBtn">
-                            <i class="fas fa-coins"></i> 下注 (10 HKD)
-                        </button>
-                        <button class="btn" id="rulesBtn" style="background: #673ab7; color: white;">
-                            <i class="fas fa-book"></i> 遊戲規則
-                        </button>
-                    </div>
+            <!-- 玩家手牌區域 -->
+            <div class="player-hand-mobile">
+                <div class="drag-hint" id="dragHint">拖動到下方牌道</div>
+                <div class="player-cards-container" id="playerHandCards">
+                    <!-- 手牌將由JavaScript動態生成 -->
                 </div>
-                
-                <!-- 遊戲信息 -->
-                <div class="game-info">
-                    <h3 class="section-title">遊戲信息</h3>
-                    <div class="game-stats">
-                        <div class="stat-item">
-                            <span>當前回合：</span>
-                            <span class="stat-value" id="currentRound">1 / 5</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>下注池：</span>
-                            <span class="stat-value" id="potAmount">50 HKD</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>玩家人數：</span>
-                            <span class="stat-value">5</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>勝率：</span>
-                            <span class="stat-value" id="winRate">38%</span>
-                        </div>
-                        <div class="stat-item">
-                            <span>連勝：</span>
-                            <span class="stat-value" id="winStreak">2</span>
-                        </div>
-                    </div>
+            </div>
+        </div>
+        
+        <!-- 牌道區域 -->
+        <div class="card-sections">
+            <div class="section" id="frontSection" data-section="front">
+                <div class="section-title">前道 (3張)</div>
+                <div class="section-cards" id="frontCards"></div>
+            </div>
+            <div class="section" id="middleSection" data-section="middle">
+                <div class="section-title">中道 (5張)</div>
+                <div class="section-cards" id="middleCards"></div>
+            </div>
+            <div class="section" id="backSection" data-section="back">
+                <div class="section-title">後道 (5張)</div>
+                <div class="section-cards" id="backCards"></div>
+            </div>
+        </div>
+        
+        <!-- 控制按鈕 -->
+        <div class="controls-mobile">
+            <button class="btn-mobile btn-primary" id="startGameBtn">
+                <i class="fas fa-play"></i> 開始遊戲
+            </button>
+            <button class="btn-mobile btn-success" id="autoSortBtn">
+                <i class="fas fa-robot"></i> 自動理牌
+            </button>
+            <button class="btn-mobile btn-warning" id="submitHandBtn">
+                <i class="fas fa-check-double"></i> 提交牌型
+            </button>
+            <button class="btn-mobile btn-primary" id="betBtn">
+                <i class="fas fa-coins"></i> 下注 10 HKD
+            </button>
+        </div>
+        
+        <!-- 功能按鈕 -->
+        <div class="action-buttons">
+            <button class="action-btn" id="clearSortBtn">
+                <i class="fas fa-undo"></i> 重新理牌
+            </button>
+            <button class="action-btn" id="rulesBtn">
+                <i class="fas fa-book"></i> 遊戲規則
+            </button>
+        </div>
+        
+        <!-- 遊戲信息 -->
+        <div style="background: rgba(255,255,255,0.1); border-radius: 10px; padding: 15px; margin-top: 15px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                <div>
+                    <div style="font-size: 0.9rem; color: #aaa;">下注池</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: #ffcc00;" id="potAmount">50 HKD</div>
                 </div>
-                
-                <!-- 聊天室 -->
-                <div class="chat-box">
-                    <h3 class="section-title">遊戲聊天室</h3>
-                    <div class="chat-messages" id="chatMessages">
-                        <div class="chat-message">
-                            <strong>系統：</strong> 歡迎來到13張棋牌遊戲！
-                        </div>
-                        <div class="chat-message">
-                            <strong>電腦玩家 1：</strong> 大家好，祝好運！
-                        </div>
-                    </div>
-                    <div class="chat-input">
-                        <input type="text" id="chatInput" placeholder="輸入訊息...">
-                        <button id="sendChatBtn">發送</button>
-                    </div>
+                <div>
+                    <div style="font-size: 0.9rem; color: #aaa;">回合</div>
+                    <div style="font-size: 1.2rem; font-weight: bold;" id="currentRound">1/5</div>
+                </div>
+                <div>
+                    <div style="font-size: 0.9rem; color: #aaa;">勝率</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: #4caf50;" id="winRate">38%</div>
                 </div>
             </div>
         </div>
     </div>
     
-    <!-- 支付模態框 -->
-    <div class="modal" id="paymentModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title">充值港元</div>
-                <button class="close-modal" id="closeModalBtn">&times;</button>
+    <!-- 充值模態框 -->
+    <div class="modal-mobile" id="paymentModal">
+        <div class="modal-content-mobile">
+            <div class="modal-header-mobile">
+                <div style="font-size: 1.2rem; font-weight: bold; color: #ffcc00;">充值港元</div>
+                <button id="closeModalBtn" style="background: none; border: none; color: white; font-size: 1.5rem;">&times;</button>
             </div>
-            <div class="modal-body">
-                <p style="margin-bottom: 20px; color: #ccc;">請選擇支付方式及充值金額</p>
+            <div class="modal-body-mobile">
+                <p style="margin-bottom: 15px; color: #ccc;">請選擇支付方式及充值金額</p>
                 
-                <div class="payment-options">
-                    <div class="payment-option alipay" data-method="alipay">
-                        <i class="fab fa-alipay"></i>
-                        <span>支付寶</span>
-                    </div>
-                    <div class="payment-option wechat selected" data-method="wechat">
-                        <i class="fab fa-weixin"></i>
+                <div class="payment-options-mobile">
+                    <div class="payment-option-mobile wechat selected" data-method="wechat">
+                        <i class="fab fa-weixin" style="font-size: 2rem; color: #07c160;"></i>
                         <span>微信支付</span>
+                    </div>
+                    <div class="payment-option-mobile alipay" data-method="alipay">
+                        <i class="fab fa-alipay" style="font-size: 2rem; color: #009fe8;"></i>
+                        <span>支付寶</span>
                     </div>
                 </div>
                 
                 <h4 style="margin: 20px 0 15px; color: #ffcc00;">選擇充值金額 (HKD)</h4>
-                <div class="amount-options">
-                    <div class="amount-option selected" data-amount="100">
-                        <div class="amount-value">100 HKD</div>
-                        <div style="font-size: 0.9rem; color: #aaa;">贈送 5 HKD</div>
+                <div class="amount-grid">
+                    <div class="amount-option-mobile selected" data-amount="100">
+                        <div style="font-weight: bold; font-size: 1.1rem;">100</div>
+                        <div style="font-size: 0.8rem; color: #4caf50;">贈5</div>
                     </div>
-                    <div class="amount-option" data-amount="300">
-                        <div class="amount-value">300 HKD</div>
-                        <div style="font-size: 0.9rem; color: #aaa;">贈送 20 HKD</div>
+                    <div class="amount-option-mobile" data-amount="300">
+                        <div style="font-weight: bold; font-size: 1.1rem;">300</div>
+                        <div style="font-size: 0.8rem; color: #4caf50;">贈20</div>
                     </div>
-                    <div class="amount-option" data-amount="500">
-                        <div class="amount-value">500 HKD</div>
-                        <div style="font-size: 0.9rem; color: #aaa;">贈送 40 HKD</div>
+                    <div class="amount-option-mobile" data-amount="500">
+                        <div style="font-weight: bold; font-size: 1.1rem;">500</div>
+                        <div style="font-size: 0.8rem; color: #4caf50;">贈40</div>
                     </div>
-                    <div class="amount-option" data-amount="1000">
-                        <div class="amount-value">1,000 HKD</div>
-                        <div style="font-size: 0.9rem; color: #aaa;">贈送 100 HKD</div>
+                    <div class="amount-option-mobile" data-amount="1000">
+                        <div style="font-weight: bold; font-size: 1.1rem;">1000</div>
+                        <div style="font-size: 0.8rem; color: #4caf50;">贈100</div>
                     </div>
-                    <div class="amount-option" data-amount="2000">
-                        <div class="amount-value">2,000 HKD</div>
-                        <div style="font-size: 0.9rem; color: #aaa;">贈送 250 HKD</div>
+                    <div class="amount-option-mobile" data-amount="2000">
+                        <div style="font-weight: bold; font-size: 1.1rem;">2000</div>
+                        <div style="font-size: 0.8rem; color: #4caf50;">贈250</div>
                     </div>
-                    <div class="amount-option" data-amount="5000">
-                        <div class="amount-value">5,000 HKD</div>
-                        <div style="font-size: 0.9rem; color: #aaa;">贈送 800 HKD</div>
+                    <div class="amount-option-mobile" data-amount="5000">
+                        <div style="font-weight: bold; font-size: 1.1rem;">5000</div>
+                        <div style="font-size: 0.8rem; color: #4caf50;">贈800</div>
                     </div>
                 </div>
                 
-                <div style="margin: 25px 0; padding: 15px; background: rgba(255, 204, 0, 0.1); border-radius: 10px;">
+                <div style="background: rgba(255,204,0,0.1); border-radius: 10px; padding: 15px; margin: 20px 0;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                         <span>充值金額：</span>
-                        <span style="font-weight: 700;" id="selectedAmount">100 HKD</span>
+                        <span style="font-weight: bold;" id="selectedAmountMobile">100 HKD</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                         <span>贈送金額：</span>
-                        <span style="font-weight: 700; color: #4caf50;" id="bonusAmount">5 HKD</span>
+                        <span style="font-weight: bold; color: #4caf50;" id="bonusAmountMobile">5 HKD</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; font-size: 1.2rem;">
+                    <div style="display: flex; justify-content: space-between; font-size: 1.2rem; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2);">
                         <span>總到賬：</span>
-                        <span style="font-weight: 700; color: #ffcc00;" id="totalAmount">105 HKD</span>
+                        <span style="font-weight: bold; color: #ffcc00;" id="totalAmountMobile">105 HKD</span>
                     </div>
                 </div>
                 
-                <button class="confirm-payment" id="confirmPaymentBtn">
+                <button id="confirmPaymentBtn" style="width: 100%; padding: 16px; background: linear-gradient(to right, #00c853, #1b5e20); color: white; border: none; border-radius: 10px; font-size: 1.1rem; font-weight: bold;">
                     <i class="fas fa-lock"></i> 確認支付
                 </button>
                 
-                <p style="margin-top: 15px; font-size: 0.85rem; text-align: center; color: #aaa;">
+                <p style="margin-top: 15px; font-size: 0.8rem; text-align: center; color: #aaa;">
                     支付過程安全加密，您的個人信息將受到保護
                 </p>
             </div>
         </div>
     </div>
     
+    <!-- 提示訊息 -->
+    <div class="hint-message" id="hintMessage"></div>
+
     <script>
         // 遊戲變數
-        let gameStarted = false;
         let playerBalance = 1250;
         let currentBet = 10;
         let potAmount = 50;
         let selectedPaymentMethod = 'wechat';
         let selectedAmount = 100;
+        let gameStarted = false;
+        let playerCards = [];
+        let draggingCard = null;
+        
+        // 牌型定義
+        const suits = ['♠', '♥', '♦', '♣'];
+        const values = ['A', 'K', 'Q', 'J', '10', '9', '8', '7', '6', '5', '4', '3', '2'];
         
         // DOM 元素
         const balanceAmountEl = document.getElementById('balanceAmount');
         const addFundsBtn = document.getElementById('addFundsBtn');
         const startGameBtn = document.getElementById('startGameBtn');
-        const sortCardsBtn = document.getElementById('sortCardsBtn');
+        const autoSortBtn = document.getElementById('autoSortBtn');
         const submitHandBtn = document.getElementById('submitHandBtn');
         const betBtn = document.getElementById('betBtn');
+        const clearSortBtn = document.getElementById('clearSortBtn');
+        const rulesBtn = document.getElementById('rulesBtn');
         const paymentModal = document.getElementById('paymentModal');
         const closeModalBtn = document.getElementById('closeModalBtn');
-        const paymentOptions = document.querySelectorAll('.payment-option');
-        const amountOptions = document.querySelectorAll('.amount-option');
-        const selectedAmountEl = document.getElementById('selectedAmount');
-        const bonusAmountEl = document.getElementById('bonusAmount');
-        const totalAmountEl = document.getElementById('totalAmount');
         const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
-        const chatInput = document.getElementById('chatInput');
-        const sendChatBtn = document.getElementById('sendChatBtn');
-        const chatMessages = document.getElementById('chatMessages');
         const gameStatusEl = document.getElementById('gameStatus');
+        const dragHint = document.getElementById('dragHint');
+        const hintMessage = document.getElementById('hintMessage');
         
         // 初始化遊戲
         function initGame() {
             updateBalanceDisplay();
             setupEventListeners();
             createInitialCards();
+            setupDragAndDrop();
         }
         
         // 設置事件監聽器
         function setupEventListeners() {
             // 充值按鈕
-            addFundsBtn.addEventListener('click', () => {
-                paymentModal.style.display = 'flex';
-            });
-            
-            // 關閉模態框
-            closeModalBtn.addEventListener('click', () => {
-                paymentModal.style.display = 'none';
-            });
-            
-            // 點擊模態框外部關閉
-            window.addEventListener('click', (e) => {
-                if (e.target === paymentModal) {
-                    paymentModal.style.display = 'none';
-                }
-            });
-            
-            // 選擇支付方式
-            paymentOptions.forEach(option => {
-                option.addEventListener('click', () => {
-                    paymentOptions.forEach(opt => opt.classList.remove('selected'));
-                    option.classList.add('selected');
-                    selectedPaymentMethod = option.dataset.method;
-                });
-            });
-            
-            // 選擇充值金額
-            amountOptions.forEach(option => {
-                option.addEventListener('click', () => {
-                    amountOptions.forEach(opt => opt.classList.remove('selected'));
-                    option.classList.add('selected');
-                    selectedAmount = parseInt(option.dataset.amount);
-                    updatePaymentSummary();
-                });
-            });
-            
-            // 確認支付
-            confirmPaymentBtn.addEventListener('click', processPayment);
+            addFundsBtn.addEventListener('click', showPaymentModal);
             
             // 開始遊戲
             startGameBtn.addEventListener('click', startGame);
             
             // 自動理牌
-            sortCardsBtn.addEventListener('click', sortCards);
+            autoSortBtn.addEventListener('click', autoSortCards);
             
             // 提交牌型
             submitHandBtn.addEventListener('click', submitHand);
@@ -896,26 +747,470 @@
             // 下注
             betBtn.addEventListener('click', placeBet);
             
-            // 發送聊天訊息
-            sendChatBtn.addEventListener('click', sendChatMessage);
-            chatInput.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') sendChatMessage();
+            // 重新理牌
+            clearSortBtn.addEventListener('click', clearSort);
+            
+            // 遊戲規則
+            rulesBtn.addEventListener('click', showRules);
+            
+            // 支付相關
+            closeModalBtn.addEventListener('click', () => {
+                paymentModal.style.display = 'none';
             });
             
-            // 遊戲規則按鈕
-            document.getElementById('rulesBtn').addEventListener('click', showRules);
+            // 點擊模態框外部關閉
+            paymentModal.addEventListener('click', (e) => {
+                if (e.target === paymentModal) {
+                    paymentModal.style.display = 'none';
+                }
+            });
+            
+            // 支付方式選擇
+            document.querySelectorAll('.payment-option-mobile').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.payment-option-mobile').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    selectedPaymentMethod = this.dataset.method;
+                });
+            });
+            
+            // 金額選擇
+            document.querySelectorAll('.amount-option-mobile').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.amount-option-mobile').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    this.classList.add('selected');
+                    selectedAmount = parseInt(this.dataset.amount);
+                    updatePaymentSummary();
+                });
+            });
+            
+            // 確認支付
+            confirmPaymentBtn.addEventListener('click', processPayment);
         }
         
-        // 更新餘額顯示
-        function updateBalanceDisplay() {
-            balanceAmountEl.textContent = playerBalance.toLocaleString();
+        // 設置拖放功能
+        function setupDragAndDrop() {
+            const sections = document.querySelectorAll('.section');
+            
+            // 為每個牌道設置放置區域
+            sections.forEach(section => {
+                section.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    this.classList.add('active-drop');
+                });
+                
+                section.addEventListener('dragleave', function() {
+                    this.classList.remove('active-drop');
+                });
+                
+                section.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('active-drop');
+                    
+                    if (draggingCard) {
+                        const cardData = JSON.parse(draggingCard.dataset.card);
+                        const sectionType = this.dataset.section;
+                        
+                        // 檢查牌道是否可以容納更多牌
+                        const sectionCards = this.querySelector('.section-cards');
+                        const maxCards = sectionType === 'front' ? 3 : 5;
+                        
+                        if (sectionCards.children.length >= maxCards) {
+                            showHint('此牌道已滿！');
+                            return;
+                        }
+                        
+                        // 從手牌中移除
+                        draggingCard.remove();
+                        
+                        // 添加到牌道
+                        addCardToSection(cardData, sectionType);
+                        
+                        // 檢查是否所有牌都已分配
+                        checkAllCardsAssigned();
+                    }
+                });
+            });
+        }
+        
+        // 創建初始卡片
+        function createInitialCards() {
+            const playerHandCards = document.getElementById('playerHandCards');
+            playerHandCards.innerHTML = '';
+            playerCards = [];
+            
+            // 生成13張隨機牌
+            for (let i = 0; i < 13; i++) {
+                const suit = suits[Math.floor(Math.random() * suits.length)];
+                const value = values[Math.floor(Math.random() * values.length)];
+                const color = (suit === '♥' || suit === '♦') ? 'red' : 'black';
+                
+                playerCards.push({
+                    id: i,
+                    value: value,
+                    suit: suit,
+                    color: color,
+                    section: 'hand' // 初始在手牌區
+                });
+            }
+            
+            // 渲染手牌
+            renderPlayerHand();
+            
+            // 生成電腦玩家的牌背
+            for (let i = 2; i <= 5; i++) {
+                const playerCardsEl = document.getElementById(`player${i}Cards`);
+                playerCardsEl.innerHTML = '';
+                
+                for (let j = 0; j < 13; j++) {
+                    const cardEl = document.createElement('div');
+                    cardEl.className = 'card-small';
+                    cardEl.innerHTML = '♠';
+                    playerCardsEl.appendChild(cardEl);
+                }
+            }
+        }
+        
+        // 渲染玩家手牌
+        function renderPlayerHand() {
+            const playerHandCards = document.getElementById('playerHandCards');
+            playerHandCards.innerHTML = '';
+            
+            // 只顯示還在手牌區的牌
+            const handCards = playerCards.filter(card => card.section === 'hand');
+            
+            handCards.forEach(card => {
+                const cardEl = document.createElement('div');
+                cardEl.className = 'card-mobile';
+                cardEl.dataset.card = JSON.stringify(card);
+                cardEl.dataset.id = card.id;
+                cardEl.innerHTML = `
+                    <div class="card-value">${card.value}</div>
+                    <div class="card-suit ${card.color === 'red' ? 'suit-red' : 'suit-black'}">${card.suit}</div>
+                `;
+                
+                // 設置拖動事件
+                cardEl.setAttribute('draggable', 'true');
+                
+                cardEl.addEventListener('dragstart', function(e) {
+                    draggingCard = this;
+                    this.classList.add('dragging');
+                    dragHint.style.display = 'block';
+                    dragHint.textContent = '拖動到下方牌道';
+                });
+                
+                cardEl.addEventListener('dragend', function() {
+                    draggingCard = null;
+                    this.classList.remove('dragging');
+                    dragHint.style.display = 'none';
+                });
+                
+                // 手機觸控事件
+                cardEl.addEventListener('touchstart', function(e) {
+                    draggingCard = this;
+                    this.classList.add('dragging');
+                    dragHint.style.display = 'block';
+                    dragHint.textContent = '拖動到下方牌道';
+                    e.preventDefault();
+                }, { passive: false });
+                
+                cardEl.addEventListener('touchend', function() {
+                    draggingCard = null;
+                    this.classList.remove('dragging');
+                    dragHint.style.display = 'none';
+                    
+                    // 模擬放置
+                    const sections = document.querySelectorAll('.section');
+                    const touch = event.changedTouches[0];
+                    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+                    
+                    if (element && element.closest('.section')) {
+                        const section = element.closest('.section');
+                        const sectionType = section.dataset.section;
+                        const sectionCards = section.querySelector('.section-cards');
+                        const maxCards = sectionType === 'front' ? 3 : 5;
+                        
+                        if (sectionCards.children.length >= maxCards) {
+                            showHint('此牌道已滿！');
+                            return;
+                        }
+                        
+                        const cardData = JSON.parse(this.dataset.card);
+                        this.remove();
+                        addCardToSection(cardData, sectionType);
+                        checkAllCardsAssigned();
+                    }
+                });
+                
+                playerHandCards.appendChild(cardEl);
+            });
+        }
+        
+        // 添加牌到牌道
+        function addCardToSection(cardData, sectionType) {
+            // 更新牌的位置
+            const cardIndex = playerCards.findIndex(c => c.id === cardData.id);
+            if (cardIndex !== -1) {
+                playerCards[cardIndex].section = sectionType;
+            }
+            
+            // 創建牌道上的牌
+            const sectionCards = document.getElementById(`${sectionType}Cards`);
+            const cardEl = document.createElement('div');
+            cardEl.className = 'section-card';
+            cardEl.innerHTML = `
+                <div style="font-size: 0.8rem; font-weight: bold; color: ${cardData.color === 'red' ? '#d32f2f' : '#212121'}">${cardData.value}</div>
+                <div style="font-size: 1rem; text-align: right; color: ${cardData.color === 'red' ? '#d32f2f' : '#212121'}">${cardData.suit}</div>
+            `;
+            
+            // 添加點擊事件返回手牌
+            cardEl.addEventListener('click', () => {
+                returnCardToHand(cardData.id);
+            });
+            
+            sectionCards.appendChild(cardEl);
+        }
+        
+        // 將牌返回手牌
+        function returnCardToHand(cardId) {
+            const cardIndex = playerCards.findIndex(c => c.id === cardId);
+            if (cardIndex !== -1) {
+                playerCards[cardIndex].section = 'hand';
+                
+                // 從牌道移除
+                const sections = ['front', 'middle', 'back'];
+                for (const section of sections) {
+                    const sectionEl = document.getElementById(`${section}Cards`);
+                    if (sectionEl) {
+                        const cards = Array.from(sectionEl.children);
+                        for (const cardEl of cards) {
+                            // 簡單檢查：如果牌的值匹配則移除
+                            if (cardEl.textContent.includes(playerCards[cardIndex].value)) {
+                                cardEl.remove();
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                // 重新渲染手牌
+                renderPlayerHand();
+            }
+        }
+        
+        // 檢查是否所有牌都已分配
+        function checkAllCardsAssigned() {
+            const frontCount = document.getElementById('frontCards').children.length;
+            const middleCount = document.getElementById('middleCards').children.length;
+            const backCount = document.getElementById('backCards').children.length;
+            const totalAssigned = frontCount + middleCount + backCount;
+            
+            if (totalAssigned === 13) {
+                gameStatusEl.textContent = '所有牌已分配！可以提交牌型。';
+                submitHandBtn.disabled = false;
+                showHint('所有牌已分配完成，請提交牌型！');
+            } else {
+                gameStatusEl.textContent = `已分配 ${totalAssigned}/13 張牌，繼續理牌...`;
+                submitHandBtn.disabled = true;
+            }
+        }
+        
+        // 顯示提示訊息
+        function showHint(message) {
+            hintMessage.textContent = message;
+            hintMessage.style.display = 'block';
+            
+            setTimeout(() => {
+                hintMessage.style.display = 'none';
+            }, 2000);
+        }
+        
+        // 開始遊戲
+        function startGame() {
+            if (playerBalance < currentBet) {
+                showHint('餘額不足，請先充值！');
+                return;
+            }
+            
+            gameStarted = true;
+            playerBalance -= currentBet;
+            potAmount = currentBet * 5;
+            
+            updateBalanceDisplay();
+            document.getElementById('potAmount').textContent = potAmount + ' HKD';
+            gameStatusEl.textContent = '遊戲開始！請拖動卡片到下方牌道進行理牌';
+            
+            // 重置牌道
+            clearSort();
+            
+            // 生成新牌
+            createInitialCards();
+            
+            // 啟用/禁用按鈕
+            submitHandBtn.disabled = true;
+            startGameBtn.disabled = true;
+            autoSortBtn.disabled = false;
+            
+            showHint('遊戲開始！請拖動卡片到下方牌道');
+        }
+        
+        // 自動理牌
+        function autoSortCards() {
+            if (!gameStarted) {
+                showHint('請先開始遊戲！');
+                return;
+            }
+            
+            // 清空牌道
+            document.getElementById('frontCards').innerHTML = '';
+            document.getElementById('middleCards').innerHTML = '';
+            document.getElementById('backCards').innerHTML = '';
+            
+            // 隨機分配牌到各道
+            const shuffledCards = [...playerCards].sort(() => Math.random() - 0.5);
+            
+            // 分配前道3張
+            for (let i = 0; i < 3; i++) {
+                if (shuffledCards[i]) {
+                    shuffledCards[i].section = 'front';
+                    addCardToSection(shuffledCards[i], 'front');
+                }
+            }
+            
+            // 分配中道5張
+            for (let i = 3; i < 8; i++) {
+                if (shuffledCards[i]) {
+                    shuffledCards[i].section = 'middle';
+                    addCardToSection(shuffledCards[i], 'middle');
+                }
+            }
+            
+            // 分配後道5張
+            for (let i = 8; i < 13; i++) {
+                if (shuffledCards[i]) {
+                    shuffledCards[i].section = 'back';
+                    addCardToSection(shuffledCards[i], 'back');
+                }
+            }
+            
+            // 更新所有牌的狀態
+            playerCards = shuffledCards;
+            
+            // 清空手牌顯示
+            document.getElementById('playerHandCards').innerHTML = '';
+            
+            gameStatusEl.textContent = '已自動理牌！請檢查牌型或提交。';
+            submitHandBtn.disabled = false;
+            showHint('自動理牌完成！');
+        }
+        
+        // 清空牌道
+        function clearSort() {
+            document.getElementById('frontCards').innerHTML = '';
+            document.getElementById('middleCards').innerHTML = '';
+            document.getElementById('backCards').innerHTML = '';
+            
+            // 重置所有牌到手牌
+            playerCards.forEach(card => {
+                card.section = 'hand';
+            });
+            
+            // 重新渲染手牌
+            renderPlayerHand();
+            
+            gameStatusEl.textContent = '已清空牌道，請重新理牌';
+            submitHandBtn.disabled = true;
+        }
+        
+        // 提交牌型
+        function submitHand() {
+            if (!gameStarted) {
+                showHint('請先開始遊戲！');
+                return;
+            }
+            
+            const frontCount = document.getElementById('frontCards').children.length;
+            const middleCount = document.getElementById('middleCards').children.length;
+            const backCount = document.getElementById('backCards').children.length;
+            
+            if (frontCount !== 3 || middleCount !== 5 || backCount !== 5) {
+                showHint('牌型不正確！前道3張、中道5張、後道5張');
+                return;
+            }
+            
+            gameStatusEl.textContent = '提交牌型中...';
+            submitHandBtn.disabled = true;
+            
+            // 模擬比較結果
+            setTimeout(() => {
+                const winChance = Math.random();
+                
+                if (winChance > 0.5) {
+                    // 贏
+                    const winnings = potAmount;
+                    playerBalance += winnings;
+                    updateBalanceDisplay();
+                    
+                    // 更新勝率
+                    const winRateEl = document.getElementById('winRate');
+                    let winRate = parseInt(winRateEl.textContent);
+                    winRateEl.textContent = Math.min(winRate + 5, 95) + '%';
+                    
+                    gameStatusEl.textContent = `恭喜！您贏得了 ${winnings} HKD！`;
+                    showHint(`贏得 ${winnings} HKD！`);
+                } else {
+                    // 輸
+                    gameStatusEl.textContent = '很遺憾，這局輸了！';
+                    showHint('這局輸了，下次加油！');
+                }
+                
+                // 更新回合
+                const currentRoundEl = document.getElementById('currentRound');
+                let [current, total] = currentRoundEl.textContent.split('/').map(Number);
+                if (current < total) {
+                    currentRoundEl.textContent = `${current + 1}/${total}`;
+                } else {
+                    currentRoundEl.textContent = `${total}/${total}`;
+                    gameStatusEl.textContent = '遊戲結束！請開始新遊戲。';
+                }
+                
+                // 重置下注池
+                potAmount = 0;
+                document.getElementById('potAmount').textContent = potAmount + ' HKD';
+                
+                // 重置遊戲狀態
+                gameStarted = false;
+                startGameBtn.disabled = false;
+                
+            }, 1500);
+        }
+        
+        // 下注
+        function placeBet() {
+            if (playerBalance < currentBet + 10) {
+                showHint('餘額不足，無法加注！');
+                return;
+            }
+            
+            currentBet += 10;
+            betBtn.innerHTML = `<i class="fas fa-coins"></i> 下注 ${currentBet} HKD`;
+            showHint(`下注金額增加到 ${currentBet} HKD`);
+        }
+        
+        // 顯示支付模態框
+        function showPaymentModal() {
+            paymentModal.style.display = 'block';
+            updatePaymentSummary();
         }
         
         // 更新支付摘要
         function updatePaymentSummary() {
             let bonus = 0;
             
-            // 根據金額計算贈送金額
             if (selectedAmount === 100) bonus = 5;
             else if (selectedAmount === 300) bonus = 20;
             else if (selectedAmount === 500) bonus = 40;
@@ -923,9 +1218,9 @@
             else if (selectedAmount === 2000) bonus = 250;
             else if (selectedAmount === 5000) bonus = 800;
             
-            selectedAmountEl.textContent = selectedAmount.toLocaleString() + ' HKD';
-            bonusAmountEl.textContent = bonus.toLocaleString() + ' HKD';
-            totalAmountEl.textContent = (selectedAmount + bonus).toLocaleString() + ' HKD';
+            document.getElementById('selectedAmountMobile').textContent = selectedAmount.toLocaleString() + ' HKD';
+            document.getElementById('bonusAmountMobile').textContent = bonus.toLocaleString() + ' HKD';
+            document.getElementById('totalAmountMobile').textContent = (selectedAmount + bonus).toLocaleString() + ' HKD';
         }
         
         // 處理支付
@@ -940,326 +1235,43 @@
             else if (selectedAmount === 5000) bonus = 800;
             
             playerBalance += selectedAmount + bonus;
-            
             updateBalanceDisplay();
             
-            // 顯示成功訊息
-            alert(`支付成功！已通過${selectedPaymentMethod === 'alipay' ? '支付寶' : '微信支付'}充值${selectedAmount} HKD，獲贈${bonus} HKD，總到賬${selectedAmount + bonus} HKD。`);
-            
-            // 關閉模態框
             paymentModal.style.display = 'none';
             
-            // 添加聊天訊息
-            addChatMessage('系統', `玩家已成功充值${selectedAmount + bonus} HKD。`);
-        }
-        
-        // 開始遊戲
-        function startGame() {
-            if (playerBalance < currentBet) {
-                alert('餘額不足，請先充值！');
-                return;
-            }
-            
-            gameStarted = true;
-            gameStatusEl.textContent = '發牌中...';
-            
-            // 扣除下注金額
-            playerBalance -= currentBet;
-            potAmount = currentBet * 5; // 5個玩家
-            
-            updateBalanceDisplay();
-            document.getElementById('potAmount').textContent = potAmount + ' HKD';
-            
-            // 重置卡片
-            clearAllCards();
-            
-            // 模擬發牌動畫
-            setTimeout(() => {
-                dealCards();
-                gameStatusEl.textContent = '請理牌並提交牌型';
-                addChatMessage('系統', '新遊戲開始！請理牌並提交您的牌型。');
-            }, 500);
-            
-            // 啟用/禁用按鈕
-            startGameBtn.disabled = true;
-            submitHandBtn.disabled = false;
-            sortCardsBtn.disabled = false;
-            betBtn.disabled = true;
-        }
-        
-        // 清除所有卡片
-        function clearAllCards() {
-            for (let i = 1; i <= 5; i++) {
-                document.getElementById(`player${i}Cards`).innerHTML = '';
-            }
-        }
-        
-        // 創建初始卡片（背面向上的卡片）
-        function createInitialCards() {
-            for (let i = 2; i <= 5; i++) {
-                const playerCardsEl = document.getElementById(`player${i}Cards`);
-                for (let j = 0; j < 13; j++) {
-                    const card = document.createElement('div');
-                    card.className = 'card card-back';
-                    card.innerHTML = '♠';
-                    card.style.animationDelay = `${j * 0.1}s`;
-                    card.classList.add('card-deal');
-                    playerCardsEl.appendChild(card);
-                }
-            }
-        }
-        
-        // 發牌
-        function dealCards() {
-            // 玩家卡片
-            const playerCards = [
-                {value: 'A', suit: '♠', color: 'black'},
-                {value: 'K', suit: '♥', color: 'red'},
-                {value: 'Q', suit: '♠', color: 'black'},
-                {value: 'J', suit: '♦', color: 'red'},
-                {value: '10', suit: '♣', color: 'black'},
-                {value: '9', suit: '♥', color: 'red'},
-                {value: '8', suit: '♠', color: 'black'},
-                {value: '7', suit: '♦', color: 'red'},
-                {value: '6', suit: '♣', color: 'black'},
-                {value: '5', suit: '♥', color: 'red'},
-                {value: '4', suit: '♠', color: 'black'},
-                {value: '3', suit: '♦', color: 'red'},
-                {value: '2', suit: '♣', color: 'black'}
-            ];
-            
-            const player1CardsEl = document.getElementById('player1Cards');
-            player1CardsEl.innerHTML = '';
-            
-            playerCards.forEach((card, index) => {
-                const cardEl = document.createElement('div');
-                cardEl.className = 'card';
-                cardEl.innerHTML = `
-                    <div class="card-value">${card.value}</div>
-                    <div class="card-suit ${card.color === 'red' ? 'suit-red' : 'suit-black'}">${card.suit}</div>
-                `;
-                cardEl.style.animationDelay = `${index * 0.05}s`;
-                cardEl.classList.add('card-deal');
-                player1CardsEl.appendChild(cardEl);
-            });
-            
-            // 電腦玩家保持背面向上的卡片
-            for (let i = 2; i <= 5; i++) {
-                const playerCardsEl = document.getElementById(`player${i}Cards`);
-                playerCardsEl.innerHTML = '';
-                for (let j = 0; j < 13; j++) {
-                    const card = document.createElement('div');
-                    card.className = 'card card-back';
-                    card.innerHTML = '♠';
-                    card.style.animationDelay = `${j * 0.05}s`;
-                    card.classList.add('card-deal');
-                    playerCardsEl.appendChild(card);
-                }
-            }
-        }
-        
-        // 自動理牌
-        function sortCards() {
-            gameStatusEl.textContent = '已自動理牌';
-            addChatMessage('系統', '您的牌已自動排序。');
-            
-            // 簡單模擬理牌效果
-            const player1CardsEl = document.getElementById('player1Cards');
-            const cards = Array.from(player1CardsEl.children);
-            
-            // 隨機排序卡片
-            cards.sort(() => Math.random() - 0.5);
-            
-            player1CardsEl.innerHTML = '';
-            cards.forEach((card, index) => {
-                card.style.animationDelay = `${index * 0.05}s`;
-                card.classList.add('card-deal');
-                player1CardsEl.appendChild(card);
-            });
-        }
-        
-        // 提交牌型
-        function submitHand() {
-            if (!gameStarted) {
-                alert('請先開始遊戲！');
-                return;
-            }
-            
-            gameStatusEl.textContent = '比較牌型中...';
-            
-            // 模擬比較牌型
-            setTimeout(() => {
-                // 隨機決定勝負
-                const players = ['玩家 1', '電腦玩家 1', '電腦玩家 2', '電腦玩家 3', '電腦玩家 4'];
-                const winnerIndex = Math.floor(Math.random() * players.length);
-                const winner = players[winnerIndex];
-                
-                if (winner === '玩家 1') {
-                    playerBalance += potAmount;
-                    updateBalanceDisplay();
-                    
-                    // 更新連勝
-                    const winStreakEl = document.getElementById('winStreak');
-                    let currentStreak = parseInt(winStreakEl.textContent);
-                    winStreakEl.textContent = currentStreak + 1;
-                    
-                    // 更新勝率
-                    const winRateEl = document.getElementById('winRate');
-                    let winRate = parseInt(winRateEl.textContent);
-                    winRateEl.textContent = Math.min(winRate + 5, 95) + '%';
-                    
-                    gameStatusEl.textContent = '恭喜！您贏得了這一局！';
-                    addChatMessage('系統', `恭喜！${winner}贏得了${potAmount} HKD！`);
-                } else {
-                    gameStatusEl.textContent = `${winner}贏得了這一局！`;
-                    addChatMessage('系統', `${winner}贏得了這一局！`);
-                    
-                    // 重置連勝
-                    document.getElementById('winStreak').textContent = '0';
-                }
-                
-                // 更新回合
-                const currentRoundEl = document.getElementById('currentRound');
-                let [current, total] = currentRoundEl.textContent.split(' / ').map(Number);
-                if (current < total) {
-                    currentRoundEl.textContent = `${current + 1} / ${total}`;
-                } else {
-                    currentRoundEl.textContent = '5 / 5';
-                    gameStatusEl.textContent = '遊戲結束！請開始新遊戲。';
-                    addChatMessage('系統', '本局遊戲結束！');
-                }
-                
-                // 重置下注池
-                potAmount = 0;
-                document.getElementById('potAmount').textContent = potAmount + ' HKD';
-                
-                // 啟用/禁用按鈕
-                startGameBtn.disabled = false;
-                submitHandBtn.disabled = true;
-                betBtn.disabled = false;
-                gameStarted = false;
-                
-                // 顯示電腦玩家的牌
-                revealComputerCards();
-                
-            }, 1500);
-        }
-        
-        // 顯示電腦玩家的牌
-        function revealComputerCards() {
-            const sampleCards = [
-                {value: 'A', suit: '♥', color: 'red'},
-                {value: 'K', suit: '♠', color: 'black'},
-                {value: 'Q', suit: '♦', color: 'red'},
-                {value: 'J', suit: '♣', color: 'black'},
-                {value: '10', suit: '♥', color: 'red'},
-                {value: '9', suit: '♠', color: 'black'},
-                {value: '8', suit: '♦', color: 'red'},
-                {value: '7', suit: '♣', color: 'black'},
-                {value: '6', suit: '♥', color: 'red'},
-                {value: '5', suit: '♠', color: 'black'},
-                {value: '4', suit: '♦', color: 'red'},
-                {value: '3', suit: '♣', color: 'black'},
-                {value: '2', suit: '♥', color: 'red'}
-            ];
-            
-            for (let i = 2; i <= 5; i++) {
-                const playerCardsEl = document.getElementById(`player${i}Cards`);
-                playerCardsEl.innerHTML = '';
-                
-                // 隨機排序卡片
-                const shuffledCards = [...sampleCards].sort(() => Math.random() - 0.5);
-                
-                shuffledCards.forEach((card, index) => {
-                    const cardEl = document.createElement('div');
-                    cardEl.className = 'card';
-                    cardEl.innerHTML = `
-                        <div class="card-value">${card.value}</div>
-                        <div class="card-suit ${card.color === 'red' ? 'suit-red' : 'suit-black'}">${card.suit}</div>
-                    `;
-                    cardEl.style.animationDelay = `${index * 0.05}s`;
-                    cardEl.classList.add('card-deal');
-                    playerCardsEl.appendChild(cardEl);
-                });
-            }
-        }
-        
-        // 下注
-        function placeBet() {
-            if (playerBalance < currentBet) {
-                alert('餘額不足，請先充值！');
-                return;
-            }
-            
-            // 增加下注金額
-            currentBet += 10;
-            betBtn.innerHTML = `<i class="fas fa-coins"></i> 下注 (${currentBet} HKD)`;
-            
-            addChatMessage('玩家 1', `加注到 ${currentBet} HKD`);
-            gameStatusEl.textContent = `已下注 ${currentBet} HKD`;
-        }
-        
-        // 發送聊天訊息
-        function sendChatMessage() {
-            const message = chatInput.value.trim();
-            if (message === '') return;
-            
-            addChatMessage('您', message);
-            
-            // 模擬電腦玩家回應
-            setTimeout(() => {
-                const responses = [
-                    "牌不錯嘛！",
-                    "這局有意思！",
-                    "好手氣！",
-                    "該我表現了！",
-                    "大家加油！"
-                ];
-                const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-                const computerPlayers = ['電腦玩家 1', '電腦玩家 2', '電腦玩家 3', '電腦玩家 4'];
-                const randomPlayer = computerPlayers[Math.floor(Math.random() * computerPlayers.length)];
-                
-                addChatMessage(randomPlayer, randomResponse);
-            }, 1000);
-            
-            chatInput.value = '';
-        }
-        
-        // 添加聊天訊息
-        function addChatMessage(sender, message) {
-            const messageEl = document.createElement('div');
-            messageEl.className = 'chat-message';
-            
-            if (sender === '您') {
-                messageEl.innerHTML = `<strong style="color: #4caf50;">${sender}：</strong> ${message}`;
-            } else if (sender === '系統') {
-                messageEl.innerHTML = `<strong style="color: #ff9800;">${sender}：</strong> ${message}`;
-            } else {
-                messageEl.innerHTML = `<strong>${sender}：</strong> ${message}`;
-            }
-            
-            chatMessages.appendChild(messageEl);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            showHint(`充值成功！到賬 ${selectedAmount + bonus} HKD`);
         }
         
         // 顯示遊戲規則
         function showRules() {
-            alert(`
+            const rules = `
                 13張遊戲規則：
                 
                 1. 每位玩家獲發13張牌
-                2. 將13張牌分成3道：前道3張、中道5張、後道5張
-                3. 後道牌型必須大於中道，中道必須大於前道
-                4. 牌型大小：同花順 > 鐵支 > 葫蘆 > 同花 > 順子 > 三條 > 兩對 > 一對 > 散牌
-                5. 比較時先比牌型，牌型相同則比點數
-                6. 贏得最多道的玩家獲得勝利
+                2. 將13張牌分成3道：
+                   - 前道：3張牌（需為最小）
+                   - 中道：5張牌（需比前道大）
+                   - 後道：5張牌（需比中道大）
+                3. 牌型大小順序：
+                   同花順 > 鐵支 > 葫蘆 > 同花 > 順子 > 三條 > 兩對 > 一對 > 散牌
+                4. 與每個玩家比較三道，贏得最多道者勝
                 
-                祝您遊戲愉快！
-            `);
+                手機操作：
+                - 長按卡片拖動到下方牌道
+                - 點擊牌道上的牌可返回手牌
+                - 使用「自動理牌」快速分牌
+            `;
+            
+            alert(rules);
+        }
+        
+        // 更新餘額顯示
+        function updateBalanceDisplay() {
+            balanceAmountEl.textContent = playerBalance.toLocaleString();
         }
         
         // 初始化遊戲
-        window.onload = initGame;
+        document.addEventListener('DOMContentLoaded', initGame);
     </script>
 </body>
 </html>
