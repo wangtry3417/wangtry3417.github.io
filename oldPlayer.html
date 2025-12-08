@@ -4,57 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <title>舊版iPad YouTube播放器</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>舊版iPad YouTube播放器 (iOS 9.5.3)</title>
     <style>
-        /* 極簡樣式，確保舊iPad相容性 */
+        /* ============================================ */
+        /* 基本樣式 - 針對舊版 WebKit 優化 */
+        /* ============================================ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-text-size-adjust: 100%;
+            /* 舊版iOS避免文字縮放 */
+            -webkit-text-size-adjust: 100%; 
         }
         
         body {
             font-family: Helvetica, Arial, sans-serif;
-            background: #1a1a1a;
-            color: #fff;
+            background: #121212; /* 更深的暗色背景 */
+            color: #e0e0e0;
             padding: 10px;
             font-size: 18px;
-            line-height: 1.4;
-            -webkit-tap-highlight-color: transparent;
+            line-height: 1.5;
+            /* 移除點擊高亮效果，提升觸控反應 */
+            -webkit-tap-highlight-color: transparent; 
         }
         
         .container {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
-            background: #2a2a2a;
-            border-radius: 10px;
+            background: #1e1e1e; /* 容器背景色 */
+            border-radius: 12px;
             overflow: hidden;
-            border: 1px solid #444;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
         }
         
         header {
-            background: #c00;
-            padding: 15px;
+            background: #FF0000; /* YouTube 紅色 */
+            padding: 20px 15px;
             text-align: center;
+            border-bottom: 5px solid #a00;
         }
         
         h1 {
-            font-size: 24px;
+            font-size: 28px;
             color: white;
             margin-bottom: 5px;
+            font-weight: 900;
         }
         
         .subtitle {
             font-size: 16px;
+            color: #f0f0f0;
             opacity: 0.9;
         }
         
-        /* 輸入區域 - 舊iPad優化 */
+        /* ============================================ */
+        /* 輸入區域樣式 */
+        /* ============================================ */
         .input-section {
-            padding: 15px;
-            background: #333;
-            border-bottom: 1px solid #444;
+            padding: 20px 15px;
+            background: #252525;
+            border-bottom: 1px solid #333;
         }
         
         .input-group {
@@ -64,88 +74,104 @@
         label {
             display: block;
             margin-bottom: 8px;
-            color: #ffcc00;
+            color: #ffffff; /* 更清晰的白色標籤 */
             font-weight: bold;
+            font-size: 18px;
         }
         
         .url-input {
             width: 100%;
-            padding: 12px;
+            padding: 14px;
             font-size: 18px;
-            background: #222;
-            border: 2px solid #555;
+            background: #333;
+            border: 1px solid #555;
             border-radius: 8px;
             color: white;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
             -webkit-appearance: none;
+            transition: border-color 0.2s;
+        }
+
+        .url-input:focus {
+            border-color: #FF0000;
+            outline: none;
         }
         
         /* 舊iPad專用大按鈕 */
         .big-button {
             display: block;
             width: 100%;
-            padding: 18px;
+            padding: 16px;
             margin-top: 10px;
             font-size: 20px;
             font-weight: bold;
-            background: #c00;
+            background: #FF0000; /* 主動作紅色 */
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px; /* 稍微減小圓角 */
             cursor: pointer;
             text-align: center;
             -webkit-appearance: none;
+            transition: background 0.1s;
         }
         
         .big-button:active {
-            background: #a00;
-            transform: scale(0.98);
+            background: #a00; /* 按下時變深 */
+            transform: scale(0.99);
         }
         
-        /* 播放器區域 */
+        /* ============================================ */
+        /* 播放器區域樣式 */
+        /* ============================================ */
         .player-section {
-            padding: 15px;
+            padding: 20px 15px;
         }
         
         .player-container {
-            background: #222;
+            background: #252525;
             border-radius: 10px;
             padding: 15px;
             margin-bottom: 15px;
-            border: 1px solid #444;
+            border: 1px solid #333;
         }
         
         .youtube-wrapper {
+            position: relative;
             width: 100%;
+            /* 16:9 比例 */
+            padding-top: 56.25%; 
             margin-bottom: 15px;
         }
         
         .youtube-player {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            height: 315px;
+            height: 100%;
             border: none;
             border-radius: 8px;
             background: #000;
         }
         
         .video-info {
-            padding: 12px;
-            background: #2a2a2a;
+            padding: 15px;
+            background: #121212;
             border-radius: 8px;
             margin-bottom: 15px;
-            border-left: 4px solid #c00;
+            border-left: 5px solid #FF0000;
         }
         
         .current-title {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: bold;
             margin-bottom: 5px;
-            color: #fff;
+            color: #ffffff;
         }
         
         .current-url {
             font-size: 14px;
-            opacity: 0.8;
+            color: #aaaaaa;
             word-break: break-all;
         }
         
@@ -159,63 +185,70 @@
         
         .control-btn {
             flex: 1;
-            padding: 20px 10px;
-            background: #444;
+            padding: 18px 10px;
+            background: #3a3a3a;
             color: white;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 18px;
             cursor: pointer;
             text-align: center;
-            min-height: 70px;
+            min-height: 60px;
             -webkit-appearance: none;
         }
         
         .control-btn:active {
-            background: #666;
+            background: #555;
         }
         
         .control-btn.primary {
-            background: #c00;
+            background: #FF0000; /* 主動作紅色 */
         }
         
         .control-btn.primary:active {
             background: #a00;
         }
         
-        /* 連結清單 */
+        /* ============================================ */
+        /* 播放清單樣式 */
+        /* ============================================ */
         .links-section {
-            padding: 15px;
-            background: #333;
-            border-top: 1px solid #444;
+            padding: 20px 15px;
+            background: #252525;
+            border-top: 1px solid #333;
         }
         
         .links-list {
-            max-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
             margin-top: 15px;
         }
         
+        .links-list h2 {
+            color: #ffffff;
+        }
+
         .link-item {
             display: flex;
             align-items: center;
             padding: 12px;
-            background: #2a2a2a;
+            background: #333;
             border-radius: 8px;
             margin-bottom: 10px;
             border: 1px solid #444;
+            transition: border-color 0.2s;
         }
         
         .link-item.active {
-            border-color: #c00;
+            border-color: #FF0000;
             background: #3a1a1a;
         }
         
         .link-number {
-            background: #c00;
+            background: #FF0000;
             color: white;
-            width: 30px;
-            height: 30px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -223,11 +256,13 @@
             font-weight: bold;
             margin-right: 12px;
             flex-shrink: 0;
+            font-size: 16px;
         }
         
         .link-info {
             flex: 1;
             overflow: hidden;
+            margin-right: 10px;
         }
         
         .link-title {
@@ -236,11 +271,12 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            color: #f0f0f0;
         }
         
         .link-url {
-            font-size: 14px;
-            opacity: 0.7;
+            font-size: 13px;
+            color: #aaaaaa;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -257,109 +293,63 @@
             height: 40px;
             border-radius: 50%;
             border: none;
-            background: #444;
             color: white;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: bold;
             -webkit-appearance: none;
-        }
-        
-        .action-btn:active {
-            background: #666;
+            transition: background 0.1s;
         }
         
         .action-btn.play {
             background: #0a0;
         }
         
+        .action-btn.play:active {
+            background: #070;
+        }
+        
         .action-btn.delete {
-            background: #c00;
+            background: #FF0000;
+        }
+
+        .action-btn.delete:active {
+            background: #a00;
         }
         
-        /* 提示訊息 */
-        .message {
-            position: fixed;
-            bottom: 20px;
-            left: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            font-weight: bold;
-            z-index: 1000;
-            border: 2px solid #c00;
-        }
-        
-        /* 空狀態 */
-        .empty-state {
-            text-align: center;
-            padding: 30px 15px;
-            color: #888;
-        }
-        
-        /* 捲軸樣式 */
-        .links-list::-webkit-scrollbar {
-            width: 10px;
-        }
-        
-        .links-list::-webkit-scrollbar-track {
-            background: #222;
-            border-radius: 5px;
-        }
-        
-        .links-list::-webkit-scrollbar-thumb {
-            background: #c00;
-            border-radius: 5px;
-        }
-        
-        /* 舊iPad專用媒體查詢 */
+        /* ============================================ */
+        /* 響應式佈局 (舊iPad尺寸優化) */
+        /* ============================================ */
         @media screen and (max-width: 768px) {
             body {
-                font-size: 16px;
                 padding: 5px;
-            }
-            
-            .youtube-player {
-                height: 250px;
-            }
-            
-            .control-btn {
-                padding: 18px 8px;
                 font-size: 16px;
-                min-height: 65px;
             }
             
             .big-button {
-                padding: 16px;
+                padding: 14px;
                 font-size: 18px;
-            }
-        }
-        
-        @media screen and (max-width: 480px) {
-            .youtube-player {
-                height: 200px;
-            }
-            
-            .controls {
-                flex-wrap: wrap;
             }
             
             .control-btn {
-                min-width: 45%;
-                margin-bottom: 10px;
+                padding: 16px 8px;
+                font-size: 16px;
+                min-height: 60px;
             }
             
             .link-item {
-                flex-direction: column;
+                flex-wrap: wrap;
                 align-items: flex-start;
+            }
+
+            .link-info {
+                min-width: 60%;
             }
             
             .link-actions {
-                margin-top: 10px;
+                margin-top: 5px;
                 width: 100%;
-                justify-content: center;
+                justify-content: flex-end;
             }
         }
     </style>
@@ -368,24 +358,24 @@
     <div class="container">
         <header>
             <h1>舊版iPad YouTube播放器</h1>
-            <div class="subtitle">專為iOS 9.5.3優化，簡單可靠</div>
+            <div class="subtitle">專為 **iOS 9.5.3** (舊版 WebKit) 設備優化，簡單可靠</div>
         </header>
         
         <div class="input-section">
             <div class="input-group">
-                <label for="youtubeUrl">YouTube連結：</label>
+                <label for="youtubeUrl">YouTube連結 (或影片ID)：</label>
                 <input type="text" class="url-input" id="youtubeUrl" 
-                       placeholder="輸入YouTube影片連結"
-                       value="https://www.youtube.com/watch?v=jNQXAC9IVRw">
+                       placeholder="輸入YouTube影片連結，例如：https://youtu.be/..."
+                       value="">
                 
                 <button class="big-button" id="addButton">
                     ＋ 新增到播放清單
                 </button>
             </div>
             
-            <div style="margin-top: 15px; text-align: center;">
+            <div style="margin-top: 15px;">
                 <button class="big-button" id="exampleButton" style="background: #0088cc;">
-                    載入範例影片
+                    載入範例影片 (測試相容性)
                 </button>
             </div>
         </div>
@@ -394,8 +384,9 @@
             <div class="player-container">
                 <div class="youtube-wrapper">
                     <iframe class="youtube-player" id="youtubePlayer"
-                            src="https://www.youtube.com/embed/jNQXAC9IVRw"
+                            src="https://www.youtube.com/embed/jNQXAC9IVRw?wmode=opaque"
                             frameborder="0" 
+                            allow="autoplay; fullscreen"
                             allowfullscreen>
                     </iframe>
                 </div>
@@ -410,8 +401,8 @@
                         上一部
                     </button>
                     
-                    <button class="control-btn primary" id="playPauseBtn">
-                        播放/暫停
+                    <button class="control-btn primary" id="reloadPlayBtn">
+                        重新載入/播放 (必備)
                     </button>
                     
                     <button class="control-btn" id="nextBtn">
@@ -420,10 +411,10 @@
                 </div>
                 
                 <div style="margin-top: 15px; display: flex; gap: 10px;">
-                    <button class="big-button" id="fullscreenBtn" style="padding: 12px; font-size: 16px; flex: 1;">
-                        全螢幕
+                    <button class="big-button" id="fullscreenBtn" style="padding: 12px; font-size: 16px; flex: 1; background: #FF0000;">
+                        進入全螢幕
                     </button>
-                    <button class="big-button" id="clearBtn" style="padding: 12px; font-size: 16px; flex: 1; background: #555;">
+                    <button class="big-button" id="clearBtn" style="padding: 12px; font-size: 16px; flex: 1; background: #444;">
                         清空清單
                     </button>
                 </div>
@@ -432,75 +423,69 @@
         
         <div class="links-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                <h2 style="font-size: 20px;">播放清單 (<span id="playlistCount">1</span>)</h2>
-                <button class="big-button" id="playAllBtn" style="padding: 10px 15px; font-size: 16px; width: auto;">
-                    播放全部
+                <h2 style="font-size: 22px;">播放清單 (<span id="playlistCount">1</span>)</h2>
+                <button class="big-button" id="playAllBtn" style="padding: 10px 15px; font-size: 16px; width: auto; background: #0088cc;">
+                    從頭播放
                 </button>
             </div>
             
             <div class="links-list" id="linksList">
-                <!-- 播放清單項目會顯示在這裡 -->
-                <div class="link-item active">
+                <div class="link-item active" data-videoid="jNQXAC9IVRw" data-url="https://www.youtube.com/watch?v=jNQXAC9IVRw">
                     <div class="link-number">1</div>
                     <div class="link-info">
                         <div class="link-title">首個YouTube影片 - Me at the zoo</div>
                         <div class="link-url">https://www.youtube.com/watch?v=jNQXAC9IVRw</div>
                     </div>
                     <div class="link-actions">
-                        <button class="action-btn play">▶</button>
-                        <button class="action-btn delete">×</button>
+                        <button class="action-btn play" data-index="0">▶</button>
+                        <button class="action-btn delete" data-index="0">×</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <div id="messageBox"></div>
+
     <script>
         // ============================================
-        // 舊版iPad專用簡化JavaScript
-        // 避免使用現代ES6+語法，確保iOS 9.5.3相容性
+        // 舊版iPad專用簡化JavaScript (ES5)
         // ============================================
         
-        // 播放清單數據
-        var playlist = [];
+        var playlist = [
+            { url: 'https://www.youtube.com/watch?v=jNQXAC9IVRw', videoId: 'jNQXAC9IVRw', title: '首個YouTube影片 - Me at the zoo' }
+        ];
         var currentIndex = 0;
         
         // 從YouTube連結提取影片ID（簡單版本，舊iPad相容）
         function extractVideoId(url) {
-            // 處理youtube.com/watch?v=格式
+            var id = null;
             if (url.indexOf('youtube.com/watch?v=') > -1) {
                 var start = url.indexOf('v=') + 2;
                 var end = url.indexOf('&', start);
-                if (end === -1) end = url.length;
-                return url.substring(start, end);
-            }
-            
-            // 處理youtu.be/格式
-            if (url.indexOf('youtu.be/') > -1) {
+                id = url.substring(start, end === -1 ? url.length : end);
+            } else if (url.indexOf('youtu.be/') > -1) {
                 var start = url.indexOf('youtu.be/') + 9;
                 var end = url.indexOf('?', start);
-                if (end === -1) end = url.length;
-                return url.substring(start, end);
+                id = url.substring(start, end === -1 ? url.length : end);
+            } else if (url.length === 11 && !url.includes('/') && !url.includes('.')) {
+                // 如果直接輸入影片 ID
+                id = url;
             }
-            
-            // 直接是影片ID（11個字元）
-            if (url.length === 11 && !url.includes('/') && !url.includes('.')) {
-                return url;
-            }
-            
-            return null;
+            // 驗證 ID 長度
+            return (id && id.length === 11) ? id : null;
         }
         
-        // 顯示訊息
+        // 顯示訊息（Toast Notification）
         function showMessage(text, type) {
-            // 移除舊訊息
-            var oldMsg = document.querySelector('.message');
-            if (oldMsg) {
-                document.body.removeChild(oldMsg);
-            }
-            
-            // 建立新訊息
+            var messageBox = document.getElementById('messageBox');
             var msg = document.createElement('div');
+            
+            // 清理舊訊息
+            while (messageBox.firstChild) {
+                messageBox.removeChild(messageBox.firstChild);
+            }
+
             msg.className = 'message';
             msg.textContent = text;
             
@@ -511,14 +496,17 @@
             } else if (type === 'success') {
                 msg.style.borderColor = '#0a0';
                 msg.style.background = 'rgba(0, 255, 0, 0.1)';
+            } else { // info
+                msg.style.borderColor = '#0088cc';
+                msg.style.background = 'rgba(0, 136, 204, 0.1)';
             }
             
-            document.body.appendChild(msg);
+            messageBox.appendChild(msg);
             
             // 3秒後自動移除
             setTimeout(function() {
-                if (msg.parentNode) {
-                    document.body.removeChild(msg);
+                if (msg.parentNode === messageBox) {
+                    messageBox.removeChild(msg);
                 }
             }, 3000);
         }
@@ -528,14 +516,15 @@
             var linksList = document.getElementById('linksList');
             var playlistCount = document.getElementById('playlistCount');
             
-            // 更新計數
             playlistCount.textContent = playlist.length;
-            
-            // 清空清單
             linksList.innerHTML = '';
             
             if (playlist.length === 0) {
-                linksList.innerHTML = '<div class="empty-state">播放清單是空的<br>請在上方輸入YouTube連結</div>';
+                linksList.innerHTML = '<div class="empty-state">播放清單是空的。<br>請在上方輸入YouTube連結。</div>';
+                // 清理播放器資訊
+                document.getElementById('youtubePlayer').src = '';
+                document.getElementById('currentTitle').textContent = '請新增YouTube影片連結';
+                document.getElementById('currentUrl').textContent = '';
                 return;
             }
             
@@ -546,10 +535,16 @@
                 
                 var linkItem = document.createElement('div');
                 linkItem.className = 'link-item' + (isActive ? ' active' : '');
+                linkItem.setAttribute('data-videoid', item.videoId);
+                linkItem.setAttribute('data-url', item.url);
+
+                // 使用 try-catch 處理可能不存在的 title
+                var itemTitle = item.title || 'YouTube影片 (ID: ' + item.videoId + ')';
+                
                 linkItem.innerHTML = 
                     '<div class="link-number">' + (i + 1) + '</div>' +
                     '<div class="link-info">' +
-                    '<div class="link-title">' + (item.title || 'YouTube影片') + '</div>' +
+                    '<div class="link-title">' + itemTitle + '</div>' +
                     '<div class="link-url">' + item.url + '</div>' +
                     '</div>' +
                     '<div class="link-actions">' +
@@ -560,18 +555,18 @@
                 linksList.appendChild(linkItem);
             }
             
-            // 為新建立的按鈕添加事件
+            // 為新建立的按鈕添加事件 (委託事件在舊 iPad 上較為複雜，直接綁定更可靠)
             var playButtons = linksList.querySelectorAll('.action-btn.play');
             var deleteButtons = linksList.querySelectorAll('.action-btn.delete');
             
             for (var j = 0; j < playButtons.length; j++) {
-                playButtons[j].addEventListener('click', function(e) {
-                    var index = parseInt(this.getAttribute('data-index'));
+                playButtons[j].addEventListener('click', function() {
+                    var index = parseInt(this.getAttribute('data-index'), 10);
                     playVideo(index);
                 });
                 
-                deleteButtons[j].addEventListener('click', function(e) {
-                    var index = parseInt(this.getAttribute('data-index'));
+                deleteButtons[j].addEventListener('click', function() {
+                    var index = parseInt(this.getAttribute('data-index'), 10);
                     removeFromPlaylist(index);
                 });
             }
@@ -587,9 +582,10 @@
             currentIndex = index;
             var video = playlist[currentIndex];
             
-            // 更新YouTube播放器
+            // *** 舊 iPad 相容性關鍵：重新載入 Iframe 並帶入 autoplay ***
             var youtubePlayer = document.getElementById('youtubePlayer');
-            youtubePlayer.src = 'https://www.youtube.com/embed/' + video.videoId + '?autoplay=1';
+            // wmode=opaque 參數可提升舊版瀏覽器中 Iframe 的相容性
+            youtubePlayer.src = 'https://www.youtube.com/embed/' + video.videoId + '?autoplay=1&wmode=opaque';
             
             // 更新顯示資訊
             document.getElementById('currentTitle').textContent = video.title || 'YouTube影片';
@@ -598,19 +594,16 @@
             // 更新播放清單高亮
             updatePlaylistDisplay();
             
-            // 更新播放按鈕狀態
-            document.getElementById('playPauseBtn').textContent = '暫停';
-            
             showMessage('正在播放: ' + (video.title || '影片'), 'success');
         }
         
         // 新增到播放清單
-        function addToPlaylist(url) {
-            // 提取影片ID
+        function addToPlaylist(url, title) {
+            url = url.trim();
             var videoId = extractVideoId(url);
             
-            if (!videoId || videoId.length !== 11) {
-                showMessage('錯誤：請輸入有效的YouTube影片連結', 'error');
+            if (!videoId) {
+                showMessage('錯誤：請輸入有效的YouTube影片連結或ID', 'error');
                 return false;
             }
             
@@ -621,12 +614,15 @@
                     return false;
                 }
             }
+
+            // 如果沒有 title，給一個預設值
+            var finalTitle = title || ('YouTube影片 (ID: ' + videoId + ')');
             
             // 添加到播放清單
             playlist.push({
                 url: url,
                 videoId: videoId,
-                title: 'YouTube影片 (ID: ' + videoId + ')'
+                title: finalTitle
             });
             
             // 如果是第一個影片，自動播放
@@ -641,7 +637,7 @@
             // 清空輸入框
             document.getElementById('youtubeUrl').value = '';
             
-            showMessage('已新增到播放清單', 'success');
+            showMessage('已新增: ' + finalTitle, 'success');
             return true;
         }
         
@@ -653,89 +649,96 @@
             
             var videoTitle = playlist[index].title || '影片';
             
-            // 移除項目
             playlist.splice(index, 1);
             
             // 調整當前索引
-            if (currentIndex >= playlist.length) {
-                currentIndex = Math.max(0, playlist.length - 1);
-            }
-            
-            // 如果清單不為空，播放新的當前影片
-            if (playlist.length > 0) {
-                playVideo(currentIndex);
+            if (currentIndex === index) {
+                // 如果刪除的是當前播放的影片
+                if (playlist.length > 0) {
+                    // 播放下一部（或第一部）
+                    currentIndex = Math.min(index, playlist.length - 1);
+                    playVideo(currentIndex);
+                } else {
+                    currentIndex = 0;
+                    updatePlaylistDisplay(); // 會清空播放器資訊
+                }
+            } else if (currentIndex > index) {
+                // 如果刪除的影片在當前播放影片之前，調整索引
+                currentIndex--;
+                updatePlaylistDisplay(); // 僅更新高亮
             } else {
-                // 清單為空，重置播放器
-                document.getElementById('youtubePlayer').src = '';
-                document.getElementById('currentTitle').textContent = '請新增YouTube影片連結';
-                document.getElementById('currentUrl').textContent = '';
-                document.getElementById('playPauseBtn').textContent = '播放/暫停';
+                // 刪除的影片在當前播放影片之後，不調整索引，僅更新高亮
+                updatePlaylistDisplay();
             }
             
-            updatePlaylistDisplay();
             showMessage('已移除: ' + videoTitle, 'success');
         }
         
-        // 初始化播放清單
-        function initializePlaylist() {
-            // 添加一些範例影片
-            var exampleUrls = [
-                'https://www.youtube.com/watch?v=jNQXAC9IVRw',
-                'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-                'https://www.youtube.com/watch?v=9bZkp7q19f0'
+        // 載入範例影片
+        function loadExamplePlaylist() {
+            var exampleVideos = [
+                { url: 'https://youtu.be/kldih8qPL3U?si=8FpK91z0guLMKAM3', title: '電影' },
+                { url: 'https://www.youtube.com/watch?v=9bZkp7q19f0', title: '舊版iPad適用：低資源影片' },
+                { url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ', title: '經典測試影片' }
             ];
-            
-            for (var i = 0; i < exampleUrls.length; i++) {
-                addToPlaylist(exampleUrls[i]);
+
+            // 只在清單為空時載入
+            if (playlist.length <= 1 && playlist[0].videoId === 'jNQXAC9IVRw') {
+                playlist = [];
+                for (var i = 0; i < exampleVideos.length; i++) {
+                    // 為了避免重複，再次呼叫 addToPlaylist，但這次不會清空輸入框
+                    var videoId = extractVideoId(exampleVideos[i].url);
+                    playlist.push({
+                        url: exampleVideos[i].url,
+                        videoId: videoId,
+                        title: exampleVideos[i].title
+                    });
+                }
+                currentIndex = 0;
+                playVideo(currentIndex);
+                showMessage('已載入三部範例影片', 'success');
+            } else {
+                showMessage('清單中已有影片，請先清空', 'info');
             }
         }
         
         // 初始化 - 使用傳統事件處理方式確保舊iPad相容
         function initialize() {
-            // 初始化播放清單
-            initializePlaylist();
-            
+            // 由於初始 HTML 中已經有第一個範例，這裡不需要重複載入
+            if (playlist.length === 1) {
+                updatePlaylistDisplay(); // 確保初始高亮和計數正確
+            }
+
             // 新增按鈕事件
             document.getElementById('addButton').addEventListener('click', function() {
-                var url = document.getElementById('youtubeUrl').value.trim();
+                var url = document.getElementById('youtubeUrl').value;
                 if (url) {
                     addToPlaylist(url);
                 } else {
                     showMessage('請輸入YouTube連結', 'error');
                 }
-            });
+            }, false);
             
             // Enter鍵新增
             document.getElementById('youtubeUrl').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
+                if (e.keyCode === 13) { // keyCode 13 = Enter
+                    // 避免 Enter 鍵自動提交表單或執行其他不兼容操作
+                    e.preventDefault(); 
                     document.getElementById('addButton').click();
                 }
-            });
+            }, false);
             
             // 範例按鈕
-            document.getElementById('exampleButton').addEventListener('click', function() {
-                document.getElementById('youtubeUrl').value = 'https://www.youtube.com/watch?v=jNQXAC9IVRw';
-                addToPlaylist('https://www.youtube.com/watch?v=jNQXAC9IVRw');
-                addToPlaylist('https://www.youtube.com/watch?v=dQw4w9WgXcQ');
-                addToPlaylist('https://www.youtube.com/watch?v=9bZkp7q19f0');
-            });
+            document.getElementById('exampleButton').addEventListener('click', loadExamplePlaylist, false);
             
-            // 播放/暫停按鈕
-            document.getElementById('playPauseBtn').addEventListener('click', function() {
-                var btn = document.getElementById('playPauseBtn');
+            // 重新載入/播放按鈕 (替換了播放/暫停，因為不可靠)
+            document.getElementById('reloadPlayBtn').addEventListener('click', function() {
                 if (playlist.length === 0) {
                     showMessage('請先新增影片到播放清單', 'error');
                     return;
                 }
-                
-                if (btn.textContent === '播放/暫停' || btn.textContent === '播放') {
-                    btn.textContent = '暫停';
-                    playVideo(currentIndex);
-                } else {
-                    btn.textContent = '播放';
-                    showMessage('已暫停播放', 'info');
-                }
-            });
+                playVideo(currentIndex);
+            }, false);
             
             // 上一個按鈕
             document.getElementById('prevBtn').addEventListener('click', function() {
@@ -743,10 +746,9 @@
                     showMessage('播放清單為空', 'error');
                     return;
                 }
-                
                 currentIndex = (currentIndex - 1 + playlist.length) % playlist.length;
                 playVideo(currentIndex);
-            });
+            }, false);
             
             // 下一個按鈕
             document.getElementById('nextBtn').addEventListener('click', function() {
@@ -754,25 +756,28 @@
                     showMessage('播放清單為空', 'error');
                     return;
                 }
-                
                 currentIndex = (currentIndex + 1) % playlist.length;
                 playVideo(currentIndex);
-            });
+            }, false);
             
             // 全螢幕按鈕
             document.getElementById('fullscreenBtn').addEventListener('click', function() {
                 var player = document.getElementById('youtubePlayer');
-                
+                // 使用所有可用的舊版全螢幕 API
                 if (player.requestFullscreen) {
                     player.requestFullscreen();
-                } else if (player.webkitRequestFullscreen) { // Safari
+                } else if (player.webkitRequestFullscreen) { // 舊版 Safari (Webkit)
                     player.webkitRequestFullscreen();
+                } else if (player.mozRequestFullScreen) { // Firefox
+                    player.mozRequestFullScreen();
                 } else if (player.msRequestFullscreen) { // IE11
                     player.msRequestFullscreen();
+                } else {
+                    showMessage('您的瀏覽器不支援全螢幕 API，請嘗試使用瀏覽器內建功能', 'error');
                 }
                 
-                showMessage('進入全螢幕模式', 'info');
-            });
+                showMessage('嘗試進入全螢幕模式...', 'info');
+            }, false);
             
             // 清空清單按鈕
             document.getElementById('clearBtn').addEventListener('click', function() {
@@ -781,19 +786,13 @@
                     return;
                 }
                 
-                if (confirm('確定要清空整個播放清單嗎？')) {
+                if (confirm('確定要清空整個播放清單嗎？這將無法復原。')) {
                     playlist = [];
                     currentIndex = 0;
                     updatePlaylistDisplay();
-                    
-                    document.getElementById('youtubePlayer').src = '';
-                    document.getElementById('currentTitle').textContent = '請新增YouTube影片連結';
-                    document.getElementById('currentUrl').textContent = '';
-                    document.getElementById('playPauseBtn').textContent = '播放/暫停';
-                    
                     showMessage('已清空播放清單', 'success');
                 }
-            });
+            }, false);
             
             // 播放全部按鈕
             document.getElementById('playAllBtn').addEventListener('click', function() {
@@ -801,83 +800,40 @@
                     showMessage('播放清單為空', 'error');
                     return;
                 }
-                
-                if (playlist.length === 1) {
-                    playVideo(0);
-                } else {
-                    currentIndex = 0;
-                    playVideo(currentIndex);
-                    showMessage('開始播放清單中的 ' + playlist.length + ' 部影片', 'success');
-                }
-            });
-            
-            // 為現有的播放清單項目添加事件
-            updatePlaylistDisplay();
-            
-            // 舊iPad專用：防止雙擊縮放
-            var lastTouchEnd = 0;
-            document.addEventListener('touchend', function(event) {
-                var now = (new Date()).getTime();
-                if (now - lastTouchEnd <= 300) {
-                    event.preventDefault();
-                }
-                lastTouchEnd = now;
+                currentIndex = 0;
+                playVideo(currentIndex);
+                showMessage('開始播放清單中的第一部影片', 'success');
             }, false);
             
-            // 舊iPad專用：按鈕觸碰效果
+            // 舊版iPad專用：按鈕觸碰效果（確保點擊反饋）
             var buttons = document.querySelectorAll('button');
             for (var i = 0; i < buttons.length; i++) {
                 buttons[i].addEventListener('touchstart', function() {
-                    this.style.opacity = '0.8';
-                });
+                    this.style.opacity = '0.7';
+                }, false);
                 
                 buttons[i].addEventListener('touchend', function() {
                     this.style.opacity = '1';
-                });
+                }, false);
             }
-            
-            // 顯示初始化完成訊息
-            setTimeout(function() {
-                showMessage('播放器已準備就緒，專為舊版iPad優化', 'success');
-            }, 1000);
+
+            // 初始顯示
+            showMessage('播放器已準備就緒，專為舊版iPad優化', 'success');
         }
         
         // 當頁面載入完成時初始化
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initialize);
+            document.addEventListener('DOMContentLoaded', initialize, false);
         } else {
             initialize();
         }
-        
-        // 舊版iPad相容的輔助函數
+
+        // 舊版 WebKit 輔助函數：修補 includes (如果瀏覽器沒有)
         if (!String.prototype.includes) {
             String.prototype.includes = function(search, start) {
-                if (typeof start !== 'number') {
-                    start = 0;
-                }
-                
-                if (start + search.length > this.length) {
-                    return false;
-                } else {
-                    return this.indexOf(search, start) !== -1;
-                }
+                var newStart = (typeof start !== 'number') ? 0 : start;
+                return this.indexOf(search, newStart) !== -1;
             };
-        }
-        
-        // 檢查是否為舊版iPad
-        function isOldiPad() {
-            var userAgent = navigator.userAgent;
-            var isiPad = userAgent.indexOf('iPad') > -1;
-            var isiOS = userAgent.indexOf('iPhone') > -1 || userAgent.indexOf('iPad') > -1 || userAgent.indexOf('iPod') > -1;
-            
-            return isiPad || isiOS;
-        }
-        
-        // 如果是舊版iPad，顯示特別提示
-        if (isOldiPad()) {
-            setTimeout(function() {
-                showMessage('偵測到舊版iPad，已啟用相容模式', 'info');
-            }, 2000);
         }
     </script>
 </body>
