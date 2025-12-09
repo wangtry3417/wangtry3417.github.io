@@ -11,7 +11,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
     <script src="./voice.js"></script>
     <link rel="manifest" href="./manifest.json" />
-<meta name="theme-color" content="#2c3e50" />
+    <meta name="theme-color" content="#2c3e50" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
 <script>
   if ("serviceWorker" in navigator) {
@@ -29,12 +30,18 @@
             padding: 0;
             box-sizing: border-box;
         }
-        
+        html, body {
+  overscroll-behavior: none;
+}
+
         body {
             font-family: 'Microsoft JhengHei', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+
+            padding-env(safe-area-inset-top) 
+            padding-env(safe-area-inset-bottom);
         }
         
         .container {
