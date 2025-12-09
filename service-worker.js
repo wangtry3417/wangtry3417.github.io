@@ -4,8 +4,7 @@ const FILES_TO_CACHE = [
   "./index.html",
   "./manifest.json",
   "./voice.js",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png",
+  "./icons/250866D9-404F-425B-BA57-CB60AB6BD48E.png"
 
   // Mediapipe CDN 不 cache！（避免 iOS safari 出錯）
 ];
