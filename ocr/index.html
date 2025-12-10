@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <title>HKID Live Scanner — Edge Detect + Upload + OCR</title>
+
+  <!-- Tesseract.js (worker) -->
+  <script src="https://unpkg.com/tesseract.js@4.1.1/dist/tesseract.min.js"></script>
+  <!-- OpenCV.js (use a reliable CDN) -->
+  <!-- If you prefer another mirror, replace the src accordingly -->
+  <script async src="https://docs.opencv.org/4.7.0/opencv.js"></script>
+
+  <style>
+    :root{ --accent:#00e0ff; --bg:#000; --panel:rgba(0,0,0,0.6); }
+    html,body{height:100%;margin:0;background:var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial;}
+    video#camera{position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;}
+    .frame{position:fixed;left:50%;top:42%;width:86vw;height:46vw;max-width:960px;max-height:520px;transform:translate(-50%,-50%);border:3px solid var(--accent);border-radius:12px;box-shadow:0 0 28px rgba(0,224,255,0.2);pointer-events:none;z-index:10;}
+    .topbar{position:fixed;left:10px;right:10px;top:10px;padding:10px;border-radius:8px;background:var(--panel);color:#fff;z-index:40;display:flex;justify-content:space-between;align-items:center;}
+    .controls{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);display:flex;gap:12px;align-items:center;z-index:40;}
+    .btn{background:var(--accent);color:#000;padding:12px 18px;border-radius:8px;border:none;font-weight:700;font-size:16px;box-shadow:0 6px 20px rgba(0,0,0,0.4);cursor:pointer;}
+    .btn.secondary{background:transparent;color:#fff;border:1px solid rgba(255,255,255,0.12);}
+    label.fileBtn{background:transparent;border:1px dashed rgba(255,255,255,0.18);padding:8px 12px;border-radius:8px;color:#fff;cursor:pointer;}
+    #resultBox{position:fixed;right:10px;bottom:90px;width:360px;max-height:60vh;overflow:auto;background:var(--panel);padding:12px;border-radius:8px;color:#fff;z-index:40;display:none;}
+    .result-line{margin:6px 0;font-size:14px;}
+    .label{color:#cbeffc;font-weight:700;margin-right:8px;}
+    .progress-wrapper{width:100%;background:rgba(255,255,255,0.06);height:10px;border-radius:8px;overflow:hidden;margin-top:8px;}
+    .progress{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#8affff);transition:width .2s ease;}
+    .progress-text{font-size:12px;color:#dbefff;margin-top:6px;}
+    canvas{display:none;}
+    .small{font-size:12px;color:#dbefff}
+  </style>
+</head>
+<body>
+
+  <video id="camera" autoplay playsinline muted></video>
+  <div class="frame" aria-hidden="true"></div>
+
+  <div class="topbar">
+    <div style="display:flex;gap:12px;align-items:center;">
+      <strong>HKID Scanner</strong>
+      <div class="small">把身份證放入框內 → 按 Scan 或 上傳相片</div>
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center;">
+      <label class="fileBtn" for="fileInput">上傳相片</label>
+      <input id="fileInput" type="file" accept="image/*" style="display:none;">
+      <button id="toggleAuto" class="btn secondary">自動掃描: 關</button>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="scanBtn" class="btn">Scan</button>
+    <button id="previewBtn" class="btn secondary">預覽裁切</button>
+    <button id="restartCam" class="btn secondary" style="display:none">重新啟動相機</button>
+  </div>
+
+  <div id="resultBox">
+    <div class="result-line"><span class="label">狀態:</span><span id="statusText">載入中…</span></div>
+    <div id="progressArea" style="display:none;">
+      <div class="progress-wrapper"><div id="progressBar" class="progress"></div></div>
+      <div id="progressText" class="progress-text">0%</div>
+    </div>
+    <div id="dataArea" style="margin-top:8px;"></div>
+  </div>
+
+  <!-- hidden canvases -->
+  <canvas id="fullCanvas"></canvas>
+  <canvas id="warpCanvas"></canvas>
+
+<script>
+/* ---------------------------------------------------------
+  完整整合版本
+  - OpenCV.js (edge detect + warpPerspective)
+  - Tesseract.createWorker (worker + progress)
+  - upload & live scan shared pipeline
+  - enhance -> binarize -> OCR
+  - stop camera after OCR, restart option
+--------------------------------------------------------- */
+
+const video = document.getElementById('camera');
+const scanBtn = document.getElementById('scanBtn');
+const previewBtn = document.getElementById('previewBtn');
+const restartCamBtn = document.getElementById('restartCam');
+const fileInput = document.getElementById('fileInput');
+const resultBox = document.getElementById('resultBox');
+const statusText = document.getElementById('statusText');
+const progressArea = document.getElementById('progressArea');
+const progressBar = document.getElementById('progressBar');
+const progressText = document.getElementById('progressText');
+const dataArea = document.getElementById('dataArea');
+
+let autoScan = false;
+let workerBusy = false;
+let stream = null;
+let tesseractWorker = null;
+let cvReady = false;
+let tesseractReady = false;
+
+// Wait for OpenCV runtime
+if (typeof cv !== 'undefined') {
+  cv['onRuntimeInitialized'] = () => {
+    cvReady = true;
+    showStatus('OpenCV 就緒');
+    maybeShowReady();
+  };
+} else {
+  // Some CDNs load opencv asynchronously - keep user informed
+  console.warn('OpenCV 尚未載入，等待中...');
+  showStatus('正在載入 OpenCV...');
+  window.setTimeout(()=> {
+    if (typeof cv !== 'undefined') {
+      cv['onRuntimeInitialized'] = () => {
+        cvReady = true;
+        showStatus('OpenCV 就緒');
+        maybeShowReady();
+      };
+    }
+  }, 1000);
+}
+
+// Setup Tesseract worker
+async function initTesseract(){
+  showStatus('正在載入 OCR engine...');
+  tesseractWorker = Tesseract.createWorker({
+    logger: m => {
+      if (m && typeof m.progress === 'number') {
+        const pct = Math.round(m.progress * 100);
+        progressArea.style.display = 'block';
+        progressBar.style.width = pct + '%';
+        progressText.textContent = pct + '% — ' + (m.status || '');
+      } else if(m && m.status) {
+        progressText.textContent = (m.status || '');
+      }
+    }
+  });
+
+  await tesseractWorker.load();
+  await tesseractWorker.loadLanguage('eng+chi_sim');
+  await tesseractWorker.initialize('eng+chi_sim');
+  tesseractReady = true;
+  showStatus('OCR 引擎就緒');
+  maybeShowReady();
+}
+initTesseract();
+
+// combined ready check
+function maybeShowReady(){
+  if (cvReady && tesseractReady) {
+    showStatus('系統就緒，準備掃描');
+    resultBox.style.display = 'block';
+  }
+}
+
+// start camera
+async function startCamera(){
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment", width: { ideal: 1920 }, height: { ideal: 1080 } },
+      audio: false
+    });
+    video.srcObject = stream;
+    await video.play();
+    showStatus('相機已啟動，將身份證放入框內');
+    resultBox.style.display = 'block';
+    restartCamBtn.style.display = 'none';
+  } catch (e) {
+    console.error('啟動相機失敗', e);
+    showStatus('啟動相機失敗: ' + e.message, 'error');
+  }
+}
+startCamera();
+
+// stop camera
+function stopCamera(){
+  try {
+    if(stream){
+      stream.getTracks().forEach(t => t.stop());
+      stream = null;
+      video.srcObject = null;
+      showStatus('相機已關閉');
+      restartCamBtn.style.display = 'inline-block';
+    }
+  } catch(e){ console.warn(e); }
+}
+
+// restart handler
+restartCamBtn.addEventListener('click', async () => {
+  await startCamera();
+});
+
+// helper: show status
+function showStatus(msg, type='info'){
+  statusText.textContent = msg;
+  if(type === 'error') statusText.style.color = '#ff9b9b';
+  else statusText.style.color = '#dbefff';
+}
+
+// compute crop rect in video pixel coords
+function getCropRect(){
+  const frame = document.querySelector('.frame').getBoundingClientRect();
+  const vw = window.innerWidth, vh = window.innerHeight;
+  const vwVideo = video.videoWidth, vhVideo = video.videoHeight;
+  // scale factors
+  const scaleX = vwVideo / vw;
+  const scaleY = vhVideo / vh;
+  const x = Math.round(frame.left * scaleX);
+  const y = Math.round(frame.top * scaleY);
+  const w = Math.round(frame.width * scaleX);
+  const h = Math.round(frame.height * scaleY);
+  return {x,y,w,h};
+}
+
+// capture video to canvas
+function captureVideoToCanvas(){
+  const c = document.getElementById('fullCanvas');
+  const vw = video.videoWidth, vh = video.videoHeight;
+  c.width = vw; c.height = vh;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(video, 0, 0, vw, vh);
+  return c;
+}
+
+// OpenCV: detect largest 4-point contour and warp perspective
+function detectAndWarp(srcCanvas){
+  if(!cvReady) return srcCanvas;
+  const src = cv.imread(srcCanvas);
+  const orig = src.clone();
+
+  // convert to gray, blur, Canny
+  cv.cvtColor(src, src, cv.COLOR_RGBA2GRAY, 0);
+  cv.GaussianBlur(src, src, new cv.Size(5,5), 0);
+  cv.Canny(src, src, 50, 150);
+
+  // find contours
+  const contours = new cv.MatVector();
+  const hierarchy = new cv.Mat();
+  cv.findContours(src, contours, hierarchy, cv.RETR_LIST, cv.CHAIN_APPROX_SIMPLE);
+
+  let maxArea = 0;
+  let quad = null;
+  for(let i=0;i<contours.size();i++){
+    const cnt = contours.get(i);
+    const area = cv.contourArea(cnt);
+    if(area < 1000) { cnt.delete(); continue; } // ignore small
+    const peri = cv.arcLength(cnt, true);
+    const approx = new cv.Mat();
+    cv.approxPolyDP(cnt, approx, 0.02*peri, true);
+    if(approx.rows === 4 && area > maxArea){
+      maxArea = area;
+      quad = approx.clone();
+    }
+    approx.delete();
+    cnt.delete();
+  }
+  hierarchy.delete(); src.delete();
+
+  if(!quad){
+    orig.delete();
+    return srcCanvas; // no quad found, return original
+  }
+
+  // read quad points and sort to consistent order (tl,tr,br,bl)
+  const pts = [];
+  for(let i=0;i<4;i++){
+    pts.push({x: quad.intAt(i,0), y: quad.intAt(i,1)});
+  }
+  quad.delete();
+
+  // order points: top-left has smallest sum, bottom-right largest sum
+  pts.sort((a,b)=> (a.x + a.y) - (b.x + b.y));
+  // after sort, pts[0]=tl, pts[3]=br. Need to decide left-top/right-top for middle two
+  let tl = pts[0];
+  let br = pts[3];
+  let other = [pts[1], pts[2]];
+  let [p1,p2] = other;
+  let tr = p1.x < p2.x ? p1 : p2;
+  let bl = p1.x < p2.x ? p2 : p1;
+
+  // compute width/height of destination
+  const widthA = Math.hypot(br.x - bl.x, br.y - bl.y);
+  const widthB = Math.hypot(tr.x - tl.x, tr.y - tl.y);
+  const maxWidth = Math.max(Math.round(widthA), Math.round(widthB));
+
+  const heightA = Math.hypot(tr.x - br.x, tr.y - br.y);
+  const heightB = Math.hypot(tl.x - bl.x, tl.y - bl.y);
+  const maxHeight = Math.max(Math.round(heightA), Math.round(heightB));
+
+  // src & dst matrices
+  const srcTri = cv.matFromArray(4,1,cv.CV_32FC2, [tl.x,tl.y, tr.x,tr.y, br.x,br.y, bl.x,bl.y]);
+  const dstTri = cv.matFromArray(4,1,cv.CV_32FC2, [0,0, maxWidth-1,0, maxWidth-1,maxHeight-1, 0,maxHeight-1]);
+
+  const M = cv.getPerspectiveTransform(srcTri, dstTri);
+  const dst = new cv.Mat();
+  const dsize = new cv.Size(maxWidth, maxHeight);
+  cv.warpPerspective(orig, dst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+
+  // convert dst to canvas
+  const canvasOut = document.getElementById('warpCanvas');
+  canvasOut.width = dst.cols; canvasOut.height = dst.rows;
+  cv.imshow(canvasOut, dst);
+
+  // cleanup
+  orig.delete(); dst.delete(); srcTri.delete(); dstTri.delete(); M.delete();
+
+  return canvasOut;
+}
+
+// image enhancement & binarize (improve OCR)
+function enhanceForOCR(canvas){
+  // create temp canvas
+  const tmp = document.createElement('canvas');
+  const w = canvas.width, h = canvas.height;
+  tmp.width = w; tmp.height = h;
+  const ctx = tmp.getContext('2d');
+
+  // upscale if small
+  const targetLong = 1200;
+  const scale = Math.max(1, Math.floor(targetLong / Math.max(w,h)));
+  tmp.width = w * scale; tmp.height = h * scale;
+  ctx.drawImage(canvas, 0, 0, tmp.width, tmp.height);
+
+  // apply filter: grayscale + contrast
+  ctx.filter = 'grayscale(100%) contrast(200%) brightness(105%)';
+  ctx.drawImage(tmp, 0, 0);
+
+  // get image data and binarize
+  const img = ctx.getImageData(0,0,tmp.width,tmp.height);
+  const data = img.data;
+  // compute Otsu-like threshold simple average
+  let sum = 0, cnt = 0;
+  for(let i=0;i<data.length;i+=4){ sum += data[i]; cnt++; }
+  const avg = sum/cnt;
+  const thresh = Math.max(100, Math.min(160, Math.round(avg))); // clamp
+  for(let i=0;i<data.length;i+=4){
+    const v = data[i] > thresh ? 255 : 0;
+    data[i] = data[i+1] = data[i+2] = v;
+  }
+  ctx.putImageData(img, 0, 0);
+
+  // optional simple sharpen via convolution (light)
+  // For performance, skip heavy convolution
+
+  return tmp;
+}
+
+// sanitize OCR text to reduce common confusions
+function sanitizeText(t){
+  return t.replace(/[OΟ]/g,'0')  // letter O -> zero
+          .replace(/[Il|]/g,'1') // I,l,| -> 1
+          .replace(/S/g,'5')
+          .replace(/[—–]/g,'-')
+          .replace(/[\r]/g,'\n');
+}
+
+// extract HKID info heuristics
+function extractHKIDInfo(ocrText){
+  const text = sanitizeText(ocrText);
+  const lines = text.split('\n').map(l => l.trim()).filter(l=>l.length>0);
+  const info = { idNumber:null, name:null, dateOfBirth:null, dateOfIssue:null, gender:null };
+
+  // ID patterns: e.g. A123456(7) or AB1234567 or 12345678
+  const idMatch = text.match(/[A-Z]{1,2}\s*\d{6}\s*[0-9A]/) || text.match(/[A-Z]{1,2}\d{6}[0-9A]/) || text.match(/\b\d{7,8}\b/);
+  if(idMatch) info.idNumber = idMatch[0].replace(/\s|\(|\)/g,'');
+
+  // name: prefer line with comma or uppercase
+  let nameLine = lines.find(l => /,/.test(l) && /[A-Z]/.test(l));
+  if(!nameLine) nameLine = lines.find(l => /^[A-Z\s,]{4,}$/.test(l));
+  if(nameLine) info.name = nameLine;
+
+  // dates like DD-MM-YYYY or DD/MM/YYYY
+  const dateMatch = text.match(/\d{2}[-\/]\d{2}[-\/]\d{4}/g) || [];
+  if(dateMatch.length>0) info.dateOfBirth = dateMatch[0];
+  if(dateMatch.length>1) info.dateOfIssue = dateMatch[1];
+
+  if(/\bMALE\b|\bM\b|男/.test(text)) info.gender='M';
+  if(/\bFEMALE\b|\bF\b|女/.test(text)) info.gender='F';
+
+  return info;
+}
+
+// run OCR pipeline: input = canvas (source image)
+async function runPipelineOnCanvas(srcCanvas){
+  if(!tesseractReady){ showStatus('OCR 尚未就緒'); return null; }
+  workerBusy = true;
+  progressArea.style.display = 'block'; progressBar.style.width='0%'; progressText.textContent='0%';
+
+  showStatus('偵測邊緣並進行透視校正...');
+  // first try edge detect & warp with OpenCV
+  let warpedCanvas = srcCanvas;
+  try {
+    if(cvReady){
+      const out = detectAndWarp(srcCanvas);
+      warpedCanvas = out || srcCanvas;
+      showStatus('已完成透視校正');
+    } else {
+      showStatus('OpenCV 未就緒，跳過透視校正');
+    }
+  } catch(e){
+    console.warn('透視校正失敗', e);
+    warpedCanvas = srcCanvas;
+  }
+
+  // enhance for OCR
+  showStatus('影像增強中...');
+  const enhanced = enhanceForOCR(warpedCanvas);
+
+  // OCR via worker
+  showStatus('開始 OCR');
+  const { data: { text } } = await tesseractWorker.recognize(enhanced);
+  showStatus('OCR 完成');
+  progressBar.style.width = '100%';
+  progressText.textContent = '100%';
+  const info = extractHKIDInfo(text);
+  displayResult(info, text);
+
+  workerBusy = false;
+  // hide progress after short delay
+  setTimeout(()=>{ progressArea.style.display='none'; }, 1200);
+  return info;
+}
+
+// display result
+function displayResult(info, rawText){
+  dataArea.innerHTML = '';
+  const add = (k,v)=> {
+    const div = document.createElement('div'); div.className='result-line';
+    div.innerHTML = `<span class="label">${k}:</span> <span>${v || '<i>未識別</i>'}</span>`;
+    dataArea.appendChild(div);
+  };
+  add('身份證號碼', info.idNumber);
+  add('英文姓名', info.name);
+  add('出生日期', info.dateOfBirth);
+  add('簽發日期', info.dateOfIssue);
+  add('性別', info.gender);
+  const raw = document.createElement('div'); raw.style.marginTop='8px'; raw.style.fontSize='12px'; raw.style.opacity='0.9';
+  raw.innerHTML = `<hr style="opacity:0.08"/><div style="font-weight:700">OCR 原始文本</div><pre style="white-space:pre-wrap">${rawText}</pre>`;
+  dataArea.appendChild(raw);
+
+  // after OCR, auto stop camera to save battery & privacy
+  stopCamera();
+  // vibrate for feedback
+  if(navigator.vibrate) navigator.vibrate(150);
+}
+
+// helper: capture video & crop to frame rect (return canvas)
+function captureAndPrepare(){
+  // capture full video
+  const full = captureVideoToCanvas();
+  const rect = getCropRect();
+  // crop into new canvas
+  const tmp = document.createElement('canvas');
+  tmp.width = rect.w; tmp.height = rect.h;
+  const ctx = tmp.getContext('2d');
+  ctx.drawImage(full, rect.x, rect.y, rect.w, rect.h, 0, 0, rect.w, rect.h);
+  return tmp;
+}
+
+// file input handler (upload)
+fileInput.addEventListener('change', async (ev)=>{
+  const file = ev.target.files && ev.target.files[0];
+  if(!file) return;
+  if(workerBusy){ showStatus('OCR 正在進行中，請稍候'); return; }
+  resultBox.style.display = 'block';
+  showStatus('載入上傳圖像...');
+  const img = new Image();
+  const dataURL = await fileToDataURL(file);
+  img.src = dataURL;
+  await img.decode();
+
+  // create canvas sized to image and center-crop to frame ratio
+  const frameEl = document.querySelector('.frame').getBoundingClientRect();
+  const frameRatio = frameEl.width / frameEl.height;
+  const imgRatio = img.naturalWidth / img.naturalHeight;
+
+  let cropW, cropH, cropX, cropY;
+  if(imgRatio > frameRatio){
+    cropH = img.naturalHeight;
+    cropW = Math.round(frameRatio * cropH);
+    cropX = Math.round((img.naturalWidth - cropW)/2);
+    cropY = 0;
+  } else {
+    cropW = img.naturalWidth;
+    cropH = Math.round(cropW / frameRatio);
+    cropX = 0;
+    cropY = Math.round((img.naturalHeight - cropH)/2);
+  }
+
+  const c = document.getElementById('fullCanvas');
+  c.width = cropW; c.height = cropH;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+
+  // run pipeline
+  await runPipelineOnCanvas(c);
+});
+
+// Scan button handler (live)
+scanBtn.addEventListener('click', async ()=>{
+  if(workerBusy){ showStatus('OCR 正在進行中，請稍候'); return; }
+  resultBox.style.display = 'block';
+  showStatus('捕捉畫面中...');
+  const captured = captureAndPrepare();
+  showStatus('已捕捉，進行偵測與 OCR...');
+  await runPipelineOnCanvas(captured);
+});
+
+// Preview crop
+previewBtn.addEventListener('click', ()=>{
+  const c = captureAndPrepare();
+  const data = c.toDataURL('image/png');
+  const win = window.open('');
+  win.document.write(`<img src="${data}" style="max-width:100%">`);
+});
+
+// restart camera on demand (already wired via restartCamBtn)
+restartCamBtn.addEventListener('click', async () => {
+  await startCamera();
+});
+
+// helper: file -> dataURL
+function fileToDataURL(file){
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = ()=>res(r.result);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+// cleanup on unload
+window.addEventListener('beforeunload', () => {
+  if(stream) stopCamera();
+  if(tesseractWorker) tesseractWorker.terminate();
+});
+
+</script>
+</body>
+</html>
