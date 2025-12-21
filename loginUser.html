@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<title>經貸智能財務 | 用戶系統</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+:root { --primary: #00d4ff; --bg: #0b0e14; --card: #161b22; --border: #30363d; --text: #c9d1d9; }
+body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; }
+.hidden { display: none !important; }
+
+/* 登入介面 */
+.panel { max-width: 450px; margin: 40px auto; padding: 25px; background: var(--card); border-radius: 20px; border: 1px solid var(--border); text-align: center; }
+.cam-box { width: 240px; height: 240px; margin: 20px auto; border-radius: 50%; border: 3px solid var(--primary); overflow: hidden; position: relative; }
+video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+
+/* 主介面 */
+main { padding: 20px; padding-bottom: 80px; }
+.card { background: var(--card); border-radius: 15px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); }
+.val { color: var(--primary); font-family: monospace; font-weight: bold; }
+canvas { margin-top: 15px; max-height: 200px; }
+
+button { width: 100%; padding: 15px; border-radius: 10px; border: none; background: var(--primary); color: #000; font-weight: bold; cursor: pointer; }
+button:disabled { background: #444; color: #888; }
+
+nav { position: fixed; bottom: 0; width: 100%; height: 65px; background: #0d1117; display: flex; border-top: 1px solid var(--border); align-items: center; }
+nav div { flex: 1; text-align: center; font-size: 12px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div id="login-page" class="panel">
+    <h2>智能身份識別</h2>
+    <p id="loader-msg" style="font-size: 13px; color: #888;">正在同步用戶特徵庫...</p>
+    <div style="margin-top:20px;">
+        <button id="face-btn" disabled onclick="startRecognition()">開啟 Face ID 登入</button>
+    </div>
+</div>
+
+<div id="face-page" class="panel hidden">
+    <h3>正在比對資料庫...</h3>
+    <div class="cam-box">
+        <video id="v" autoplay muted playsinline></video>
+    </div>
+    <p id="match-result" class="val">掃描中...</p>
+</div>
+
+<div id="app" class="hidden">
+    <main>
+        <div class="card">
+            <div style="display:flex; justify-content:space-between">
+                <span id="user-display"></span>
+                <span class="val" id="acc-id"></span>
+            </div>
+            <h2 style="margin:10px 0">HK$ <span id="loan-val">200,000</span></h2>
+            <p style="font-size:12px; color:#888">當前貸款總額</p>
+        </div>
+
+        <div class="card">
+            <h3>還款趨勢分析</h3>
+            <canvas id="trendChart"></canvas>
+            <div style="margin-top:15px">
+                <input type="range" id="loanRange" min="50000" max="1000000" step="50000" value="200000" style="width:100%" oninput="updateUI()">
+                <p style="font-size:13px">模擬調整金額: <span class="val" id="rangeText"></span></p>
+            </div>
+        </div>
+    </main>
+    <nav>
+        <div style="color:var(--primary)">總覽</div>
+        <div onclick="location.reload()">登出</div>
+    </nav>
+</div>
+
+<script>
+/* ================= 1. 多用戶 JSON 數據庫 ================= */
+const usersDB = [
+    { name: "陳泓", id: "UID-8821", photo: "users/user1.png", rate: 0.032 },
+    { name: "李阿花", id: "UID-7742", photo: "users/user2.png", rate: 0.028 }
+];
+
+let faceMatcher = null; // 1對多匹配器
+let currentUser = null;
+let trendChart = null;
+
+/* ================= 2. 預加載與特徵提取 ================= */
+async function initSystem() {
+    const msg = document.getElementById('loader-msg');
+    try {
+        const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+        await Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
+        ]);
+
+        // 為所有用戶提取特徵
+        const labeledDescriptors = await Promise.all(usersDB.map(async user => {
+            const img = new Image();
+            img.src = user.photo;
+            img.crossOrigin = "anonymous";
+            await new Promise(r => img.onload = r);
+            
+            const detect = await faceapi.detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
+                .withFaceLandmarks().withFaceDescriptor();
+            
+            if (!detect) throw new Error(`無法解析 ${user.name} 的照片`);
+            // 返回帶標籤的特徵 (標籤設為用戶索引)
+            return new faceapi.LabeledFaceDescriptors(usersDB.indexOf(user).toString(), [detect.descriptor]);
+        }));
+
+        // 建立 1 對 多 匹配器
+        faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.55);
+        
+        document.getElementById('face-btn').disabled = false;
+        msg.innerHTML = "✅ 用戶庫同步完成";
+    } catch (e) {
+        msg.innerHTML = "❌ 系統錯誤: " + e.message;
+    }
+}
+initSystem();
+
+/* ================= 3. 多人比對邏輯 ================= */
+async function startRecognition() {
+    document.getElementById('login-page').classList.add('hidden');
+    document.getElementById('face-page').classList.remove('hidden');
+
+    const video = document.getElementById('v');
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = stream;
+
+    const interval = setInterval(async () => {
+        const detect = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
+            .withFaceLandmarks().withFaceDescriptor();
+
+        if (detect) {
+            // 執行 1 對 多 比對
+            const match = faceMatcher.findBestMatch(detect.descriptor);
+            
+            if (match.label !== 'unknown') {
+                currentUser = usersDB[parseInt(match.label)];
+                document.getElementById('match-result').innerText = `辨識成功: ${currentUser.name}`;
+                clearInterval(interval);
+                stream.getTracks().forEach(t => t.stop());
+                setTimeout(launchApp, 800);
+            } else {
+                document.getElementById('match-result').innerText = "未知身份，請重試";
+            }
+        }
+    }, 700);
+}
+
+/* ================= 4. 圖表與 UI 邏輯 ================= */
+function launchApp() {
+    document.getElementById('face-page').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    
+    document.getElementById('user-display').innerText = `你好, ${currentUser.name}`;
+    document.getElementById('acc-id').innerText = currentUser.id;
+    
+    initTrendChart();
+    updateUI();
+}
+
+function initTrendChart() {
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    trendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: 12}, (_, i) => `M${i+1}`),
+            datasets: [{
+                label: '預計餘額走勢',
+                data: [],
+                borderColor: '#00d4ff',
+                backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            plugins: { legend: { display: false } },
+            scales: { y: { grid: { color: '#30363d' } }, x: { grid: { display: false } } }
+        }
+    });
+}
+
+function updateUI() {
+    const amt = parseInt(document.getElementById('loanRange').value);
+    document.getElementById('loan-val').innerText = amt.toLocaleString();
+    document.getElementById('rangeText').innerText = `HK$ ${amt.toLocaleString()}`;
+
+    // 生成模擬趨勢數據
+    const trendData = [];
+    for(let i=0; i<12; i++) {
+        trendData.push(Math.max(0, amt - (amt/12 * i)));
+    }
+    trendChart.data.datasets[0].data = trendData;
+    trendChart.update();
+}
+</script>
+</body>
+</html>

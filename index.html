@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>經貸智能財務 | AI貸款審批系統</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@300;400;500;700&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00d4ff;
+            --primary-dark: #0099cc;
+            --secondary: #7b2cbf;
+            --dark-bg: #0a0a1a;
+            --card-bg: #14142e;
+            --border-color: #2a2a4a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0d0;
+            --success: #00ff9d;
+            --warning: #ffcc00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans HK', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 119, 198, 0.05) 0%, transparent 50%);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 頂部導航 - 增強版 */
+        header {
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(10, 10, 26, 0.98);
+            backdrop-filter: blur(15px);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transform: translateY(0);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        header.hidden {
+            transform: translateY(-100%);
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link:hover::before {
+            width: 100%;
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .nav-link.active::before {
+            width: 100%;
+        }
+
+        /* 滾動指示器 */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .scroll-indicator.visible {
+            opacity: 1;
+        }
+
+        .scroll-btn {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+        }
+
+        .scroll-btn:hover {
+            transform: scale(1.1) translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 212, 255, 0.5);
+        }
+
+        .scroll-btn.up {
+            margin-bottom: 10px;
+        }
+
+        /* 主視覺區域 - 滾動動畫 */
+        .hero {
+            padding: 160px 0 100px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeUp 1s ease forwards;
+        }
+
+        @keyframes fadeUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero h1 {
+            font-size: 3.8rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+            font-weight: 800;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.4rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 60px;
+            font-family: 'Roboto Mono', monospace;
+            opacity: 0.9;
+        }
+
+        /* AI計算區域 - 滾動觸發動畫 */
+        .ai-calculator {
+            background: var(--card-bg);
+            border-radius: 25px;
+            padding: 50px;
+            margin: 80px 0;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .ai-calculator.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .ai-calculator::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: -200% center; }
+            50% { background-position: 200% center; }
+        }
+
+        .calculator-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .ai-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 28px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .ai-badge::before {
+            content: '🤖';
+            font-size: 1.3rem;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.6s ease;
+        }
+
+        .input-group.visible {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .input-group:nth-child(2) { transition-delay: 0.1s; }
+        .input-group:nth-child(3) { transition-delay: 0.2s; }
+
+        .input-group label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-group label::after {
+            content: '▸';
+            color: var(--primary);
+            font-size: 1.2rem;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(5px); }
+        }
+
+        input, select {
+            padding: 18px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* 特徵選擇 - 滾動動畫 */
+        .features-section {
+            margin: 40px 0;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease;
+        }
+
+        .features-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-checkbox {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            opacity: 0;
+            transform: scale(0.9);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .feature-checkbox.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .feature-checkbox:nth-child(2) { transition-delay: 0.1s; }
+        .feature-checkbox:nth-child(3) { transition-delay: 0.2s; }
+
+        .feature-checkbox:hover {
+            border-color: var(--primary);
+            background: rgba(0, 212, 255, 0.08);
+            transform: translateY(-5px);
+        }
+
+        .feature-checkbox.active {
+            border-color: var(--success);
+            background: rgba(0, 255, 157, 0.08);
+            box-shadow: 0 10px 25px rgba(0, 255, 157, 0.15);
+        }
+
+        .checkbox-indicator {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .feature-checkbox.active .checkbox-indicator {
+            background: var(--success);
+            border-color: var(--success);
+            animation: checkPop 0.3s ease;
+        }
+
+        @keyframes checkPop {
+            0% { transform: scale(0.8); }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .checkbox-indicator::after {
+            content: '✓';
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .feature-checkbox.active .checkbox-indicator::after {
+            opacity: 1;
+        }
+
+        /* 計算按鈕 */
+        .calculate-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 22px 50px;
+            border-radius: 15px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            width: 100%;
+            margin: 40px 0;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .calculate-btn.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 212, 255, 0.4);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(-2px);
+        }
+
+        .calculate-btn::before {
+            content: '⚡';
+            font-size: 1.5rem;
+            animation: spark 2s infinite;
+        }
+
+        @keyframes spark {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        /* 結果顯示 */
+        .results-container {
+            display: none;
+            animation: slideIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 25px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .approval-badge {
+            background: linear-gradient(135deg, var(--success), #00cc88);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            animation: badgeGlow 2s infinite;
+        }
+
+        @keyframes badgeGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 157, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(0, 255, 157, 0.6); }
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 30px;
+            transition: all 0.4s ease;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .result-card.animate {
+            animation: cardPop 0.5s ease forwards;
+        }
+
+        .result-card:nth-child(2) { animation-delay: 0.1s; }
+        .result-card:nth-child(3) { animation-delay: 0.2s; }
+        .result-card:nth-child(4) { animation-delay: 0.3s; }
+
+        @keyframes cardPop {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-card.highlight {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.12), rgba(123, 44, 191, 0.12));
+            border-color: var(--primary);
+        }
+
+        .result-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .result-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            font-family: 'Roboto Mono', monospace;
+            line-height: 1;
+        }
+
+        .result-unit {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-left: 5px;
+        }
+
+        /* 還款明細 */
+        .repayment-details {
+            margin-top: 50px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .repayment-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.4s ease;
+        }
+
+        .detail-item.animate {
+            animation: slideInRight 0.5s ease forwards;
+        }
+
+        .detail-item:nth-child(2) { animation-delay: 0.1s; }
+        .detail-item:nth-child(3) { animation-delay: 0.2s; }
+        .detail-item:nth-child(4) { animation-delay: 0.3s; }
+
+        @keyframes slideInRight {
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .detail-label {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .detail-value {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 1.2rem;
+        }
+
+        /* 頁腳 */
+        footer {
+            margin-top: 100px;
+            padding: 60px 0 40px;
+            border-top: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.4);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 50px;
+        }
+
+        .warning-box {
+            background: rgba(255, 204, 0, 0.12);
+            border: 1px solid var(--warning);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            animation: warningPulse 3s infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(255, 204, 0, 0.1); }
+            50% { box-shadow: 0 0 30px rgba(255, 204, 0, 0.2); }
+        }
+
+        .license-info {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .loan-note {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-top: 25px;
+            opacity: 0.8;
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 992px) {
+            .hero h1 {
+                font-size: 3rem;
+            }
+            
+            .hero {
+                padding: 140px 0 80px;
+            }
+            
+            .ai-calculator {
+                padding: 35px;
+                margin: 60px 0;
+            }
+            
+            .nav-menu {
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .ai-calculator {
+                padding: 25px;
+                margin: 40px 0;
+            }
+            
+            .input-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-menu {
+                gap: 15px;
+            }
+            
+            .nav-link {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .calculator-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .scroll-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1.3rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .logo span {
+                font-size: 1.4rem;
+            }
+            
+            .ai-badge {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .calculate-btn {
+                padding: 18px 30px;
+                font-size: 1.1rem;
+            }
+            
+            .result-value {
+                font-size: 2rem;
+            }
+        }
+
+        /* 漢堡選單 (手機版) */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 10px;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: 0.3s;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+            
+            .nav-menu {
+                position: fixed;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: var(--dark-bg);
+                flex-direction: column;
+                padding: 20px;
+                border-bottom: 1px solid var(--border-color);
+                transform: translateY(-100%);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .nav-menu.active {
+                transform: translateY(0);
+                opacity: 1;
+                visibility: visible;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 頂部導航 -->
+    <header id="mainHeader">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">AI</div>
+                <span>經貸智能財務</span>
+            </a>
+            
+            <button class="hamburger" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link active">智能評估</a>
+                <a href="payToBank.html" class="nav-link">銀行轉賬</a>
+                <a href="#calculator" class="nav-link">開始評估</a>
+                <a href="about.html" class="nav-link">關於我們</a>
+                <a href="loginUser.html" class="nav-link">登入</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 滾動按鈕 -->
+    <div class="scroll-indicator" id="scrollIndicator">
+        <button class="scroll-btn up" onclick="scrollToTop()">↑</button>
+        <button class="scroll-btn down" onclick="scrollToCalculator()">↓</button>
+    </div>
+
+    <!-- 主視覺區域 -->
+    <section class="hero">
+        <h1>AI智能貸款評估系統</h1>
+        <p class="hero-subtitle">採用深度學習演算法，即時分析您的財務狀況，提供精準貸款方案</p>
+    </section>
+
+    <!-- AI計算區域 -->
+    <section class="ai-calculator" id="calculator">
+        <div class="calculator-header">
+            <h2>智能貸款評估</h2>
+            <div class="ai-badge">即時AI分析</div>
+        </div>
+
+        <!-- 輸入區域 -->
+        <div class="input-grid">
+            <div class="input-group">
+                <label>申請人姓名</label>
+                <input type="text" id="applicantName" placeholder="請輸入姓名" value="陳泓">
+            </div>
+            <div class="input-group">
+                <label>申請金額 (HKD)</label>
+                <input type="number" id="loanAmount" placeholder="請輸入金額" value="150000" min="5000" max="1000000">
+            </div>
+            <div class="input-group">
+                <label>還款年期</label>
+                <select id="loanYears">
+                    <option value="1">1年</option>
+                    <option value="2">2年</option>
+                    <option value="3">3年</option>
+                    <option value="5" selected>5年</option>
+                    <option value="7">7年</option>
+                    <option value="10">10年</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 特徵選擇 -->
+        <div class="features-section">
+            <h3 style="margin-bottom: 15px;">財務特徵評估</h3>
+            <div class="features-grid">
+                <div class="feature-checkbox" data-feature="records">
+                    <div class="checkbox-indicator"></div>
+                    <div>
+                        <div style="font-weight: 500; margin-bottom: 5px;">良好信用記錄</div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary);">無逾期還款記錄</div>
+                    </div>
+                </div>
+                <div class="feature-checkbox" data-feature="income">
+                    <div class="checkbox-indicator"></div>
+                    <div>
+                        <div style="font-weight: 500; margin-bottom: 5px;">穩定高收入</div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary);">月收入達行業標準150%</div>
+                    </div>
+                </div>
+                <div class="feature-checkbox" data-feature="assets">
+                    <div class="checkbox-indicator"></div>
+                    <div>
+                        <div style="font-weight: 500; margin-bottom: 5px;">擁有資產</div>
+                        <div style="font-size: 0.9rem; color: var(--text-secondary);">房產/投資/儲蓄證明</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 計算按鈕 -->
+        <button class="calculate-btn" onclick="calculateLoan()">
+            開始智能評估
+        </button>
+
+        <!-- 結果顯示區域 -->
+        <div class="results-container" id="resultsContainer">
+            <div class="results-header">
+                <h2>評估報告</h2>
+                <div class="approval-badge" id="approvalBadge">可批核</div>
+            </div>
+
+            <div class="results-grid">
+                <div class="result-card">
+                    <div class="result-label">
+                        <span>📈</span> 申請通過概率
+                    </div>
+                    <div class="result-value" id="approvalProbability">0%</div>
+                </div>
+                
+                <div class="result-card highlight">
+                    <div class="result-label">
+                        <span>💰</span> 建議批核金額
+                    </div>
+                    <div class="result-value" id="approvedAmount">0</div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-label">
+                        <span>📅</span> 每月還款額
+                    </div>
+                    <div class="result-value" id="monthlyPayment">0</div>
+                </div>
+                
+                <div class="result-card">
+                    <div class="result-label">
+                        <span>🎯</span> 適用年利率
+                    </div>
+                    <div class="result-value" id="annualRate">0%</div>
+                </div>
+            </div>
+
+            <!-- 還款明細 -->
+            <div class="repayment-details">
+                <h3 style="margin-bottom: 25px;">還款計劃詳情</h3>
+                <div class="repayment-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">總還款金額</span>
+                        <span class="detail-value" id="totalRepayment">HKD 0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">總利息支出</span>
+                        <span class="detail-value" id="totalInterest">HKD 0</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">還款期數</span>
+                        <span class="detail-value" id="paymentMonths">0 個月</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">還款完成日期</span>
+                        <span class="detail-value" id="completionDate">-</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 頁腳 -->
+    <footer id="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <h3 style="margin-bottom: 20px; color: var(--primary);">經貸智能財務有限公司</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.8;">
+                        我們採用先進的人工智能技術，為您提供快速、準確的貸款評估服務。<br>
+                        所有計算均基於實時數據分析，確保結果的可靠性。
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 style="margin-bottom: 20px; color: var(--primary);">重要資訊</h3>
+                    <div class="warning-box">
+                        <strong style="color: var(--warning); display: block; margin-bottom: 10px;">⚠️ 重要忠告</strong>
+                        <p style="color: var(--text-secondary); line-height: 1.8; font-size: 0.95rem;">
+                            借錢梗要還，咪俾錢中介。<br>
+                            還款能力評估非常重要，請確保您有能力按時還款。<br>
+                            逾期還款可能影響您的信貸記錄。
+                        </p>
+                    </div>
+                    
+                    <div class="license-info">
+                        <strong>放債人牌照號碼：</strong><br>
+                        <span style="color: var(--text-primary); font-family: 'Roboto Mono', monospace; font-size: 1.1rem;">
+                            0987/2025
+                        </span>
+                        
+                        <div class="loan-note">
+                            * 本評估結果僅供參考，實際批核條件以正式合約為準。<br>
+                            * 利率可能根據市場情況及申請人信用狀況調整。<br>
+                            * 提前還款可能會產生相關手續費用。<br>
+                            * 辦公時間：星期一至五 09:00-18:00
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 導航列隱藏/顯示邏輯
+        let lastScrollTop = 0;
+        const header = document.getElementById('mainHeader');
+        const scrollIndicator = document.getElementById('scrollIndicator');
+        
+        window.addEventListener('scroll', function() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            // 導航列隱藏/顯示
+            if (scrollTop > lastScrollTop && scrollTop > 100) {
+                // 向下滾動
+                header.classList.add('hidden');
+            } else {
+                // 向上滾動
+                header.classList.remove('hidden');
+            }
+            
+            // 顯示滾動按鈕
+            if (scrollTop > 300) {
+                scrollIndicator.classList.add('visible');
+            } else {
+                scrollIndicator.classList.remove('visible');
+            }
+            
+            lastScrollTop = scrollTop;
+            
+            // 觸發滾動動畫
+            checkScrollAnimations();
+        });
+
+        // 滾動到計算器區域
+        function scrollToCalculator() {
+            document.getElementById('calculator').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+
+        // 滾動到頂部
+        function scrollToTop() {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // 滾動觸發動畫
+        function checkScrollAnimations() {
+            const elements = document.querySelectorAll('.ai-calculator, .input-group, .features-section, .feature-checkbox, .calculate-btn');
+            
+            elements.forEach(element => {
+                const elementTop = element.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (elementTop < windowHeight - 100) {
+                    element.classList.add('visible');
+                }
+            });
+            
+            // 結果卡片動畫
+            const resultCards = document.querySelectorAll('.result-card');
+            resultCards.forEach((card, index) => {
+                const cardTop = card.getBoundingClientRect().top;
+                if (cardTop < window.innerHeight - 50) {
+                    setTimeout(() => {
+                        card.classList.add('animate');
+                    }, index * 100);
+                }
+            });
+            
+            // 還款明細動畫
+            const detailItems = document.querySelectorAll('.detail-item');
+            detailItems.forEach((item, index) => {
+                const itemTop = item.getBoundingClientRect().top;
+                if (itemTop < window.innerHeight - 50) {
+                    setTimeout(() => {
+                        item.classList.add('animate');
+                    }, index * 100);
+                }
+            });
+        }
+
+        // 漢堡選單切換
+        function toggleMenu() {
+            const navMenu = document.querySelector('.nav-menu');
+            navMenu.classList.toggle('active');
+        }
+
+        // 點擊外部關閉選單
+        document.addEventListener('click', function(event) {
+            const navMenu = document.querySelector('.nav-menu');
+            const hamburger = document.querySelector('.hamburger');
+            
+            if (!navMenu.contains(event.target) && !hamburger.contains(event.target)) {
+                navMenu.classList.remove('active');
+            }
+        });
+
+        // 初始化特徵選擇
+        document.querySelectorAll('.feature-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                this.classList.toggle('active');
+            });
+        });
+
+        // 預設選中所有特徵
+        document.querySelectorAll('.feature-checkbox').forEach(cb => {
+            cb.classList.add('active');
+        });
+
+        // Sigmoid函數
+        function sigmoid(z) {
+            return 1.0 / (1.0 + Math.exp(-z));
+        }
+
+        // 計算等額本息每月還款
+        function calculateMonthlyPayment(principal, annualRate, years) {
+            const months = years * 12;
+            const monthlyRate = annualRate / 12;
+            
+            if (monthlyRate === 0) {
+                return principal / months;
+            }
+            
+            const temp = Math.pow(1 + monthlyRate, months);
+            return principal * monthlyRate * temp / (temp - 1);
+        }
+
+        // 主計算函數
+        function calculateLoan() {
+            // 獲取輸入值
+            const name = document.getElementById('applicantName').value || '申請人';
+            const loanAmount = parseInt(document.getElementById('loanAmount').value) || 150000;
+            const years = parseInt(document.getElementById('loanYears').value) || 5;
+            
+            // 獲取特徵選擇
+            const hasGoodRecords = document.querySelector('[data-feature="records"]').classList.contains('active');
+            const hasHighIncome = document.querySelector('[data-feature="income"]').classList.contains('active');
+            const hasAssets = document.querySelector('[data-feature="assets"]').classList.contains('active');
+            
+            // AI權重參數（與Java版本一致）
+            const w_records = 1.6;
+            const w_highIncome = 1.5;
+            const w_hasAssets = 0.7;
+            const b = -2.0;
+            
+            // 計算Sigmoid概率
+            const info = [
+                hasGoodRecords ? 1 : 0,
+                hasHighIncome ? 1 : 0,
+                hasAssets ? 1 : 0
+            ];
+            
+            const z = info[0] * w_records + info[1] * w_highIncome + info[2] * w_hasAssets + b;
+            const sigmoidProb = sigmoid(z);
+            const approvalProb = sigmoidProb * 100;
+            
+            // 根據概率決定貸款條件
+            let approvedAmount = loanAmount;
+            let annualRate = 0.2; // 基礎利率20%
+            let otherFee = 0.2;
+            let statusMessage = "";
+            
+            if (sigmoidProb > 0.7) {
+                statusMessage = "恭喜閣下，您符合優質客戶條件";
+            } else if (sigmoidProb >= 0.5) {
+                statusMessage = "您好，您應該可以批核的，建議調整金額";
+                approvedAmount = Math.floor(loanAmount * 0.7);
+                annualRate = 0.4;
+                otherFee = 0.4;
+            } else {
+                statusMessage = "建議改善財務狀況後再申請";
+                approvedAmount = 0;
+            }
+            
+            // 計算還款詳情
+            const monthlyPayment = approvedAmount > 0 ? 
+                calculateMonthlyPayment(approvedAmount, annualRate, years) : 0;
+            const totalRepayment = monthlyPayment * years * 12;
+            const totalInterest = totalRepayment - approvedAmount;
+            
+            // 計算還款完成日期
+            const today = new Date();
+            today.setFullYear(today.getFullYear() + years);
+            const completionDate = today.toLocaleDateString('zh-HK');
+            
+            // 更新UI顯示結果
+            document.getElementById('approvalProbability').textContent = `${approvalProb.toFixed(1)}%`;
+            document.getElementById('approvedAmount').textContent = `HKD ${approvedAmount.toLocaleString()}`;
+            document.getElementById('monthlyPayment').textContent = `HKD ${monthlyPayment.toFixed(0)}`;
+            document.getElementById('annualRate').textContent = `${(annualRate * 100).toFixed(1)}%`;
+            document.getElementById('totalRepayment').textContent = `HKD ${totalRepayment.toFixed(0)}`;
+            document.getElementById('totalInterest').textContent = `HKD ${totalInterest.toFixed(0)}`;
+            document.getElementById('paymentMonths').textContent = `${years * 12} 個月`;
+            document.getElementById('completionDate').textContent = completionDate;
+            
+            // 更新審批狀態
+            const badge = document.getElementById('approvalBadge');
+            if (approvedAmount > 0) {
+                badge.textContent = "可批核";
+                badge.style.background = "linear-gradient(135deg, var(--success), #00cc88)";
+            } else {
+                badge.textContent = "暫未符合";
+                badge.style.background = "linear-gradient(135deg, #ff6b6b, #ff4757)";
+            }
+            
+            // 顯示結果區域並觸發動畫
+            const resultsContainer = document.getElementById('resultsContainer');
+            resultsContainer.style.display = 'block';
+            
+            // 重新觸發動畫檢查
+            setTimeout(() => {
+                checkScrollAnimations();
+            }, 100);
+            
+            // 如果有足夠金額，顯示額外信息
+            if (approvedAmount >= 200000) {
+                const firstPayment = monthlyPayment + approvedAmount * otherFee;
+                // 可以在此添加顯示首期金額的邏輯
+            }
+            
+            // 顯示申請人信息
+            console.log(`申請人${name} -- 初步申請報告 申請金額=${loanAmount}, 申請概率=${approvalProb.toFixed(1)}%`);
+            if (hasGoodRecords) console.log("># 你的財務記錄正常");
+            if (hasHighIncome) console.log("># 你是高收入人士");
+            if (hasAssets) console.log("># 你有資產");
+            console.log(`>> ${statusMessage}`);
+        }
+        
+        // 初始計算和動畫檢查
+        window.addEventListener('load', function() {
+            calculateLoan();
+            checkScrollAnimations();
+            
+            // 初始觸發動畫
+            setTimeout(() => {
+                document.querySelectorAll('.input-group, .features-section, .feature-checkbox, .calculate-btn').forEach(el => {
+                    el.classList.add('visible');
+                });
+            }, 500);
+        });
+
+        // 視窗大小調整時重新檢查動畫
+        window.addEventListener('resize', checkScrollAnimations);
+    </script>
+</body>
+</html>

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>關於我們 | 經貸智能財務</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@300;400;500;700&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00d4ff;
+            --primary-dark: #0099cc;
+            --secondary: #7b2cbf;
+            --dark-bg: #0a0a1a;
+            --card-bg: #14142e;
+            --border-color: #2a2a4a;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0d0;
+            --success: #00ff9d;
+            --warning: #ffcc00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Noto Sans HK', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 119, 198, 0.05) 0%, transparent 50%);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 頂部導航 */
+        header {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(10, 10, 26, 0.95);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        .nav-link.active {
+            color: var(--primary);
+            background: rgba(0, 212, 255, 0.1);
+        }
+
+        /* 關於頁面樣式 */
+        .about-hero {
+            padding: 120px 0 60px;
+            text-align: center;
+        }
+
+        .about-hero h1 {
+            font-size: 3.5rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .about-hero p {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        /* 簡介卡片 */
+        .intro-section {
+            padding: 60px 0;
+        }
+
+        .intro-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 50px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .intro-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+        }
+
+        .intro-title {
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            color: var(--primary);
+        }
+
+        .intro-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+        }
+
+        /* 里程碑 */
+        .milestone-section {
+            padding: 60px 0;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--primary);
+        }
+
+        .milestone-timeline {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .milestone-timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--primary), var(--secondary));
+            transform: translateX(-50%);
+        }
+
+        .milestone-item {
+            margin-bottom: 50px;
+            position: relative;
+            width: calc(50% - 40px);
+        }
+
+        .milestone-item:nth-child(odd) {
+            margin-left: auto;
+            padding-left: 40px;
+        }
+
+        .milestone-item:nth-child(even) {
+            margin-right: auto;
+            padding-right: 40px;
+            text-align: right;
+        }
+
+        .milestone-dot {
+            position: absolute;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            border: 4px solid var(--dark-bg);
+        }
+
+        .milestone-item:nth-child(odd) .milestone-dot {
+            left: -10px;
+        }
+
+        .milestone-item:nth-child(even) .milestone-dot {
+            right: -10px;
+        }
+
+        .milestone-content {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .milestone-content:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .milestone-year {
+            color: var(--primary);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        .milestone-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        .milestone-desc {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* 核心價值 */
+        .values-section {
+            padding: 60px 0;
+        }
+
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .value-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .value-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-5px);
+        }
+
+        .value-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 1.5rem;
+        }
+
+        .value-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .value-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* 頁腳 */
+        footer {
+            margin-top: 80px;
+            padding: 40px 0;
+            border-top: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .warning-box {
+            background: rgba(255, 204, 0, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .license-info {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .about-hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .about-hero p {
+                font-size: 1.1rem;
+            }
+            
+            .intro-card {
+                padding: 30px;
+            }
+            
+            .intro-title {
+                font-size: 1.8rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .milestone-timeline::before {
+                left: 20px;
+            }
+            
+            .milestone-item {
+                width: calc(100% - 40px);
+                margin-left: 40px !important;
+                padding-left: 40px !important;
+                text-align: left !important;
+            }
+            
+            .milestone-item:nth-child(even) {
+                margin-right: 0;
+                padding-right: 0;
+            }
+            
+            .milestone-dot {
+                left: -10px !important;
+                right: auto !important;
+            }
+            
+            .nav-menu {
+                gap: 15px;
+            }
+            
+            .nav-link {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .about-hero h1 {
+                font-size: 2rem;
+            }
+            
+            .logo span {
+                font-size: 1.4rem;
+            }
+            
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 頂部導航 -->
+    <header>
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <div class="logo-icon">AI</div>
+                <span>經貸智能財務</span>
+            </a>
+            
+            <nav class="nav-menu">
+                <a href="index.html" class="nav-link">智能評估</a>
+                <a href="about.html" class="nav-link active">關於我們</a>
+                <a href="payToBank.html" class="nav-link">銀行轉賬</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 關於頁面主視覺 -->
+    <section class="about-hero">
+        <div class="container">
+            <h1>關於經貸智能財務</h1>
+            <p>革新傳統金融，用人工智能重新定義貸款體驗</p>
+        </div>
+    </section>
+
+    <!-- 公司簡介 -->
+    <section class="intro-section">
+        <div class="container">
+            <div class="intro-card">
+                <h2 class="intro-title">我們的使命</h2>
+                <p class="intro-text">
+                    經貸智能財務成立於2023年，是一家專注於人工智能金融科技的創新企業。我們致力於通過先進的機器學習算法，為香港市民提供更公平、更透明、更有效率的貸款服務。
+                </p>
+                <p class="intro-text">
+                    傳統的貸款審批過程往往耗時且不夠透明，我們利用AI技術在數秒內完成複雜的風險評估，為每位客戶提供個性化的貸款方案，同時確保整個過程完全合規。
+                </p>
+                <p class="intro-text">
+                    我們的Sigmoid AI模型經過大量數據訓練，能夠精準評估申請人的還款能力，實現了高效與安全的完美結合。
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 公司里程碑 -->
+    <section class="milestone-section">
+        <div class="container">
+            <h2 class="section-title">發展里程碑</h2>
+            <div class="milestone-timeline">
+                <!-- 里程碑 1 -->
+                <div class="milestone-item">
+                    <div class="milestone-dot"></div>
+                    <div class="milestone-content">
+                        <div class="milestone-year">2023年8月</div>
+                        <h3 class="milestone-title">公司成立</h3>
+                        <p class="milestone-desc">
+                            經貸智能財務有限公司正式成立，獲得香港放債人牌照，開始投入運營，並獲得WTech(HK)當時擁有人以及相關人員願意投資。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 里程碑 2 -->
+                <div class="milestone-item">
+                    <div class="milestone-dot"></div>
+                    <div class="milestone-content">
+                        <div class="milestone-year">2023年10月</div>
+                        <h3 class="milestone-title">網站改革</h3>
+                        <p class="milestone-desc">
+                            開放登入功能。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 里程碑 3 -->
+                <div class="milestone-item">
+                    <div class="milestone-dot"></div>
+                    <div class="milestone-content">
+                        <div class="milestone-year">2025年4月</div>
+                        <h3 class="milestone-title">兩地運營</h3>
+                        <p class="milestone-desc">
+                            經貸貸款品牌在中國內地開始運營網貸業務。
+                        </p>
+                    </div>
+                </div>
+
+                <!-- 里程碑 4 -->
+                <div class="milestone-item">
+                    <div class="milestone-dot"></div>
+                    <div class="milestone-content">
+                        <div class="milestone-year">2025年12月</div>
+                        <h3 class="milestone-title">技術升級</h3>
+                        <p class="milestone-desc">
+                            首版Sigmoid AI貸款審批模型正式投入運營，實現了數分鐘內完成貸款申請評估的突破。
+                        </p>
+                    </div>
+                </div>
+
+                <div class="milestone-item">
+                    <div class="milestone-dot"></div>
+                    <div class="milestone-content">
+                        <div class="milestone-year">2026或之後</div>
+                        <h3 class="milestone-title">未來規劃</h3>
+                        <p class="milestone-desc">
+                            可能繼續兩地運營金融相關業務，為民服務。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 核心價值 -->
+    <section class="values-section">
+        <div class="container">
+            <h2 class="section-title">核心價值</h2>
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">⚡</div>
+                    <h3>高效透明</h3>
+                    <p>AI技術實現秒級審批，所有計算過程公開透明，讓客戶清楚了解審批依據。</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">🎯</div>
+                    <h3>精準公平</h3>
+                    <p>機器學習算法消除人為偏見，為每位申請人提供最公平的評估結果。</p>
+                </div>
+                
+                <div class="value-card">
+                    <div class="value-icon">🔒</div>
+                    <h3>安全合規</h3>
+                    <p>嚴格遵守香港金融監管要求，確保所有操作合法合規，保護客戶數據安全。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 頁腳 -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <h3 style="margin-bottom: 20px; color: var(--primary);">經貸智能財務有限公司</h3>
+                    <p style="color: var(--text-secondary); line-height: 1.8;">
+                        地址：新界青衣島青衣路20A號<br>
+                        電話：+852 22943266<br>
+                        電郵：info@jingdai.com.hk
+                    </p>
+                </div>
+                
+                <div>
+                    <h3 style="margin-bottom: 20px; color: var(--primary);">重要資訊</h3>
+                    <div class="warning-box">
+                        <strong style="color: var(--warning); display: block; margin-bottom: 10px;">⚠️ 重要忠告</strong>
+                        <p style="color: var(--text-secondary); line-height: 1.8; font-size: 0.9rem;">
+                            借錢梗要還，咪俾錢中介。<br>
+                            還款能力評估非常重要，請確保您有能力按時還款。<br>
+                            逾期還款可能影響您的信貸記錄。
+                        </p>
+                    </div>
+                    
+                    <div class="license-info">
+                        <strong>放債人牌照號碼：</strong><br>
+                        <span style="color: var(--text-primary); font-family: 'Roboto Mono', monospace; font-size: 1.1rem;">
+                            0987/2025
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // 簡單的滾動動畫
+        document.addEventListener('DOMContentLoaded', function() {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            // 觀察所有卡片和里程碑
+            document.querySelectorAll('.milestone-content, .value-card, .intro-card').forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'all 0.6s ease';
+                observer.observe(el);
+            });
+        });
+    </script>
+</body>
+</html>
