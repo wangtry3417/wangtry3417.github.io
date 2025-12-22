@@ -15,160 +15,528 @@
     --danger: #ff4757;
     --success: #2ed573;
     --warning: #ffa502;
+    --purple: #9c88ff;
     --bg: #0b0e14; 
     --card: #161b22; 
     --border: #30363d; 
     --text: #c9d1d9;
     --text-secondary: #8b949e;
+    --admin-red: #ff3838;
 }
 body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; }
 .hidden { display: none !important; }
 
 /* 登入介面 */
-.panel { max-width: 450px; margin: 40px auto; padding: 25px; background: var(--card); border-radius: 20px; border: 1px solid var(--border); text-align: center; }
-.cam-box { width: 240px; height: 240px; margin: 20px auto; border-radius: 50%; border: 3px solid var(--primary); overflow: hidden; position: relative; }
-video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.login-panel { 
+    background: linear-gradient(135deg, #0b0e14 0%, #1a1f2e 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+.login-box { 
+    max-width: 450px; 
+    width: 100%;
+    padding: 40px; 
+    background: var(--card); 
+    border-radius: 24px; 
+    border: 1px solid var(--border); 
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+.logo { 
+    font-size: 28px; 
+    font-weight: 800; 
+    color: var(--primary); 
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+.tagline {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-bottom: 30px;
+}
+
+.cam-box { 
+    width: 240px; 
+    height: 240px; 
+    margin: 30px auto; 
+    border-radius: 50%; 
+    border: 4px solid var(--primary); 
+    overflow: hidden; 
+    position: relative;
+    box-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+}
+video { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    transform: scaleX(-1); 
+}
 
 /* 主介面 */
-main { padding: 20px; padding-bottom: 100px; }
-.card { background: var(--card); border-radius: 15px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); }
-.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.card-title { font-size: 16px; font-weight: 600; margin: 0; }
+main { 
+    padding: 20px; 
+    padding-bottom: 100px; 
+    background: linear-gradient(180deg, var(--bg) 0%, #131722 100%);
+    min-height: calc(100vh - 70px);
+}
+.card { 
+    background: var(--card); 
+    border-radius: 18px; 
+    padding: 22px; 
+    margin-bottom: 18px; 
+    border: 1px solid var(--border);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+.card-header { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    margin-bottom: 18px; 
+}
+.card-title { 
+    font-size: 17px; 
+    font-weight: 700; 
+    margin: 0;
+    color: var(--text);
+}
 
-.val { color: var(--primary); font-family: monospace; font-weight: bold; }
+.val { 
+    color: var(--primary); 
+    font-family: 'SF Mono', Monaco, monospace; 
+    font-weight: 700; 
+    letter-spacing: 0.5px;
+}
 .danger { color: var(--danger); }
 .success { color: var(--success); }
 .warning { color: var(--warning); }
+.purple { color: var(--purple); }
 
-canvas { margin-top: 15px; max-height: 200px; }
+canvas { 
+    margin-top: 20px; 
+    max-height: 220px;
+}
 
-button { padding: 12px 20px; border-radius: 10px; border: none; background: var(--primary); color: #000; font-weight: 600; cursor: pointer; transition: all 0.2s; }
-button:hover { background: var(--primary-dark); transform: translateY(-1px); }
-button:disabled { background: #444; color: #888; cursor: not-allowed; transform: none; }
-button.danger-btn { background: var(--danger); color: white; }
-button.secondary-btn { background: var(--border); color: var(--text); }
+button { 
+    padding: 14px 24px; 
+    border-radius: 12px; 
+    border: none; 
+    background: var(--primary); 
+    color: #000; 
+    font-weight: 700; 
+    cursor: pointer; 
+    transition: all 0.2s; 
+    font-size: 15px;
+}
+button:hover { 
+    background: var(--primary-dark); 
+    transform: translateY(-2px); 
+    box-shadow: 0 5px 15px rgba(0, 212, 255, 0.2);
+}
+button:disabled { 
+    background: #444; 
+    color: #888; 
+    cursor: not-allowed; 
+    transform: none;
+}
+button.danger-btn { 
+    background: var(--danger); 
+    color: white; 
+}
+button.danger-btn:hover { background: #ff2e43; }
+button.secondary-btn { 
+    background: var(--border); 
+    color: var(--text); 
+}
+button.success-btn { 
+    background: var(--success); 
+    color: #000; 
+}
 
-.input-group { margin: 15px 0; }
-input[type="range"] { width: 100%; height: 6px; border-radius: 3px; background: var(--border); outline: none; }
-input[type="number"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+.input-group { 
+    margin: 18px 0; 
+}
+input[type="range"] { 
+    width: 100%; 
+    height: 6px; 
+    border-radius: 3px; 
+    background: var(--border); 
+    outline: none;
+}
+input[type="number"], select { 
+    width: 100%; 
+    padding: 14px; 
+    border-radius: 10px; 
+    border: 1px solid var(--border); 
+    background: var(--bg); 
+    color: var(--text);
+    font-size: 15px;
+}
 
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.flex-between { display: flex; justify-content: space-between; align-items: center; }
+.grid-2 { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 15px; 
+}
+.grid-3 { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 12px; 
+}
+.flex-between { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+}
+.flex-center {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-.status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
-.status-good { background: rgba(46, 213, 115, 0.2); color: var(--success); }
-.status-warning { background: rgba(255, 165, 2, 0.2); color: var(--warning); }
+.status-badge { 
+    padding: 6px 14px; 
+    border-radius: 20px; 
+    font-size: 13px; 
+    font-weight: 600; 
+}
+.status-good { 
+    background: rgba(46, 213, 115, 0.15); 
+    color: var(--success); 
+    border: 1px solid rgba(46, 213, 115, 0.3);
+}
+.status-warning { 
+    background: rgba(255, 165, 2, 0.15); 
+    color: var(--warning); 
+    border: 1px solid rgba(255, 165, 2, 0.3);
+}
+.status-danger { 
+    background: rgba(255, 71, 87, 0.15); 
+    color: var(--danger); 
+    border: 1px solid rgba(255, 71, 87, 0.3);
+}
 
-nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: rgba(13, 17, 23, 0.95); backdrop-filter: blur(10px); display: flex; border-top: 1px solid var(--border); align-items: center; }
-nav div { flex: 1; text-align: center; font-size: 12px; cursor: pointer; padding: 12px 0; transition: color 0.2s; }
-nav div:hover { color: var(--primary); }
-nav div.active { color: var(--primary); border-top: 2px solid var(--primary); }
+.amount-display {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 15px 0;
+    font-family: 'SF Mono', Monaco, monospace;
+    letter-spacing: 1px;
+}
 
-.modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-.modal-content { background: var(--card); border-radius: 20px; padding: 25px; max-width: 400px; width: 90%; border: 1px solid var(--border); }
+nav { 
+    position: fixed; 
+    bottom: 0; 
+    width: 100%; 
+    height: 70px; 
+    background: rgba(13, 17, 23, 0.98); 
+    backdrop-filter: blur(20px); 
+    display: flex; 
+    border-top: 1px solid var(--border); 
+    align-items: center; 
+    z-index: 100;
+}
+nav div { 
+    flex: 1; 
+    text-align: center; 
+    font-size: 13px; 
+    cursor: pointer; 
+    padding: 16px 0; 
+    transition: all 0.2s; 
+    opacity: 0.7;
+}
+nav div:hover { 
+    opacity: 1; 
+    color: var(--primary); 
+}
+nav div.active { 
+    opacity: 1; 
+    color: var(--primary); 
+    border-top: 3px solid var(--primary); 
+}
 
-.notification { position: fixed; top: 20px; right: 20px; background: var(--success); color: white; padding: 12px 20px; border-radius: 10px; animation: slideIn 0.3s; z-index: 1001; }
-@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+.modal { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0; 
+    background: rgba(0, 0, 0, 0.85); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    z-index: 1000;
+    animation: fadeIn 0.3s;
+}
+.modal-content { 
+    background: var(--card); 
+    border-radius: 24px; 
+    padding: 30px; 
+    max-width: 450px; 
+    width: 90%; 
+    border: 1px solid var(--border);
+    animation: slideUp 0.4s;
+}
+
+.notification { 
+    position: fixed; 
+    top: 25px; 
+    right: 25px; 
+    background: var(--success); 
+    color: white; 
+    padding: 16px 24px; 
+    border-radius: 12px; 
+    animation: slideIn 0.3s; 
+    z-index: 1001;
+    font-weight: 600;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+.notification.warning { background: var(--warning); }
+.notification.danger { background: var(--danger); }
+
+.time-display {
+    position: fixed;
+    top: 25px;
+    left: 25px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    background: rgba(22, 27, 34, 0.8);
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    z-index: 99;
+    font-family: 'SF Mono', Monaco, monospace;
+}
+
+.admin-panel {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    z-index: 999;
+}
+
+.admin-btn {
+    background: transparent;
+    color: var(--admin-red);
+    border: 1px solid var(--admin-red);
+    padding: 10px 20px;
+    border-radius: 12px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    opacity: 0.3;
+    transition: all 0.3s;
+}
+.admin-btn:hover {
+    opacity: 1;
+    background: rgba(255, 56, 56, 0.1);
+    transform: none;
+}
+
+.admin-modal .modal-content {
+    max-width: 500px;
+}
+
+.admin-stat {
+    background: rgba(255, 56, 56, 0.1);
+    border: 1px solid rgba(255, 56, 56, 0.3);
+    border-radius: 12px;
+    padding: 15px;
+    margin: 10px 0;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+}
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; }
+}
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; }
+}
 </style>
 </head>
 <body>
 
-<div id="login-page" class="panel">
-    <h2>智能身份識別</h2>
-    <p id="loader-msg" style="font-size: 13px; color: var(--text-secondary);">正在同步用戶特徵庫...</p>
-    <div style="margin-top:20px;">
-        <button id="face-btn" disabled onclick="startRecognition()">開啟 Face ID 登入</button>
+<!-- 時間顯示 -->
+<div id="time-display" class="time-display hidden">
+    <div id="current-time">--:--:--</div>
+    <div style="font-size: 12px; color: var(--primary); margin-top: 2px;" id="system-date"></div>
+</div>
+
+<!-- 管理員按鈕 -->
+<div id="admin-panel" class="admin-panel hidden">
+    <button class="admin-btn" onclick="showAdminPanel()">SYSTEM</button>
+</div>
+
+<!-- 登入頁面 -->
+<div id="login-page" class="login-panel">
+    <div class="login-box">
+        <div class="logo">經貸智能財務</div>
+        <div class="tagline">AI 驅動的智能信貸解決方案</div>
+        
+        <div style="margin: 30px 0;">
+            <div class="cam-box">
+                <video id="v" autoplay muted playsinline></video>
+            </div>
+            <p id="loader-msg" style="font-size: 14px; color: var(--text-secondary); margin-top: 20px;">
+                正在初始化生物特徵識別系統...
+            </p>
+        </div>
+        
+        <div>
+            <button id="face-btn" disabled onclick="startRecognition()">
+                <span style="font-size: 18px; margin-right: 10px;">🔐</span>
+                啟動 Face ID 驗證
+            </button>
+        </div>
+        
+        <div style="margin-top: 30px; padding-top: 25px; border-top: 1px solid var(--border);">
+            <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
+                <span style="color: var(--primary);">ⓘ</span> 系統使用面部識別技術進行身份驗證<br>
+                您的生物特徵數據已加密處理
+            </p>
+        </div>
     </div>
 </div>
 
-<div id="face-page" class="panel hidden">
-    <h3>正在比對資料庫...</h3>
-    <div class="cam-box">
-        <video id="v" autoplay muted playsinline></video>
+<!-- 人臉識別頁面 -->
+<div id="face-page" class="login-panel hidden">
+    <div class="login-box">
+        <h2 style="margin-bottom: 30px;">身份驗證中</h2>
+        <div class="cam-box">
+            <video id="v-face" autoplay muted playsinline></video>
+        </div>
+        <div style="margin-top: 30px;">
+            <div id="match-result" class="val" style="font-size: 18px;">正在掃描面部特徵...</div>
+            <div style="height: 4px; background: var(--border); border-radius: 2px; margin-top: 15px; overflow: hidden;">
+                <div id="scan-progress" style="height: 100%; width: 0%; background: var(--primary); transition: width 0.3s;"></div>
+            </div>
+        </div>
+        <button class="secondary-btn" onclick="cancelRecognition()" style="margin-top: 25px;">取消驗證</button>
     </div>
-    <p id="match-result" class="val">掃描中...</p>
 </div>
 
+<!-- 主應用 -->
 <div id="app" class="hidden">
     <!-- 通知 -->
     <div id="notification" class="notification hidden"></div>
     
     <!-- 主內容 -->
     <main>
-        <!-- 用戶摘要卡 -->
+        <!-- 帳戶摘要 -->
         <div class="card">
             <div class="flex-between">
                 <div>
-                    <span id="user-display"></span>
-                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
-                        信用評級: <span id="credit-score" class="val"></span>
+                    <h1 id="user-display" style="margin: 0; font-size: 22px;"></h1>
+                    <div style="font-size: 13px; color: var(--text-secondary); margin-top: 5px;">
+                        帳戶編號: <span id="acc-id" class="val"></span>
+                        <span style="margin: 0 10px;">|</span>
+                        信用評級: <span id="credit-score" class="val"></span>/850
                     </div>
                 </div>
-                <div style="text-align: right;">
-                    <span class="val" id="acc-id"></span>
-                    <div class="status-badge" id="account-status"></div>
+                <div class="status-badge status-good" id="account-status">狀態正常</div>
+            </div>
+            
+            <div class="amount-display" style="margin: 25px 0;">
+                HK$ <span id="loan-val">500,000</span>
+            </div>
+            <p style="font-size:13px; color: var(--text-secondary); text-align: center;">當前貸款餘額</p>
+            
+            <div class="grid-3" style="margin-top: 25px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">月供款項</div>
+                    <div class="val" id="monthly-payment">HK$ 21,056</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">剩餘期數</div>
+                    <div class="val" id="remaining-terms">36 個月</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">年利率</div>
+                    <div class="val" id="interest-rate">3.85%</div>
                 </div>
             </div>
-            <h2 style="margin: 15px 0; font-size: 28px;">HK$ <span id="loan-val">200,000</span></h2>
-            <p style="font-size:12px; color: var(--text-secondary)">當前貸款總額</p>
-            <div class="flex-between" style="margin-top: 15px;">
-                <div>
-                    <div style="font-size: 12px; color: var(--text-secondary)">月供款</div>
-                    <div class="val" id="monthly-payment">HK$ 8,420</div>
-                </div>
-                <div>
-                    <div style="font-size: 12px; color: var(--text-secondary)">剩餘期數</div>
-                    <div class="val" id="remaining-terms">24 個月</div>
-                </div>
-                <div>
-                    <div style="font-size: 12px; color: var(--text-secondary)">利率</div>
-                    <div class="val" id="interest-rate">3.2%</div>
+            
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border);">
+                <div class="flex-between">
+                    <div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">下次還款日</div>
+                        <div class="val" id="next-payment-date">2024-04-15</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">可用信貸額度</div>
+                        <div class="val" id="available-credit">HK$ 250,000</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 還款趨勢分析 -->
+        <!-- 還款進度 -->
         <div class="card">
-            <h3 class="card-title">還款趨勢分析</h3>
+            <h3 class="card-title">還款進度分析</h3>
             <canvas id="trendChart"></canvas>
-            <div style="margin-top:15px">
-                <input type="range" id="loanRange" min="50000" max="1000000" step="50000" value="200000" style="width:100%" oninput="updateUI()">
-                <p style="font-size:13px; color: var(--text-secondary)">模擬調整金額: <span class="val" id="rangeText"></span></p>
+            <div style="margin-top: 25px;">
+                <div class="flex-between" style="margin-bottom: 10px;">
+                    <span style="font-size: 14px;">調整貸款金額</span>
+                    <span class="val" id="rangeText">HK$ 500,000</span>
+                </div>
+                <input type="range" id="loanRange" min="100000" max="2000000" step="50000" value="500000" style="width:100%" oninput="updateLoanAmount()">
+                <div class="flex-between" style="margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
+                    <span>HK$ 100,000</span>
+                    <span>HK$ 2,000,000</span>
+                </div>
             </div>
         </div>
 
         <!-- 快速操作 -->
         <div class="card">
-            <h3 class="card-title">快速操作</h3>
-            <div class="grid-2">
-                <button onclick="showPaymentModal()">💳 立即還款</button>
+            <h3 class="card-title">快速服務</h3>
+            <div class="grid-2" style="margin-top: 15px;">
+                <button onclick="showPaymentModal()" class="success-btn">💳 立即還款</button>
                 <button onclick="showTopupModal()">📈 申請加貸</button>
-                <button onclick="showDetails()">📋 查看詳情</button>
-                <button onclick="showStatement()">📄 月結單</button>
+                <button onclick="showRefinanceModal()">🔄 債務重組</button>
+                <button onclick="downloadStatement()">📄 下載結單</button>
             </div>
         </div>
 
         <!-- 近期交易 -->
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">近期交易記錄</h3>
-                <span style="font-size: 12px; color: var(--text-secondary); cursor: pointer;" onclick="showAllTransactions()">查看全部</span>
+                <h3 class="card-title">最新交易記錄</h3>
+                <span style="font-size: 13px; color: var(--primary); cursor: pointer;" onclick="showAllTransactions()">查看全部 →</span>
             </div>
             <div id="transactions-list">
                 <!-- 動態生成 -->
             </div>
         </div>
 
-        <!-- 產品推薦 -->
+        <!-- 推薦產品 -->
         <div class="card">
-            <h3 class="card-title">為您推薦</h3>
-            <div style="background: rgba(0, 212, 255, 0.1); border-radius: 10px; padding: 15px; margin-top: 10px;">
+            <div class="card-header">
+                <h3 class="card-title">專屬優惠</h3>
+                <div class="status-badge status-good" style="font-size: 11px;">限時優惠</div>
+            </div>
+            <div style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(156, 136, 255, 0.1) 100%); border-radius: 14px; padding: 20px; margin-top: 10px;">
                 <div class="flex-between">
                     <div>
-                        <div style="font-weight: 600;">低息結餘轉戶</div>
-                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">年利率低至 2.8%</div>
+                        <div style="font-weight: 700; font-size: 16px;">特惠貸款方案</div>
+                        <div style="font-size: 13px; color: var(--text-secondary); margin-top: 5px;">
+                            年利率低至 2.65% • 快速審批
+                        </div>
+                        <div style="margin-top: 10px; font-size: 12px; color: var(--success);">
+                            ✅ 專享利率優惠 1.2%
+                        </div>
                     </div>
-                    <button style="padding: 8px 16px; font-size: 12px;" onclick="applyProduct('balance_transfer')">申請</button>
+                    <button style="padding: 10px 20px; font-size: 14px;" onclick="applySpecialOffer()">立即申請</button>
                 </div>
             </div>
         </div>
@@ -177,9 +545,9 @@ nav div.active { color: var(--primary); border-top: 2px solid var(--primary); }
     <!-- 底部導航 -->
     <nav>
         <div onclick="switchTab('overview')" class="active">🏠 總覽</div>
-        <div onclick="switchTab('products')">📊 產品</div>
-        <div onclick="showStatement()">📄 文件</div>
-        <div onclick="logout()">🚪 登出</div>
+        <div onclick="switchTab('transactions')">📊 交易</div>
+        <div onclick="switchTab('products')">💼 產品</div>
+        <div onclick="switchTab('support')">🛟 支援</div>
     </nav>
 </div>
 
@@ -188,12 +556,17 @@ nav div.active { color: var(--primary); border-top: 2px solid var(--primary); }
     <div class="modal-content">
         <h3 style="margin-top: 0;">立即還款</h3>
         <div class="input-group">
-            <label style="display: block; margin-bottom: 8px; color: var(--text-secondary);">還款金額 (HK$)</label>
-            <input type="number" id="payment-amount" min="100" step="100" value="10000">
+            <label style="display: block; margin-bottom: 10px; color: var(--text-secondary);">還款金額 (HK$)</label>
+            <input type="number" id="payment-amount" min="100" step="100" value="21056">
         </div>
-        <p style="font-size: 12px; color: var(--text-secondary); margin: 10px 0;">
-            最低還款額: HK$ 8,420<br>
-            可用支付方式: 轉數快、信用卡、銀行轉賬
+        <div class="grid-3" style="margin: 15px 0;">
+            <button class="secondary-btn" style="padding: 10px; font-size: 12px;" onclick="setPaymentAmount(21056)">最低還款</button>
+            <button class="secondary-btn" style="padding: 10px; font-size: 12px;" onclick="setPaymentAmount(50000)">HK$ 50,000</button>
+            <button class="secondary-btn" style="padding: 10px; font-size: 12px;" onclick="setPaymentAmount(100000)">HK$ 100,000</button>
+        </div>
+        <p style="font-size: 13px; color: var(--text-secondary); margin: 15px 0;">
+            💡 支付方式: 轉數快、銀行轉帳、信用卡<br>
+            ⚠️ 逾期還款將影響信用評級
         </p>
         <div class="grid-2" style="margin-top: 20px;">
             <button class="secondary-btn" onclick="closeModal('payment-modal')">取消</button>
@@ -205,74 +578,233 @@ nav div.active { color: var(--primary); border-top: 2px solid var(--primary); }
 <!-- 加貸模態框 -->
 <div id="topup-modal" class="modal hidden">
     <div class="modal-content">
-        <h3 style="margin-top: 0;">申請加貸</h3>
+        <h3 style="margin-top: 0;">申請額外貸款</h3>
         <div class="input-group">
-            <label style="display: block; margin-bottom: 8px; color: var(--text-secondary);">申請金額 (HK$)</label>
-            <input type="number" id="topup-amount" min="10000" step="10000" value="50000">
+            <label style="display: block; margin-bottom: 10px; color: var(--text-secondary);">申請金額 (HK$)</label>
+            <input type="number" id="topup-amount" min="10000" step="10000" value="100000">
         </div>
         <div class="input-group">
-            <label style="display: block; margin-bottom: 8px; color: var(--text-secondary);">還款期 (月)</label>
-            <select id="topup-term" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
+            <label style="display: block; margin-bottom: 10px; color: var(--text-secondary);">還款期限</label>
+            <select id="topup-term" style="width: 100%;">
                 <option value="12">12個月</option>
-                <option value="24" selected>24個月</option>
-                <option value="36">36個月</option>
+                <option value="24">24個月</option>
+                <option value="36" selected>36個月</option>
+                <option value="48">48個月</option>
             </select>
         </div>
-        <div style="background: rgba(0, 212, 255, 0.1); border-radius: 10px; padding: 12px; margin: 15px 0;">
-            <div class="flex-between">
-                <span>估計月供:</span>
-                <span class="val" id="estimated-payment">HK$ 2,200</span>
+        <div style="background: rgba(0, 212, 255, 0.1); border-radius: 14px; padding: 18px; margin: 20px 0;">
+            <div class="flex-between" style="margin-bottom: 12px;">
+                <span style="font-weight: 600;">估計每月還款:</span>
+                <span class="val" id="estimated-payment">HK$ 4,412</span>
             </div>
-            <div class="flex-between" style="margin-top: 8px;">
-                <span>估計利率:</span>
-                <span class="val" id="estimated-rate">3.2%</span>
+            <div class="flex-between" style="margin-bottom: 12px;">
+                <span style="font-weight: 600;">適用利率:</span>
+                <span class="val" id="estimated-rate">3.85%</span>
+            </div>
+            <div class="flex-between">
+                <span style="font-weight: 600;">總還款額:</span>
+                <span class="val" id="estimated-total">HK$ 158,832</span>
             </div>
         </div>
         <div class="grid-2">
             <button class="secondary-btn" onclick="closeModal('topup-modal')">取消</button>
-            <button onclick="submitTopup()">提交申請</button>
+            <button onclick="submitTopupApplication()">提交申請</button>
         </div>
     </div>
 </div>
 
+<!-- 管理員模態框 -->
+<div id="admin-modal" class="modal hidden">
+    <div class="modal-content admin-modal">
+        <div style="display: flex; align-items: center; margin-bottom: 25px;">
+            <div style="width: 40px; height: 40px; background: var(--admin-red); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                <span style="color: white; font-size: 20px;">⚙️</span>
+            </div>
+            <div>
+                <h3 style="margin: 0; color: var(--admin-red);">系統管理面板</h3>
+                <p style="margin: 5px 0 0 0; font-size: 12px; color: var(--text-secondary);">管理員專用</p>
+            </div>
+        </div>
+        
+        <div class="admin-stat">
+            <div class="flex-between">
+                <span>當前系統時間:</span>
+                <span class="val" id="admin-time">--:--:--</span>
+            </div>
+        </div>
+        
+        <div class="admin-stat">
+            <div class="flex-between">
+                <span>系統狀態:</span>
+                <span class="success" id="system-status">✅ 正常運行</span>
+            </div>
+        </div>
+        
+        <div class="admin-stat">
+            <div class="flex-between">
+                <span>用戶登入數:</span>
+                <span class="val" id="user-count">1</span>
+            </div>
+        </div>
+        
+        <div class="admin-stat">
+            <div class="flex-between">
+                <span>Face ID 準確率:</span>
+                <span class="val" id="face-accuracy">97.8%</span>
+            </div>
+        </div>
+        
+        <div class="admin-stat">
+            <div class="flex-between">
+                <span>交易處理狀態:</span>
+                <span class="success" id="transaction-status">🟢 正常</span>
+            </div>
+        </div>
+        
+        <div style="margin: 25px 0;">
+            <label style="display: block; margin-bottom: 10px; color: var(--text-secondary);">系統時間調整</label>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px;">
+                <input type="datetime-local" id="system-time-input" style="width: 100%;">
+                <button onclick="syncSystemTime()" class="secondary-btn">同步</button>
+            </div>
+        </div>
+        
+        <div class="grid-3" style="margin-top: 25px; gap: 10px;">
+            <button onclick="triggerMaintenance()" class="secondary-btn" style="font-size: 12px;">系統維護</button>
+            <button onclick="clearAllLogs()" class="secondary-btn" style="font-size: 12px;">清除日誌</button>
+            <button onclick="showDebugInfo()" class="secondary-btn" style="font-size: 12px;">調試信息</button>
+        </div>
+        
+        <button onclick="closeModal('admin-modal')" style="width: 100%; margin-top: 25px; background: var(--admin-red);">關閉管理面板</button>
+    </div>
+</div>
+
 <script>
-/* ================= 1. 多用戶 JSON 數據庫 ================= */
+/* ================= 系統配置 ================= */
 const usersDB = [
     { 
         name: "陳泓", 
         id: "UID-8821", 
         photo: "./users/user1.png", 
-        rate: 0.032,
+        rate: 0.0385,
         creditScore: 720,
         status: "active",
-        monthlyIncome: 45000,
-        occupation: "軟件工程師"
+        monthlyIncome: 20000,
+        occupation: "後端及機房工程師",
+        loanAmount: 500000,
+        loanTerm: 36,
+        joinDate: "2025-06-15",
+        lastLogin: null
     },
     { 
         name: "李阿花", 
         id: "UID-7742", 
         photo: "./users/user2.png", 
-        rate: 0.028,
+        rate: 0.0365,
         creditScore: 680,
         status: "active",
-        monthlyIncome: 38000,
-        occupation: "市場經理"
+        monthlyIncome: 52000,
+        occupation: "市場總監",
+        loanAmount: 350000,
+        loanTerm: 24,
+        joinDate: "2024-01-20",
+        lastLogin: null
     }
 ];
 
-const transactions = [
-    { date: "2024-03-15", description: "每月還款", amount: -8420, type: "payment", status: "completed" },
-    { date: "2024-03-10", description: "利息調整", amount: -532, type: "interest", status: "completed" },
-    { date: "2024-03-01", description: "信用卡扣款", amount: -12500, type: "withdrawal", status: "completed" },
-    { date: "2024-02-28", description: "薪金入賬", amount: 45000, type: "deposit", status: "completed" },
-    { date: "2024-02-25", description: "提前還款", amount: -20000, type: "payment", status: "completed" }
-];
-
+// 系統時間設定
+let systemTime = new Date();
+let timeMultiplier = 1; // 時間倍速
+let isAdminMode = false;
+let adminPassword = "SYSTEM888";
 let faceMatcher = null;
 let currentUser = null;
 let trendChart = null;
+let scanProgress = 0;
 
-/* ================= 2. 預加載與特徵提取 ================= */
+// 交易記錄
+const transactions = [
+    { 
+        date: "2024-03-15 14:30", 
+        description: "每月還款", 
+        amount: -21056, 
+        type: "repayment", 
+        status: "completed",
+        ref: "REF-8821-001"
+    },
+    { 
+        date: "2024-03-10 09:15", 
+        description: "利息結算", 
+        amount: -1602, 
+        type: "interest", 
+        status: "completed",
+        ref: "REF-8821-002"
+    },
+    { 
+        date: "2024-03-05 11:45", 
+        description: "信用卡消費", 
+        amount: -18500, 
+        type: "payment", 
+        status: "completed",
+        ref: "REF-8821-003"
+    },
+    { 
+        date: "2024-02-28 08:30", 
+        description: "薪金存入", 
+        amount: 65000, 
+        type: "deposit", 
+        status: "completed",
+        ref: "REF-8821-004"
+    },
+    { 
+        date: "2024-02-25 16:20", 
+        description: "額外還款", 
+        amount: -50000, 
+        type: "repayment", 
+        status: "completed",
+        ref: "REF-8821-005"
+    }
+];
+
+/* ================= 時間系統 ================= */
+function updateSystemTime() {
+    systemTime = new Date(systemTime.getTime() + (60000 * timeMultiplier)); // 每分鐘實際時間推進
+    
+    const timeStr = systemTime.toLocaleTimeString('zh-HK', { 
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    
+    const dateStr = systemTime.toLocaleDateString('zh-HK', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'long'
+    });
+    
+    if (document.getElementById('current-time')) {
+        document.getElementById('current-time').textContent = timeStr;
+        document.getElementById('system-date').textContent = dateStr;
+        document.getElementById('admin-time').textContent = `${dateStr} ${timeStr}`;
+    }
+    
+    // 每小時更新一次信用評分
+    if (systemTime.getMinutes() === 0 && systemTime.getSeconds() < 30) {
+        updateCreditScore();
+    }
+}
+
+// 初始化時間系統
+setInterval(updateSystemTime, 1000);
+setInterval(() => {
+    if (currentUser) {
+        updateUI();
+    }
+}, 30000); // 每30秒更新UI
+
+/* ================= Face ID 系統 ================= */
 async function initSystem() {
     const msg = document.getElementById('loader-msg');
     try {
@@ -283,7 +815,7 @@ async function initSystem() {
             faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
         ]);
 
-        const labeledDescriptors = await Promise.all(usersDB.map(async user => {
+        const labeledDescriptors = await Promise.all(usersDB.map(async (user, index) => {
             const img = new Image();
             img.src = user.photo;
             img.crossOrigin = "anonymous";
@@ -292,121 +824,117 @@ async function initSystem() {
             const detect = await faceapi.detectSingleFace(img, new faceapi.TinyFaceDetectorOptions())
                 .withFaceLandmarks().withFaceDescriptor();
             
-            if (!detect) throw new Error(`無法解析 ${user.name} 的照片`);
-            return new faceapi.LabeledFaceDescriptors(usersDB.indexOf(user).toString(), [detect.descriptor]);
+            if (!detect) throw new Error(`無法識別 ${user.name} 的面部特徵`);
+            return new faceapi.LabeledFaceDescriptors(index.toString(), [detect.descriptor]);
         }));
 
-        faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.55);
+        faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.58);
         
         document.getElementById('face-btn').disabled = false;
-        msg.innerHTML = "✅ 用戶庫同步完成";
+        msg.innerHTML = "✅ 生物特徵系統已就緒";
     } catch (e) {
-        msg.innerHTML = "❌ 系統錯誤: " + e.message;
+        msg.innerHTML = "⚠️ 系統初始化失敗: " + e.message;
     }
 }
-initSystem();
 
-/* ================= 3. 多人比對邏輯 ================= */
 async function startRecognition() {
     document.getElementById('login-page').classList.add('hidden');
     document.getElementById('face-page').classList.remove('hidden');
 
-    const video = document.getElementById('v');
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    const video = document.getElementById('v-face');
+    const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+            width: 640, 
+            height: 480,
+            facingMode: 'user'
+        } 
+    });
     video.srcObject = stream;
 
+    scanProgress = 0;
+    const progressBar = document.getElementById('scan-progress');
+    
     const interval = setInterval(async () => {
+        if (scanProgress < 100) {
+            scanProgress += 10;
+            progressBar.style.width = scanProgress + '%';
+        }
+        
         const detect = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
             .withFaceLandmarks().withFaceDescriptor();
 
         if (detect) {
             const match = faceMatcher.findBestMatch(detect.descriptor);
             
-            if (match.label !== 'unknown') {
+            if (match.label !== 'unknown' && match.distance < 0.55) {
                 currentUser = usersDB[parseInt(match.label)];
-                document.getElementById('match-result').innerText = `辨識成功: ${currentUser.name}`;
+                currentUser.lastLogin = systemTime.toISOString();
+                
+                document.getElementById('match-result').innerText = `✅ 身份確認: ${currentUser.name}`;
+                progressBar.style.width = '100%';
+                progressBar.style.background = 'var(--success)';
+                
                 clearInterval(interval);
-                stream.getTracks().forEach(t => t.stop());
-                setTimeout(launchApp, 800);
+                setTimeout(() => {
+                    stream.getTracks().forEach(t => t.stop());
+                    launchApp();
+                }, 1200);
             } else {
-                document.getElementById('match-result').innerText = "未知身份，請重試";
+                document.getElementById('match-result').innerText = "🔄 正在驗證身份...";
             }
+        } else {
+            document.getElementById('match-result').innerText = "👤 請面向鏡頭";
         }
-    }, 700);
+    }, 500);
 }
 
-/* ================= 4. 主應用邏輯 ================= */
+function cancelRecognition() {
+    location.reload();
+}
+
+/* ================= 主應用邏輯 ================= */
 function launchApp() {
     document.getElementById('face-page').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
+    document.getElementById('time-display').classList.remove('hidden');
+    document.getElementById('admin-panel').classList.remove('hidden');
     
-    document.getElementById('user-display').innerText = `你好, ${currentUser.name}`;
+    // 更新用戶界面
+    document.getElementById('user-display').innerText = `歡迎回來, ${currentUser.name}`;
     document.getElementById('acc-id').innerText = currentUser.id;
     document.getElementById('credit-score').innerText = currentUser.creditScore;
-    document.getElementById('account-status').innerText = "正常還款中";
-    document.getElementById('account-status').className = "status-badge status-good";
-    document.getElementById('interest-rate').innerText = `${(currentUser.rate * 100).toFixed(1)}%`;
+    document.getElementById('interest-rate').innerText = `${(currentUser.rate * 100).toFixed(2)}%`;
+    document.getElementById('loan-val').innerText = currentUser.loanAmount.toLocaleString();
     
+    // 計算還款資訊
+    updatePaymentInfo();
     initTrendChart();
-    updateUI();
     renderTransactions();
+    
+    // 顯示登入通知
+    showNotification(`歡迎登入，${currentUser.name}！系統時間: ${systemTime.toLocaleDateString()}`, 'success');
 }
 
-function initTrendChart() {
-    const ctx = document.getElementById('trendChart').getContext('2d');
-    trendChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: Array.from({length: 12}, (_, i) => `第${i+1}月`),
-            datasets: [{
-                label: '預計餘額走勢',
-                data: [],
-                borderColor: '#00d4ff',
-                backgroundColor: 'rgba(0, 212, 255, 0.1)',
-                fill: true,
-                tension: 0.4,
-                borderWidth: 2
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { 
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: (context) => `餘額: HK$ ${context.raw.toLocaleString()}`
-                    }
-                }
-            },
-            scales: { 
-                y: { 
-                    grid: { color: '#30363d' },
-                    ticks: {
-                        callback: (value) => `HK$ ${value/1000}k`
-                    }
-                }, 
-                x: { grid: { display: false } } 
-            }
-        }
-    });
-}
-
-function updateUI() {
-    const amt = parseInt(document.getElementById('loanRange').value);
-    document.getElementById('loan-val').innerText = amt.toLocaleString();
-    document.getElementById('rangeText').innerText = `HK$ ${amt.toLocaleString()}`;
+function updatePaymentInfo() {
+    const monthly = calculateMonthlyPayment(currentUser.loanAmount, currentUser.rate, currentUser.loanTerm);
+    document.getElementById('monthly-payment').innerText = `HK$ ${Math.round(monthly).toLocaleString()}`;
     
-    // 計算月供款
-    const monthlyPayment = calculateMonthlyPayment(amt, currentUser.rate, 24);
-    document.getElementById('monthly-payment').innerText = `HK$ ${monthlyPayment.toLocaleString()}`;
+    // 計算剩餘期數
+    const monthsPaid = Math.floor((systemTime - new Date(currentUser.joinDate)) / (30 * 24 * 60 * 60 * 1000));
+    const remaining = Math.max(0, currentUser.loanTerm - monthsPaid);
+    document.getElementById('remaining-terms').innerText = `${remaining} 個月`;
     
-    // 更新趨勢圖
-    const trendData = [];
-    for(let i=0; i<12; i++) {
-        trendData.push(Math.max(0, amt - (amt/12 * i)));
+    // 更新下次還款日
+    const nextPayment = new Date(systemTime);
+    nextPayment.setDate(15);
+    if (nextPayment < systemTime) {
+        nextPayment.setMonth(nextPayment.getMonth() + 1);
     }
-    trendChart.data.datasets[0].data = trendData;
-    trendChart.update();
+    document.getElementById('next-payment-date').innerText = nextPayment.toISOString().split('T')[0];
+    
+    // 更新可用額度
+    const available = Math.max(0, 1000000 - currentUser.loanAmount);
+    document.getElementById('available-credit').innerText = `HK$ ${available.toLocaleString()}`;
 }
 
 function calculateMonthlyPayment(principal, annualRate, months) {
@@ -415,26 +943,125 @@ function calculateMonthlyPayment(principal, annualRate, months) {
            (Math.pow(1 + monthlyRate, months) - 1);
 }
 
-/* ================= 5. 交易記錄渲染 ================= */
+function initTrendChart() {
+    const ctx = document.getElementById('trendChart').getContext('2d');
+    trendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: Array.from({length: 13}, (_, i) => {
+                const date = new Date(systemTime);
+                date.setMonth(date.getMonth() + i);
+                return `${date.getMonth() + 1}月`;
+            }),
+            datasets: [{
+                label: '預計貸款餘額',
+                data: [],
+                borderColor: '#00d4ff',
+                backgroundColor: 'rgba(0, 212, 255, 0.15)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 3
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => `餘額: HK$ ${context.raw.toLocaleString()}`,
+                        title: (context) => `${context[0].label}`
+                    }
+                }
+            },
+            scales: { 
+                y: { 
+                    grid: { color: 'rgba(255,255,255,0.1)' },
+                    ticks: {
+                        callback: (value) => `HK$ ${(value/1000).toFixed(0)}k`,
+                        color: 'rgba(255,255,255,0.6)'
+                    }
+                }, 
+                x: { 
+                    grid: { display: false },
+                    ticks: { color: 'rgba(255,255,255,0.6)' }
+                } 
+            }
+        }
+    });
+    
+    updateChartData();
+}
+
+function updateChartData() {
+    const currentAmount = currentUser.loanAmount;
+    const monthlyPayment = calculateMonthlyPayment(currentAmount, currentUser.rate, currentUser.loanTerm);
+    const months = currentUser.loanTerm;
+    
+    const trendData = [];
+    let balance = currentAmount;
+    
+    for(let i = 0; i <= 12; i++) {
+        const monthIndex = Math.floor((i / 12) * months);
+        if (monthIndex >= months) {
+            trendData.push(0);
+        } else {
+            for (let j = 0; j < Math.floor(months / 12); j++) {
+                const interest = balance * currentUser.rate / 12;
+                const principal = monthlyPayment - interest;
+                balance = Math.max(0, balance - principal);
+            }
+            trendData.push(Math.round(balance));
+        }
+    }
+    
+    trendChart.data.datasets[0].data = trendData;
+    trendChart.update();
+}
+
+function updateLoanAmount() {
+    const amt = parseInt(document.getElementById('loanRange').value);
+    document.getElementById('loan-val').innerText = amt.toLocaleString();
+    document.getElementById('rangeText').innerText = `HK$ ${amt.toLocaleString()}`;
+    
+    // 更新還款計算
+    const monthly = calculateMonthlyPayment(amt, currentUser.rate, currentUser.loanTerm);
+    document.getElementById('monthly-payment').innerText = `HK$ ${Math.round(monthly).toLocaleString()}`;
+    
+    updateChartData();
+}
+
+/* ================= 交易功能 ================= */
 function renderTransactions() {
     const container = document.getElementById('transactions-list');
     container.innerHTML = '';
     
-    transactions.slice(0, 3).forEach(transaction => {
+    transactions.slice(0, 4).forEach(transaction => {
         const div = document.createElement('div');
         div.className = 'flex-between';
-        div.style.padding = '12px 0';
-        div.style.borderBottom = '1px solid var(--border)';
+        div.style.padding = '15px 0';
+        div.style.borderBottom = '1px solid rgba(255,255,255,0.1)';
+        div.style.cursor = 'pointer';
+        div.onclick = () => showTransactionDetail(transaction);
+        
+        const isPositive = transaction.amount > 0;
+        const icon = isPositive ? '📥' : '📤';
+        const color = isPositive ? 'var(--success)' : 'var(--danger)';
         
         div.innerHTML = `
-            <div>
-                <div style="font-weight: 500;">${transaction.description}</div>
-                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
-                    ${transaction.date}
+            <div class="flex-center">
+                <div style="width: 40px; height: 40px; background: ${isPositive ? 'rgba(46, 213, 115, 0.15)' : 'rgba(255, 71, 87, 0.15)'}; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                    <span style="font-size: 18px;">${icon}</span>
+                </div>
+                <div>
+                    <div style="font-weight: 600; font-size: 15px;">${transaction.description}</div>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 3px;">
+                        ${transaction.date} • ${transaction.ref}
+                    </div>
                 </div>
             </div>
-            <div style="font-weight: 600; ${transaction.amount > 0 ? 'color: var(--success);' : 'color: var(--danger);'}">
-                ${transaction.amount > 0 ? '+' : ''}HK$ ${Math.abs(transaction.amount).toLocaleString()}
+            <div style="font-weight: 700; font-size: 16px; color: ${color};">
+                ${isPositive ? '+' : ''}HK$ ${Math.abs(transaction.amount).toLocaleString()}
             </div>
         `;
         
@@ -442,116 +1069,233 @@ function renderTransactions() {
     });
 }
 
-/* ================= 6. 模態框功能 ================= */
+/* ================= 模態框功能 ================= */
 function showPaymentModal() {
     document.getElementById('payment-modal').classList.remove('hidden');
 }
 
 function showTopupModal() {
     document.getElementById('topup-modal').classList.remove('hidden');
-    updateTopupEstimate();
+    calculateTopupEstimate();
+}
+
+function setPaymentAmount(amount) {
+    document.getElementById('payment-amount').value = amount;
+}
+
+function calculateTopupEstimate() {
+    const amount = parseInt(document.getElementById('topup-amount').value) || 100000;
+    const term = parseInt(document.getElementById('topup-term').value);
+    const monthly = calculateMonthlyPayment(amount, currentUser.rate, term);
+    const total = monthly * term;
+    
+    document.getElementById('estimated-payment').innerText = `HK$ ${Math.round(monthly).toLocaleString()}`;
+    document.getElementById('estimated-rate').innerText = `${(currentUser.rate * 100).toFixed(2)}%`;
+    document.getElementById('estimated-total').innerText = `HK$ ${Math.round(total).toLocaleString()}`;
+}
+
+function processPayment() {
+    const amount = parseInt(document.getElementById('payment-amount').value);
+    const minPayment = calculateMonthlyPayment(currentUser.loanAmount, currentUser.rate, currentUser.loanTerm);
+    
+    if (amount < minPayment) {
+        showNotification(`還款金額必須至少為 HK$ ${Math.round(minPayment).toLocaleString()}`, 'danger');
+        return;
+    }
+    
+    // 記錄交易
+    transactions.unshift({
+        date: systemTime.toLocaleString('zh-HK'),
+        description: "手動還款",
+        amount: -amount,
+        type: "repayment",
+        status: "completed",
+        ref: `REF-${currentUser.id.split('-')[1]}-${Date.now().toString().slice(-6)}`
+    });
+    
+    // 更新貸款餘額
+    currentUser.loanAmount = Math.max(0, currentUser.loanAmount - amount);
+    
+    showNotification(`成功處理還款 HK$ ${amount.toLocaleString()}`, 'success');
+    closeModal('payment-modal');
+    
+    // 更新界面
+    updateUI();
+    renderTransactions();
+}
+
+function submitTopupApplication() {
+    const amount = parseInt(document.getElementById('topup-amount').value);
+    const term = parseInt(document.getElementById('topup-term').value);
+    
+    showNotification(`加貸申請已提交 (HK$ ${amount.toLocaleString()})，將於1-2個工作天內處理`, 'success');
+    closeModal('topup-modal');
+    
+    // 記錄申請
+    transactions.unshift({
+        date: systemTime.toLocaleString('zh-HK'),
+        description: "加貸申請",
+        amount: 0,
+        type: "application",
+        status: "pending",
+        ref: `APP-${Date.now().toString().slice(-8)}`
+    });
+    
+    renderTransactions();
+}
+
+/* ================= 管理員功能 ================= */
+function showAdminPanel() {
+    if (!isAdminMode) {
+        const password = prompt("請輸入管理員密碼:");
+        if (password !== adminPassword) {
+            showNotification("❌ 密碼錯誤", 'danger');
+            return;
+        }
+        isAdminMode = true;
+    }
+    
+    // 更新管理員面板數據
+    document.getElementById('user-count').textContent = '1';
+    document.getElementById('face-accuracy').textContent = (Math.random() * 3 + 96).toFixed(1) + '%';
+    document.getElementById('system-time-input').value = systemTime.toISOString().slice(0, 16);
+    
+    document.getElementById('admin-modal').classList.remove('hidden');
+}
+
+function syncSystemTime() {
+    const newTime = new Date(document.getElementById('system-time-input').value);
+    if (newTime.toString() !== 'Invalid Date') {
+        systemTime = newTime;
+        updateSystemTime();
+        showNotification("系統時間已更新", 'success');
+    }
+}
+
+function triggerMaintenance() {
+    showNotification("系統維護模式已啟動", 'warning');
+    document.getElementById('system-status').textContent = '🛠️ 維護中';
+    document.getElementById('system-status').className = 'warning';
+}
+
+function clearAllLogs() {
+    if (confirm("確定要清除所有系統日誌嗎？此操作無法復原。")) {
+        showNotification("系統日誌已清除", 'success');
+    }
+}
+
+function showDebugInfo() {
+    alert(`系統調試信息：
+用戶: ${currentUser.name}
+系統時間: ${systemTime}
+貸款餘額: HK$ ${currentUser.loanAmount.toLocaleString()}
+信用評分: ${currentUser.creditScore}
+登入次數: 1`);
+}
+
+/* ================= 輔助功能 ================= */
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.className = `notification ${type}`;
+    notification.classList.remove('hidden');
+    
+    setTimeout(() => {
+        notification.classList.add('hidden');
+    }, 4000);
 }
 
 function closeModal(modalId) {
     document.getElementById(modalId).classList.add('hidden');
 }
 
-function processPayment() {
-    const amount = parseInt(document.getElementById('payment-amount').value);
-    if (amount < 8420) {
-        showNotification('還款金額不能低於最低還款額', 'warning');
-        return;
+function updateUI() {
+    updatePaymentInfo();
+    updateChartData();
+    
+    // 隨機更新信用評分
+    if (Math.random() > 0.7) {
+        currentUser.creditScore = Math.min(850, currentUser.creditScore + Math.floor(Math.random() * 3));
+        document.getElementById('credit-score').innerText = currentUser.creditScore;
     }
+}
+
+function updateCreditScore() {
+    const change = Math.floor(Math.random() * 5) - 2;
+    currentUser.creditScore = Math.max(300, Math.min(850, currentUser.creditScore + change));
+    document.getElementById('credit-score').innerText = currentUser.creditScore;
     
-    showNotification(`成功處理還款 HK$ ${amount.toLocaleString()}`, 'success');
-    closeModal('payment-modal');
-    
-    // 模擬更新餘額
-    setTimeout(() => {
-        const currentLoan = parseInt(document.getElementById('loanRange').value);
-        const newLoan = Math.max(0, currentLoan - amount);
-        document.getElementById('loanRange').value = newLoan;
-        updateUI();
-    }, 1000);
-}
-
-function updateTopupEstimate() {
-    const amount = parseInt(document.getElementById('topup-amount').value) || 50000;
-    const term = parseInt(document.getElementById('topup-term').value);
-    const monthly = calculateMonthlyPayment(amount, currentUser.rate, term);
-    
-    document.getElementById('estimated-payment').innerText = `HK$ ${Math.round(monthly).toLocaleString()}`;
-    document.getElementById('estimated-rate').innerText = `${(currentUser.rate * 100).toFixed(1)}%`;
-}
-
-function submitTopup() {
-    const amount = parseInt(document.getElementById('topup-amount').value);
-    const term = parseInt(document.getElementById('topup-term').value);
-    
-    showNotification(`加貸申請已提交 (HK$ ${amount.toLocaleString()})，審批中...`, 'success');
-    closeModal('topup-modal');
-}
-
-/* ================= 7. 輔助功能 ================= */
-function showNotification(message, type = 'success') {
-    const notification = document.getElementById('notification');
-    notification.textContent = message;
-    notification.style.background = type === 'success' ? 'var(--success)' : 
-                                   type === 'warning' ? 'var(--warning)' : 'var(--danger)';
-    notification.classList.remove('hidden');
-    
-    setTimeout(() => {
-        notification.classList.add('hidden');
-    }, 3000);
-}
-
-function showDetails() {
-    showNotification('詳細資料已準備，正在生成報告...', 'success');
-}
-
-function showStatement() {
-    showNotification('月結單已發送至您的郵箱', 'success');
-}
-
-function showAllTransactions() {
-    showNotification('顯示所有交易記錄', 'success');
-}
-
-function applyProduct(productId) {
-    showNotification('產品申請已提交，專員將與您聯繫', 'success');
+    if (change > 0) {
+        showNotification(`信用評分更新: +${change}分`, 'success');
+    } else if (change < 0) {
+        showNotification(`信用評分更新: ${change}分`, 'warning');
+    }
 }
 
 function switchTab(tab) {
-    // 更新導航狀態
-    document.querySelectorAll('nav div').forEach(div => div.classList.remove('active'));
-    event.target.classList.add('active');
+    const tabs = ['overview', 'transactions', 'products', 'support'];
+    const navItems = document.querySelectorAll('nav div');
     
-    showNotification(`切換至 ${tab === 'overview' ? '總覽' : '產品'} 頁面`, 'success');
-}
-
-function logout() {
-    if (confirm('確定要登出嗎？')) {
-        currentUser = null;
-        document.getElementById('app').classList.add('hidden');
-        document.getElementById('login-page').classList.remove('hidden');
-    }
-}
-
-// 初始化事件監聽器
-document.getElementById('topup-amount').addEventListener('input', updateTopupEstimate);
-document.getElementById('topup-term').addEventListener('change', updateTopupEstimate);
-
-// 模擬實時數據更新
-setInterval(() => {
-    if (currentUser) {
-        // 隨機更新信用評分（模擬）
-        const change = Math.random() > 0.7 ? Math.floor(Math.random() * 10) - 5 : 0;
-        if (change !== 0) {
-            currentUser.creditScore = Math.max(300, Math.min(850, currentUser.creditScore + change));
-            document.getElementById('credit-score').innerText = currentUser.creditScore;
+    navItems.forEach((item, index) => {
+        item.classList.remove('active');
+        if (tabs[index] === tab) {
+            item.classList.add('active');
         }
+    });
+    
+    showNotification(`已切換至${getTabName(tab)}頁面`, 'success');
+}
+
+function getTabName(tab) {
+    const names = {
+        'overview': '總覽',
+        'transactions': '交易記錄',
+        'products': '產品服務',
+        'support': '客戶支援'
+    };
+    return names[tab] || tab;
+}
+
+function showAllTransactions() {
+    showNotification("正在載入完整交易記錄...", 'success');
+}
+
+function showTransactionDetail(transaction) {
+    alert(`交易詳情：
+項目: ${transaction.description}
+金額: HK$ ${Math.abs(transaction.amount).toLocaleString()} ${transaction.amount > 0 ? '存入' : '支出'}
+時間: ${transaction.date}
+參考編號: ${transaction.ref}
+狀態: ${transaction.status === 'completed' ? '已完成' : '處理中'}`);
+}
+
+function showRefinanceModal() {
+    showNotification("債務重組評估已開始，專員將與您聯絡", 'success');
+}
+
+function downloadStatement() {
+    showNotification("月結單已發送至您的電郵", 'success');
+}
+
+function applySpecialOffer() {
+    showNotification("特惠方案申請已提交，享受專屬利率優惠", 'success');
+}
+
+// 初始化
+initSystem();
+updateSystemTime();
+
+// 事件監聽器
+document.getElementById('topup-amount').addEventListener('input', calculateTopupEstimate);
+document.getElementById('topup-term').addEventListener('change', calculateTopupEstimate);
+
+// 隱藏管理員按鈕快捷鍵
+document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.altKey && e.key === 's') {
+        document.getElementById('admin-panel').style.opacity = 
+            document.getElementById('admin-panel').style.opacity === '0.3' ? '1' : '0.3';
     }
-}, 30000);
+});
 </script>
 </body>
 </html>
