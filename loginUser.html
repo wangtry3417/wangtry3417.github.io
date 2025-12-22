@@ -1179,7 +1179,7 @@ async function initializeFaceRecognition() {
             );
         }
         
-        faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.55);
+        faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.7);
         
         status.textContent = "面部識別系統已就緒";
         loginBtn.disabled = false;
