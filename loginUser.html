@@ -9,8 +9,19 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-:root { --primary: #00d4ff; --bg: #0b0e14; --card: #161b22; --border: #30363d; --text: #c9d1d9; }
-body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; }
+:root { 
+    --primary: #00d4ff; 
+    --primary-dark: #00a8cc;
+    --danger: #ff4757;
+    --success: #2ed573;
+    --warning: #ffa502;
+    --bg: #0b0e14; 
+    --card: #161b22; 
+    --border: #30363d; 
+    --text: #c9d1d9;
+    --text-secondary: #8b949e;
+}
+body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; }
 .hidden { display: none !important; }
 
 /* 登入介面 */
@@ -19,23 +30,52 @@ body { background: var(--bg); color: var(--text); font-family: sans-serif; margi
 video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
 
 /* 主介面 */
-main { padding: 20px; padding-bottom: 80px; }
+main { padding: 20px; padding-bottom: 100px; }
 .card { background: var(--card); border-radius: 15px; padding: 18px; margin-bottom: 15px; border: 1px solid var(--border); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.card-title { font-size: 16px; font-weight: 600; margin: 0; }
+
 .val { color: var(--primary); font-family: monospace; font-weight: bold; }
+.danger { color: var(--danger); }
+.success { color: var(--success); }
+.warning { color: var(--warning); }
+
 canvas { margin-top: 15px; max-height: 200px; }
 
-button { width: 100%; padding: 15px; border-radius: 10px; border: none; background: var(--primary); color: #000; font-weight: bold; cursor: pointer; }
-button:disabled { background: #444; color: #888; }
+button { padding: 12px 20px; border-radius: 10px; border: none; background: var(--primary); color: #000; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+button:hover { background: var(--primary-dark); transform: translateY(-1px); }
+button:disabled { background: #444; color: #888; cursor: not-allowed; transform: none; }
+button.danger-btn { background: var(--danger); color: white; }
+button.secondary-btn { background: var(--border); color: var(--text); }
 
-nav { position: fixed; bottom: 0; width: 100%; height: 65px; background: #0d1117; display: flex; border-top: 1px solid var(--border); align-items: center; }
-nav div { flex: 1; text-align: center; font-size: 12px; cursor: pointer; }
+.input-group { margin: 15px 0; }
+input[type="range"] { width: 100%; height: 6px; border-radius: 3px; background: var(--border); outline: none; }
+input[type="number"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
+
+.status-badge { padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+.status-good { background: rgba(46, 213, 115, 0.2); color: var(--success); }
+.status-warning { background: rgba(255, 165, 2, 0.2); color: var(--warning); }
+
+nav { position: fixed; bottom: 0; width: 100%; height: 70px; background: rgba(13, 17, 23, 0.95); backdrop-filter: blur(10px); display: flex; border-top: 1px solid var(--border); align-items: center; }
+nav div { flex: 1; text-align: center; font-size: 12px; cursor: pointer; padding: 12px 0; transition: color 0.2s; }
+nav div:hover { color: var(--primary); }
+nav div.active { color: var(--primary); border-top: 2px solid var(--primary); }
+
+.modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.8); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+.modal-content { background: var(--card); border-radius: 20px; padding: 25px; max-width: 400px; width: 90%; border: 1px solid var(--border); }
+
+.notification { position: fixed; top: 20px; right: 20px; background: var(--success); color: white; padding: 12px 20px; border-radius: 10px; animation: slideIn 0.3s; z-index: 1001; }
+@keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 </style>
 </head>
 <body>
 
 <div id="login-page" class="panel">
     <h2>智能身份識別</h2>
-    <p id="loader-msg" style="font-size: 13px; color: #888;">正在同步用戶特徵庫...</p>
+    <p id="loader-msg" style="font-size: 13px; color: var(--text-secondary);">正在同步用戶特徵庫...</p>
     <div style="margin-top:20px;">
         <button id="face-btn" disabled onclick="startRecognition()">開啟 Face ID 登入</button>
     </div>
@@ -50,39 +90,185 @@ nav div { flex: 1; text-align: center; font-size: 12px; cursor: pointer; }
 </div>
 
 <div id="app" class="hidden">
+    <!-- 通知 -->
+    <div id="notification" class="notification hidden"></div>
+    
+    <!-- 主內容 -->
     <main>
+        <!-- 用戶摘要卡 -->
         <div class="card">
-            <div style="display:flex; justify-content:space-between">
-                <span id="user-display"></span>
-                <span class="val" id="acc-id"></span>
+            <div class="flex-between">
+                <div>
+                    <span id="user-display"></span>
+                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                        信用評級: <span id="credit-score" class="val"></span>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <span class="val" id="acc-id"></span>
+                    <div class="status-badge" id="account-status"></div>
+                </div>
             </div>
-            <h2 style="margin:10px 0">HK$ <span id="loan-val">200,000</span></h2>
-            <p style="font-size:12px; color:#888">當前貸款總額</p>
+            <h2 style="margin: 15px 0; font-size: 28px;">HK$ <span id="loan-val">200,000</span></h2>
+            <p style="font-size:12px; color: var(--text-secondary)">當前貸款總額</p>
+            <div class="flex-between" style="margin-top: 15px;">
+                <div>
+                    <div style="font-size: 12px; color: var(--text-secondary)">月供款</div>
+                    <div class="val" id="monthly-payment">HK$ 8,420</div>
+                </div>
+                <div>
+                    <div style="font-size: 12px; color: var(--text-secondary)">剩餘期數</div>
+                    <div class="val" id="remaining-terms">24 個月</div>
+                </div>
+                <div>
+                    <div style="font-size: 12px; color: var(--text-secondary)">利率</div>
+                    <div class="val" id="interest-rate">3.2%</div>
+                </div>
+            </div>
         </div>
 
+        <!-- 還款趨勢分析 -->
         <div class="card">
-            <h3>還款趨勢分析</h3>
+            <h3 class="card-title">還款趨勢分析</h3>
             <canvas id="trendChart"></canvas>
             <div style="margin-top:15px">
                 <input type="range" id="loanRange" min="50000" max="1000000" step="50000" value="200000" style="width:100%" oninput="updateUI()">
-                <p style="font-size:13px">模擬調整金額: <span class="val" id="rangeText"></span></p>
+                <p style="font-size:13px; color: var(--text-secondary)">模擬調整金額: <span class="val" id="rangeText"></span></p>
+            </div>
+        </div>
+
+        <!-- 快速操作 -->
+        <div class="card">
+            <h3 class="card-title">快速操作</h3>
+            <div class="grid-2">
+                <button onclick="showPaymentModal()">💳 立即還款</button>
+                <button onclick="showTopupModal()">📈 申請加貸</button>
+                <button onclick="showDetails()">📋 查看詳情</button>
+                <button onclick="showStatement()">📄 月結單</button>
+            </div>
+        </div>
+
+        <!-- 近期交易 -->
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">近期交易記錄</h3>
+                <span style="font-size: 12px; color: var(--text-secondary); cursor: pointer;" onclick="showAllTransactions()">查看全部</span>
+            </div>
+            <div id="transactions-list">
+                <!-- 動態生成 -->
+            </div>
+        </div>
+
+        <!-- 產品推薦 -->
+        <div class="card">
+            <h3 class="card-title">為您推薦</h3>
+            <div style="background: rgba(0, 212, 255, 0.1); border-radius: 10px; padding: 15px; margin-top: 10px;">
+                <div class="flex-between">
+                    <div>
+                        <div style="font-weight: 600;">低息結餘轉戶</div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">年利率低至 2.8%</div>
+                    </div>
+                    <button style="padding: 8px 16px; font-size: 12px;" onclick="applyProduct('balance_transfer')">申請</button>
+                </div>
             </div>
         </div>
     </main>
+
+    <!-- 底部導航 -->
     <nav>
-        <div style="color:var(--primary)">總覽</div>
-        <div onclick="location.href='/'">登出</div>
+        <div onclick="switchTab('overview')" class="active">🏠 總覽</div>
+        <div onclick="switchTab('products')">📊 產品</div>
+        <div onclick="showStatement()">📄 文件</div>
+        <div onclick="logout()">🚪 登出</div>
     </nav>
+</div>
+
+<!-- 還款模態框 -->
+<div id="payment-modal" class="modal hidden">
+    <div class="modal-content">
+        <h3 style="margin-top: 0;">立即還款</h3>
+        <div class="input-group">
+            <label style="display: block; margin-bottom: 8px; color: var(--text-secondary);">還款金額 (HK$)</label>
+            <input type="number" id="payment-amount" min="100" step="100" value="10000">
+        </div>
+        <p style="font-size: 12px; color: var(--text-secondary); margin: 10px 0;">
+            最低還款額: HK$ 8,420<br>
+            可用支付方式: 轉數快、信用卡、銀行轉賬
+        </p>
+        <div class="grid-2" style="margin-top: 20px;">
+            <button class="secondary-btn" onclick="closeModal('payment-modal')">取消</button>
+            <button onclick="processPayment()">確認還款</button>
+        </div>
+    </div>
+</div>
+
+<!-- 加貸模態框 -->
+<div id="topup-modal" class="modal hidden">
+    <div class="modal-content">
+        <h3 style="margin-top: 0;">申請加貸</h3>
+        <div class="input-group">
+            <label style="display: block; margin-bottom: 8px; color: var(--text-secondary);">申請金額 (HK$)</label>
+            <input type="number" id="topup-amount" min="10000" step="10000" value="50000">
+        </div>
+        <div class="input-group">
+            <label style="display: block; margin-bottom: 8px; color: var(--text-secondary);">還款期 (月)</label>
+            <select id="topup-term" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text);">
+                <option value="12">12個月</option>
+                <option value="24" selected>24個月</option>
+                <option value="36">36個月</option>
+            </select>
+        </div>
+        <div style="background: rgba(0, 212, 255, 0.1); border-radius: 10px; padding: 12px; margin: 15px 0;">
+            <div class="flex-between">
+                <span>估計月供:</span>
+                <span class="val" id="estimated-payment">HK$ 2,200</span>
+            </div>
+            <div class="flex-between" style="margin-top: 8px;">
+                <span>估計利率:</span>
+                <span class="val" id="estimated-rate">3.2%</span>
+            </div>
+        </div>
+        <div class="grid-2">
+            <button class="secondary-btn" onclick="closeModal('topup-modal')">取消</button>
+            <button onclick="submitTopup()">提交申請</button>
+        </div>
+    </div>
 </div>
 
 <script>
 /* ================= 1. 多用戶 JSON 數據庫 ================= */
 const usersDB = [
-    { name: "陳泓", id: "UID-8821", photo: "./users/user1.png", rate: 0.032 },
-    { name: "李阿花", id: "UID-7742", photo: "./users/user2.png", rate: 0.028 }
+    { 
+        name: "陳泓", 
+        id: "UID-8821", 
+        photo: "./users/user1.png", 
+        rate: 0.032,
+        creditScore: 720,
+        status: "active",
+        monthlyIncome: 45000,
+        occupation: "軟件工程師"
+    },
+    { 
+        name: "李阿花", 
+        id: "UID-7742", 
+        photo: "./users/user2.png", 
+        rate: 0.028,
+        creditScore: 680,
+        status: "active",
+        monthlyIncome: 38000,
+        occupation: "市場經理"
+    }
 ];
 
-let faceMatcher = null; // 1對多匹配器
+const transactions = [
+    { date: "2024-03-15", description: "每月還款", amount: -8420, type: "payment", status: "completed" },
+    { date: "2024-03-10", description: "利息調整", amount: -532, type: "interest", status: "completed" },
+    { date: "2024-03-01", description: "信用卡扣款", amount: -12500, type: "withdrawal", status: "completed" },
+    { date: "2024-02-28", description: "薪金入賬", amount: 45000, type: "deposit", status: "completed" },
+    { date: "2024-02-25", description: "提前還款", amount: -20000, type: "payment", status: "completed" }
+];
+
+let faceMatcher = null;
 let currentUser = null;
 let trendChart = null;
 
@@ -97,7 +283,6 @@ async function initSystem() {
             faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL)
         ]);
 
-        // 為所有用戶提取特徵
         const labeledDescriptors = await Promise.all(usersDB.map(async user => {
             const img = new Image();
             img.src = user.photo;
@@ -108,11 +293,9 @@ async function initSystem() {
                 .withFaceLandmarks().withFaceDescriptor();
             
             if (!detect) throw new Error(`無法解析 ${user.name} 的照片`);
-            // 返回帶標籤的特徵 (標籤設為用戶索引)
             return new faceapi.LabeledFaceDescriptors(usersDB.indexOf(user).toString(), [detect.descriptor]);
         }));
 
-        // 建立 1 對 多 匹配器
         faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.55);
         
         document.getElementById('face-btn').disabled = false;
@@ -137,7 +320,6 @@ async function startRecognition() {
             .withFaceLandmarks().withFaceDescriptor();
 
         if (detect) {
-            // 執行 1 對 多 比對
             const match = faceMatcher.findBestMatch(detect.descriptor);
             
             if (match.label !== 'unknown') {
@@ -153,16 +335,21 @@ async function startRecognition() {
     }, 700);
 }
 
-/* ================= 4. 圖表與 UI 邏輯 ================= */
+/* ================= 4. 主應用邏輯 ================= */
 function launchApp() {
     document.getElementById('face-page').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
     
     document.getElementById('user-display').innerText = `你好, ${currentUser.name}`;
     document.getElementById('acc-id').innerText = currentUser.id;
+    document.getElementById('credit-score').innerText = currentUser.creditScore;
+    document.getElementById('account-status').innerText = "正常還款中";
+    document.getElementById('account-status').className = "status-badge status-good";
+    document.getElementById('interest-rate').innerText = `${(currentUser.rate * 100).toFixed(1)}%`;
     
     initTrendChart();
     updateUI();
+    renderTransactions();
 }
 
 function initTrendChart() {
@@ -170,19 +357,36 @@ function initTrendChart() {
     trendChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: Array.from({length: 12}, (_, i) => `M${i+1}`),
+            labels: Array.from({length: 12}, (_, i) => `第${i+1}月`),
             datasets: [{
                 label: '預計餘額走勢',
                 data: [],
                 borderColor: '#00d4ff',
                 backgroundColor: 'rgba(0, 212, 255, 0.1)',
                 fill: true,
-                tension: 0.4
+                tension: 0.4,
+                borderWidth: 2
             }]
         },
         options: {
-            plugins: { legend: { display: false } },
-            scales: { y: { grid: { color: '#30363d' } }, x: { grid: { display: false } } }
+            responsive: true,
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (context) => `餘額: HK$ ${context.raw.toLocaleString()}`
+                    }
+                }
+            },
+            scales: { 
+                y: { 
+                    grid: { color: '#30363d' },
+                    ticks: {
+                        callback: (value) => `HK$ ${value/1000}k`
+                    }
+                }, 
+                x: { grid: { display: false } } 
+            }
         }
     });
 }
@@ -191,8 +395,12 @@ function updateUI() {
     const amt = parseInt(document.getElementById('loanRange').value);
     document.getElementById('loan-val').innerText = amt.toLocaleString();
     document.getElementById('rangeText').innerText = `HK$ ${amt.toLocaleString()}`;
-
-    // 生成模擬趨勢數據
+    
+    // 計算月供款
+    const monthlyPayment = calculateMonthlyPayment(amt, currentUser.rate, 24);
+    document.getElementById('monthly-payment').innerText = `HK$ ${monthlyPayment.toLocaleString()}`;
+    
+    // 更新趨勢圖
     const trendData = [];
     for(let i=0; i<12; i++) {
         trendData.push(Math.max(0, amt - (amt/12 * i)));
@@ -200,6 +408,150 @@ function updateUI() {
     trendChart.data.datasets[0].data = trendData;
     trendChart.update();
 }
+
+function calculateMonthlyPayment(principal, annualRate, months) {
+    const monthlyRate = annualRate / 12;
+    return principal * (monthlyRate * Math.pow(1 + monthlyRate, months)) / 
+           (Math.pow(1 + monthlyRate, months) - 1);
+}
+
+/* ================= 5. 交易記錄渲染 ================= */
+function renderTransactions() {
+    const container = document.getElementById('transactions-list');
+    container.innerHTML = '';
+    
+    transactions.slice(0, 3).forEach(transaction => {
+        const div = document.createElement('div');
+        div.className = 'flex-between';
+        div.style.padding = '12px 0';
+        div.style.borderBottom = '1px solid var(--border)';
+        
+        div.innerHTML = `
+            <div>
+                <div style="font-weight: 500;">${transaction.description}</div>
+                <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">
+                    ${transaction.date}
+                </div>
+            </div>
+            <div style="font-weight: 600; ${transaction.amount > 0 ? 'color: var(--success);' : 'color: var(--danger);'}">
+                ${transaction.amount > 0 ? '+' : ''}HK$ ${Math.abs(transaction.amount).toLocaleString()}
+            </div>
+        `;
+        
+        container.appendChild(div);
+    });
+}
+
+/* ================= 6. 模態框功能 ================= */
+function showPaymentModal() {
+    document.getElementById('payment-modal').classList.remove('hidden');
+}
+
+function showTopupModal() {
+    document.getElementById('topup-modal').classList.remove('hidden');
+    updateTopupEstimate();
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+}
+
+function processPayment() {
+    const amount = parseInt(document.getElementById('payment-amount').value);
+    if (amount < 8420) {
+        showNotification('還款金額不能低於最低還款額', 'warning');
+        return;
+    }
+    
+    showNotification(`成功處理還款 HK$ ${amount.toLocaleString()}`, 'success');
+    closeModal('payment-modal');
+    
+    // 模擬更新餘額
+    setTimeout(() => {
+        const currentLoan = parseInt(document.getElementById('loanRange').value);
+        const newLoan = Math.max(0, currentLoan - amount);
+        document.getElementById('loanRange').value = newLoan;
+        updateUI();
+    }, 1000);
+}
+
+function updateTopupEstimate() {
+    const amount = parseInt(document.getElementById('topup-amount').value) || 50000;
+    const term = parseInt(document.getElementById('topup-term').value);
+    const monthly = calculateMonthlyPayment(amount, currentUser.rate, term);
+    
+    document.getElementById('estimated-payment').innerText = `HK$ ${Math.round(monthly).toLocaleString()}`;
+    document.getElementById('estimated-rate').innerText = `${(currentUser.rate * 100).toFixed(1)}%`;
+}
+
+function submitTopup() {
+    const amount = parseInt(document.getElementById('topup-amount').value);
+    const term = parseInt(document.getElementById('topup-term').value);
+    
+    showNotification(`加貸申請已提交 (HK$ ${amount.toLocaleString()})，審批中...`, 'success');
+    closeModal('topup-modal');
+}
+
+/* ================= 7. 輔助功能 ================= */
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    notification.textContent = message;
+    notification.style.background = type === 'success' ? 'var(--success)' : 
+                                   type === 'warning' ? 'var(--warning)' : 'var(--danger)';
+    notification.classList.remove('hidden');
+    
+    setTimeout(() => {
+        notification.classList.add('hidden');
+    }, 3000);
+}
+
+function showDetails() {
+    showNotification('詳細資料已準備，正在生成報告...', 'success');
+}
+
+function showStatement() {
+    showNotification('月結單已發送至您的郵箱', 'success');
+}
+
+function showAllTransactions() {
+    showNotification('顯示所有交易記錄', 'success');
+}
+
+function applyProduct(productId) {
+    showNotification('產品申請已提交，專員將與您聯繫', 'success');
+}
+
+function switchTab(tab) {
+    // 更新導航狀態
+    document.querySelectorAll('nav div').forEach(div => div.classList.remove('active'));
+    event.target.classList.add('active');
+    
+    showNotification(`切換至 ${tab === 'overview' ? '總覽' : '產品'} 頁面`, 'success');
+}
+
+function logout() {
+    if (confirm('確定要登出嗎？')) {
+        currentUser = null;
+        document.getElementById('app').classList.add('hidden');
+        document.getElementById('login-page').classList.remove('hidden');
+    }
+}
+
+// 初始化事件監聽器
+document.getElementById('topup-amount').addEventListener('input', updateTopupEstimate);
+document.getElementById('topup-term').addEventListener('change', updateTopupEstimate);
+
+// 模擬實時數據更新
+setInterval(() => {
+    if (currentUser) {
+        // 隨機更新信用評分（模擬）
+        const change = Math.random() > 0.7 ? Math.floor(Math.random() * 10) - 5 : 0;
+        if (change !== 0) {
+            currentUser.creditScore = Math.max(300, Math.min(850, currentUser.creditScore + change));
+            document.getElementById('credit-score').innerText = currentUser.creditScore;
+        }
+    }
+}, 30000);
 </script>
 </body>
 </html>
