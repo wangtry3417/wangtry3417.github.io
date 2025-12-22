@@ -1250,7 +1250,7 @@ async function startFaceRecognition() {
         let progress = 0;
         let detectionAttempts = 0;
         const maxAttempts = 8; // 減少嘗試次數
-        const maxScanTime = 15000; // 15秒超時
+        const maxScanTime = 30000; // 30秒超時
         
         // 設置掃描超時
         scanTimeout = setTimeout(() => {
