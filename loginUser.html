@@ -1173,6 +1173,26 @@ let transactions = [
     { id: "TXN-006", date: "2024-02-20 10:15", description: "保險費用", amount: -8500, type: "payment", status: "completed" }
 ];
 
+// ===================== 初始化用戶狀態 =====================
+function initializeUserState() {
+    // 從sessionStorage載入已登入用戶
+    const savedUser = sessionStorage.getItem('loginUser');
+    if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        document.getElementById('login-page').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        document.getElementById('admin-btn').classList.remove('hidden');
+        
+        updateUserInfo();
+        initializeCharts();
+        loadTransactions();
+        startBackgroundTasks();
+        
+        showNotification(`歡迎回來，${currentUser.name}！`, "success");
+        console.log("從sessionStorage恢復用戶會話");
+    }
+}
+
 // ===================== 面部識別系統 =====================
 async function initializeFaceRecognition() {
     const status = document.getElementById('scan-status');
@@ -1253,6 +1273,9 @@ function quickLogin() {
     currentUser = USERS[randomIndex];
     currentUser.lastLogin = new Date();
     
+    // 將用戶存入sessionStorage
+    sessionStorage.setItem('loginUser', JSON.stringify(currentUser));
+    
     // 直接進入主應用
     document.getElementById('login-page').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
@@ -1261,6 +1284,7 @@ function quickLogin() {
     updateUserInfo();
     initializeCharts();
     loadTransactions();
+    startBackgroundTasks();
     
     showNotification(`快速登入成功，歡迎 ${currentUser.name}！`, "success");
 }
@@ -1359,9 +1383,10 @@ function simulateScanningProcess() {
                 indicator.className = "face-match-indicator matched";
                 message.textContent = `✅ 身份確認: ${matchedUser.name}`;
                 
-                // 記錄登入時間
+                // 記錄登入時間並存入sessionStorage
                 matchedUser.lastLogin = new Date();
                 currentUser = matchedUser;
+                sessionStorage.setItem('loginUser', JSON.stringify(currentUser));
                 
                 // 延遲後進入主應用
                 setTimeout(() => {
@@ -1591,28 +1616,238 @@ function loadTransactions() {
 }
 
 // ===================== 業務功能 =====================
+// 所有功能現在都已啟用，並顯示具體的功能模態框
+
 function showPaymentModal() {
-    showNotification("還款功能即將開放", "warning");
+    const modal = createModal('立即還款', `
+        <div style="text-align: center; padding: 20px 0;">
+            <div style="font-size: 48px; color: var(--primary); margin-bottom: 20px;">
+                <i class="fas fa-credit-card"></i>
+            </div>
+            <h3 style="margin-bottom: 10px;">還款金額</h3>
+            <div style="font-size: 36px; font-weight: bold; color: var(--primary); margin-bottom: 20px;">
+                HK$ ${currentUser.monthlyPayment.toLocaleString()}
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 30px;">本月應還款項</p>
+            <button class="btn btn-primary" onclick="processPayment()" style="width: 100%;">
+                <i class="fas fa-check-circle"></i> 確認還款
+            </button>
+        </div>
+    `);
+    document.body.appendChild(modal);
+}
+
+function processPayment() {
+    closeModal();
+    showNotification(`成功還款 HK$ ${currentUser.monthlyPayment.toLocaleString()}`, "success");
 }
 
 function showTopupModal() {
-    showNotification("加貸申請功能即將開放", "warning");
+    const modal = createModal('申請加貸', `
+        <div style="padding: 10px 0;">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">加貸金額</label>
+                <select id="topup-amount" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border); font-size: 16px;">
+                    <option value="50000">HK$ 50,000</option>
+                    <option value="100000">HK$ 100,000</option>
+                    <option value="200000">HK$ 200,000</option>
+                    <option value="500000">HK$ 500,000</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">還款期數</label>
+                <select id="topup-term" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border); font-size: 16px;">
+                    <option value="12">12個月</option>
+                    <option value="24">24個月</option>
+                    <option value="36">36個月</option>
+                    <option value="48">48個月</option>
+                </select>
+            </div>
+            <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>預計月供</span>
+                    <span id="estimated-monthly" style="font-weight: 600;">HK$ 4,380</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span>預計年利率</span>
+                    <span style="font-weight: 600;">3.85%</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>總還款額</span>
+                    <span id="estimated-total" style="font-weight: 600;">HK$ 52,560</span>
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="submitTopup()" style="width: 100%;">
+                <i class="fas fa-paper-plane"></i> 提交申請
+            </button>
+        </div>
+    `);
+    document.body.appendChild(modal);
+    
+    // 更新計算
+    document.getElementById('topup-amount').addEventListener('change', updateTopupCalculation);
+    document.getElementById('topup-term').addEventListener('change', updateTopupCalculation);
+    updateTopupCalculation();
+}
+
+function updateTopupCalculation() {
+    const amount = parseInt(document.getElementById('topup-amount').value);
+    const term = parseInt(document.getElementById('topup-term').value);
+    const monthly = Math.round(amount / term * 1.0385);
+    const total = monthly * term;
+    
+    document.getElementById('estimated-monthly').textContent = `HK$ ${monthly.toLocaleString()}`;
+    document.getElementById('estimated-total').textContent = `HK$ ${total.toLocaleString()}`;
+}
+
+function submitTopup() {
+    const amount = parseInt(document.getElementById('topup-amount').value);
+    closeModal();
+    showNotification(`加貸申請已提交 (HK$ ${amount.toLocaleString()})，將在2個工作日內審核`, "success");
 }
 
 function downloadStatement() {
-    showNotification("月結單已發送至您的註冊郵箱", "success");
+    const modal = createModal('下載月結單', `
+        <div style="text-align: center; padding: 20px 0;">
+            <div style="font-size: 48px; color: var(--primary); margin-bottom: 20px;">
+                <i class="fas fa-file-invoice"></i>
+            </div>
+            <h3 style="margin-bottom: 10px;">選擇月份</h3>
+            <select id="statement-month" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border); font-size: 16px; margin-bottom: 30px;">
+                <option value="2024-03">2024年3月</option>
+                <option value="2024-02">2024年2月</option>
+                <option value="2024-01">2024年1月</option>
+                <option value="2023-12">2023年12月</option>
+                <option value="2023-11">2023年11月</option>
+            </select>
+            <button class="btn btn-primary" onclick="generateStatement()" style="width: 100%;">
+                <i class="fas fa-download"></i> 生成並下載
+            </button>
+        </div>
+    `);
+    document.body.appendChild(modal);
+}
+
+function generateStatement() {
+    const month = document.getElementById('statement-month').value;
+    closeModal();
+    showNotification(`月結單 (${month}) 已生成並發送至您的郵箱`, "success");
 }
 
 function showTransferModal() {
-    showNotification("資金轉帳功能即將開放", "warning");
+    const modal = createModal('資金轉帳', `
+        <div style="padding: 10px 0;">
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">收款銀行</label>
+                <select style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border); font-size: 16px;">
+                    <option value="hsbc">匯豐銀行</option>
+                    <option value="hang seng">恒生銀行</option>
+                    <option value="bank of china">中國銀行</option>
+                    <option value="citibank">花旗銀行</option>
+                    <option value="other">其他銀行</option>
+                </select>
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">收款賬戶</label>
+                <input type="text" placeholder="輸入收款賬戶號碼" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border); font-size: 16px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">轉帳金額</label>
+                <input type="number" placeholder="HK$" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border); font-size: 16px;">
+            </div>
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">備註 (可選)</label>
+                <input type="text" placeholder="輸入備註" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border); font-size: 16px;">
+            </div>
+            <button class="btn btn-primary" onclick="processTransfer()" style="width: 100%;">
+                <i class="fas fa-exchange-alt"></i> 確認轉帳
+            </button>
+        </div>
+    `);
+    document.body.appendChild(modal);
+}
+
+function processTransfer() {
+    closeModal();
+    showNotification("轉帳指令已提交，將在1小時內處理", "success");
 }
 
 function applyForLoan() {
-    showNotification("貸款申請表已開啟，請填寫相關資料", "warning");
+    const modal = createModal('低息貸款申請', `
+        <div style="padding: 10px 0;">
+            <div style="background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
+                <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">年利率低至 2.8%</div>
+                <div style="opacity: 0.9;">限時優惠</div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">申請金額</label>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                    <button class="amount-btn" onclick="selectAmount(100000)">HK$ 100,000</button>
+                    <button class="amount-btn" onclick="selectAmount(200000)">HK$ 200,000</button>
+                    <button class="amount-btn" onclick="selectAmount(500000)">HK$ 500,000</button>
+                    <button class="amount-btn" onclick="selectAmount(1000000)">HK$ 1,000,000</button>
+                </div>
+                <input type="number" id="loan-amount-input" placeholder="或自定義金額" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border); font-size: 16px; margin-top: 10px;">
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">還款期數</label>
+                <select id="loan-term" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid var(--border); font-size: 16px;">
+                    <option value="12">12個月</option>
+                    <option value="24">24個月</option>
+                    <option value="36">36個月</option>
+                    <option value="60">60個月</option>
+                </select>
+            </div>
+            
+            <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <h4 style="margin-bottom: 15px; color: var(--primary);">申請條件</h4>
+                <ul style="padding-left: 20px; margin-bottom: 15px;">
+                    <li style="margin-bottom: 8px;">月薪 HK$ 30,000 或以上</li>
+                    <li style="margin-bottom: 8px;">信用評分 600 或以上</li>
+                    <li style="margin-bottom: 8px;">香港永久居民</li>
+                </ul>
+                <div style="display: flex; justify-content: space-between; font-weight: 600;">
+                    <span>您的信用評分</span>
+                    <span>${currentUser.creditScore}</span>
+                </div>
+            </div>
+            
+            <button class="btn btn-primary" onclick="submitLoanApplication()" style="width: 100%;">
+                <i class="fas fa-check"></i> 立即申請
+            </button>
+        </div>
+    `);
+    document.body.appendChild(modal);
+}
+
+function selectAmount(amount) {
+    document.getElementById('loan-amount-input').value = amount;
+}
+
+function submitLoanApplication() {
+    closeModal();
+    showNotification("貸款申請已提交，專員將在24小時內與您聯繫", "success");
 }
 
 function showAllTransactions() {
-    showNotification("正在載入完整交易記錄...", "success");
+    const modal = createModal('全部交易記錄', `
+        <div style="max-height: 400px; overflow-y: auto; padding: 10px 0;">
+            ${transactions.map(txn => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border);">
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 4px;">${txn.description}</div>
+                        <div style="font-size: 12px; color: var(--text-secondary);">${txn.date}</div>
+                    </div>
+                    <div style="font-weight: 600; color: ${txn.amount > 0 ? 'var(--success)' : 'var(--danger)'}">
+                        ${txn.amount > 0 ? '+' : ''}HK$ ${Math.abs(txn.amount).toLocaleString()}
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `);
+    document.body.appendChild(modal);
 }
 
 function switchTab(tab) {
@@ -1635,6 +1870,7 @@ function getTabName(tab) {
 function logout() {
     if (confirm('確定要登出嗎？')) {
         currentUser = null;
+        sessionStorage.removeItem('loginUser');
         document.getElementById('app').classList.add('hidden');
         document.getElementById('admin-btn').classList.add('hidden');
         document.getElementById('login-page').classList.remove('hidden');
@@ -1643,7 +1879,87 @@ function logout() {
 }
 
 function showNotifications() {
-    showNotification("您目前沒有新的通知", "warning");
+    const modal = createModal('通知中心', `
+        <div style="max-height: 400px; overflow-y: auto; padding: 10px 0;">
+            <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                    <div style="color: var(--primary);">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 4px;">還款提醒</div>
+                        <div style="font-size: 14px; color: var(--text-secondary);">下一個還款日：${getNextPaymentDate()}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                    <div style="color: var(--success);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 4px;">信用評分更新</div>
+                        <div style="font-size: 14px; color: var(--text-secondary);">您的信用評分已更新為 ${currentUser.creditScore}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="background: #f0f9ff; padding: 15px; border-radius: 8px;">
+                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                    <div style="color: var(--primary);">
+                        <i class="fas fa-gift"></i>
+                    </div>
+                    <div>
+                        <div style="font-weight: 600; margin-bottom: 4px;">專屬優惠</div>
+                        <div style="font-size: 14px; color: var(--text-secondary);">您有專屬的低息貸款優惠，立即查看！</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `);
+    document.body.appendChild(modal);
+}
+
+function getNextPaymentDate() {
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 15);
+    return `${nextMonth.getFullYear()}年${nextMonth.getMonth() + 1}月${nextMonth.getDate()}日`;
+}
+
+// ===================== 模態框輔助函數 =====================
+function createModal(title, content) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.onclick = function(e) {
+        if (e.target === overlay) {
+            closeModal();
+        }
+    };
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal-content';
+    modal.innerHTML = `
+        <div class="modal-header">
+            <div class="modal-title">${title}</div>
+            <button class="close-btn" onclick="closeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            ${content}
+        </div>
+    `;
+    
+    overlay.appendChild(modal);
+    return overlay;
+}
+
+function closeModal() {
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) {
+        modal.remove();
+    }
 }
 
 // ===================== 管理員功能 =====================
@@ -1656,7 +1972,72 @@ function showAdminPanel() {
         }
         isAdminMode = true;
     }
-    showNotification("管理員功能即將開放", "warning");
+    
+    const modal = createModal('系統管理面板', `
+        <div style="padding: 10px 0;">
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                <h4 style="margin-bottom: 15px; color: var(--primary);">系統信息</h4>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+                    <div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">當前用戶</div>
+                        <div style="font-weight: 600;">${currentUser.name}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">登入時間</div>
+                        <div style="font-weight: 600;">${new Date().toLocaleString()}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <h4 style="margin-bottom: 15px; color: var(--primary);">用戶管理</h4>
+            <div style="margin-bottom: 20px;">
+                <button class="btn btn-secondary" onclick="showAllUsers()" style="width: 100%; margin-bottom: 10px;">
+                    <i class="fas fa-users"></i> 查看所有用戶
+                </button>
+                <button class="btn btn-secondary" onclick="resetSystem()" style="width: 100%;">
+                    <i class="fas fa-redo"></i> 重置系統
+                </button>
+            </div>
+            
+            <h4 style="margin-bottom: 15px; color: var(--primary);">系統工具</h4>
+            <div>
+                <button class="btn btn-secondary" onclick="exportUserData()" style="width: 100%; margin-bottom: 10px;">
+                    <i class="fas fa-download"></i> 導出用戶數據
+                </button>
+                <button class="btn btn-secondary" onclick="clearSession()" style="width: 100%;">
+                    <i class="fas fa-trash"></i> 清除會話
+                </button>
+            </div>
+        </div>
+    `);
+    document.body.appendChild(modal);
+}
+
+function showAllUsers() {
+    closeModal();
+    const userList = USERS.map(user => 
+        `${user.name} (${user.id}) - ${user.occupation} - 信用分: ${user.creditScore}`
+    ).join('<br>');
+    
+    alert(`系統用戶列表:\n\n${userList}`);
+}
+
+function resetSystem() {
+    if (confirm('確定要重置系統嗎？這將清除所有會話數據。')) {
+        sessionStorage.clear();
+        location.reload();
+    }
+}
+
+function exportUserData() {
+    closeModal();
+    showNotification("用戶數據已導出為JSON文件", "success");
+}
+
+function clearSession() {
+    sessionStorage.clear();
+    closeModal();
+    showNotification("會話數據已清除", "success");
 }
 
 // ===================== 輔助功能 =====================
@@ -1696,6 +2077,9 @@ function startBackgroundTasks() {
             currentUser.creditScore = Math.max(300, Math.min(850, currentUser.creditScore + change));
             document.getElementById('credit-score').textContent = currentUser.creditScore;
             
+            // 更新sessionStorage
+            sessionStorage.setItem('loginUser', JSON.stringify(currentUser));
+            
             const trend = document.getElementById('credit-trend');
             if (change > 0) {
                 trend.textContent = "↗ 上升中";
@@ -1710,6 +2094,7 @@ function startBackgroundTasks() {
 
 // ===================== 初始化 =====================
 document.addEventListener('DOMContentLoaded', function() {
+    initializeUserState();
     initializeFaceRecognition();
     console.log("經貸智能財務用戶系統已啟動");
 });
