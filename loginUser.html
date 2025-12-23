@@ -1238,7 +1238,7 @@ async function initializeFaceRecognition() {
         }
         
         // 創建 FaceMatcher
-        faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.6);
+        faceMatcher = new faceapi.FaceMatcher(labeledDescriptors, 0.4);
         
         status.textContent = "面部識別系統已就緒";
         loginBtn.disabled = false;
