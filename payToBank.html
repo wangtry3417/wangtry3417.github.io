@@ -1,2051 +1,348 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>銀行轉賬申請 | 經貸智能財務</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@300;400;500;700&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #0066CC;
-            --primary-dark: #004C99;
-            --secondary: #333333;
-            --background: #F5F7FA;
-            --card-bg: #FFFFFF;
-            --border: #E1E5EB;
-            --text-primary: #2C3E50;
-            --text-secondary: #6C7A89;
-            --success: #27AE60;
-            --warning: #F39C12;
-            --error: #E74C3C;
-            --disabled: #BDC3C7;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Noto Sans HK', sans-serif;
-            background: var(--background);
-            color: var(--text-primary);
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* 頂部導航 */
-        header {
-            padding: 20px 0;
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--primary);
-            text-decoration: none;
-        }
-
-        .logo-icon {
-            width: 36px;
-            height: 36px;
-            background: var(--primary);
-            color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-        }
-
-        .nav-menu {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .nav-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            padding: 8px 16px;
-            border-radius: 6px;
-            transition: all 0.2s ease;
-        }
-
-        .nav-link:hover {
-            color: var(--primary);
-            background: rgba(0, 102, 204, 0.05);
-        }
-
-        .nav-link.active {
-            color: var(--primary);
-            background: rgba(0, 102, 204, 0.1);
-        }
-
-        /* 主內容區域 */
-        .main-content {
-            padding: 40px 0 60px;
-        }
-
-        .content-grid {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 30px;
-        }
-
-        @media (max-width: 768px) {
-            .content-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* 步驟導航 */
-        .step-navigation {
-            position: sticky;
-            top: 100px;
-            height: fit-content;
-        }
-
-        .step-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 25px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        }
-
-        .step-title {
-            font-size: 1.3rem;
-            margin-bottom: 20px;
-            color: var(--primary);
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .step-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .step-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 15px;
-            border-radius: 8px;
-            background: var(--background);
-            border: 1px solid var(--border);
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .step-item:hover {
-            border-color: var(--primary);
-        }
-
-        .step-item.active {
-            border-color: var(--primary);
-            background: rgba(0, 102, 204, 0.05);
-            box-shadow: 0 2px 8px rgba(0, 102, 204, 0.1);
-        }
-
-        .step-item.completed {
-            border-color: var(--success);
-            background: rgba(39, 174, 96, 0.05);
-        }
-
-        .step-number {
-            width: 28px;
-            height: 28px;
-            min-width: 28px;
-            background: var(--disabled);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            color: white;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
-        }
-
-        .step-item.active .step-number {
-            background: var(--primary);
-        }
-
-        .step-item.completed .step-number {
-            background: var(--success);
-        }
-
-        .step-info {
-            flex: 1;
-        }
-
-        .step-label {
-            font-weight: 600;
-            color: var(--text-primary);
-            font-size: 0.95rem;
-        }
-
-        .step-desc {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-            margin-top: 2px;
-        }
-
-        /* 申請卡片 */
-        .application-card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 30px;
-            border: 1px solid var(--border);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-            min-height: 500px;
-            position: relative;
-        }
-
-        .card-header {
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .card-title {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .card-subtitle {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        /* 表單樣式 */
-        .form-section {
-            margin-bottom: 30px;
-        }
-
-        .form-section-title {
-            font-size: 1.1rem;
-            color: var(--text-primary);
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-
-        .form-label.required::after {
-            content: '*';
-            color: var(--error);
-            margin-left: 4px;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 12px 16px;
-            background: var(--background);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text-primary);
-            font-size: 0.95rem;
-            transition: all 0.2s ease;
-            font-family: 'Roboto Mono', monospace;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.1);
-        }
-
-        .form-input.error {
-            border-color: var(--error);
-            background: rgba(231, 76, 60, 0.05);
-        }
-
-        .form-input:disabled {
-            background: #F8F9FA;
-            color: var(--disabled);
-            cursor: not-allowed;
-        }
-
-        .error-message {
-            color: var(--error);
-            font-size: 0.85rem;
-            margin-top: 6px;
-            display: none;
-        }
-
-        .form-hint {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-top: 6px;
-        }
-
-        /* 選擇器 */
-        .select-wrapper {
-            position: relative;
-        }
-
-        .select-wrapper select {
-            appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236C7A89' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat;
-            background-position: right 16px center;
-            background-size: 16px;
-            padding-right: 40px;
-        }
-
-        /* 圖片比對區域 */
-        .image-comparison-container {
-            margin: 25px 0;
-        }
-
-        .comparison-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .comparison-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        .image-upload-area {
-            text-align: center;
-        }
-
-        .upload-label {
-            display: block;
-            color: var(--text-primary);
-            font-weight: 600;
-            margin-bottom: 15px;
-            font-size: 1rem;
-        }
-
-        .upload-box {
-            border: 2px dashed var(--border);
-            border-radius: 12px;
-            padding: 40px 20px;
-            background: var(--background);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            min-height: 200px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .upload-box:hover {
-            border-color: var(--primary);
-            background: rgba(0, 102, 204, 0.03);
-        }
-
-        .upload-box.dragover {
-            border-color: var(--success);
-            background: rgba(39, 174, 96, 0.05);
-        }
-
-        .upload-icon {
-            font-size: 3rem;
-            color: var(--primary);
-            margin-bottom: 15px;
-        }
-
-        .upload-text {
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-        }
-
-        .upload-button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s ease;
-        }
-
-        .upload-button:hover {
-            background: var(--primary-dark);
-        }
-
-        .image-preview {
-            width: 100%;
-            max-width: 300px;
-            border-radius: 8px;
-            border: 2px solid var(--border);
-            margin: 10px auto;
-            display: block;
-        }
-
-        .database-image {
-            width: 100%;
-            max-width: 300px;
-            border-radius: 8px;
-            border: 2px solid var(--border);
-            margin: 10px auto;
-            display: block;
-        }
-
-        /* 相似度比對結果 */
-        .comparison-result {
-            background: var(--background);
-            border-radius: 12px;
-            padding: 25px;
-            margin-top: 20px;
-            border: 1px solid var(--border);
-            text-align: center;
-        }
-
-        .similarity-meter {
-            margin: 20px 0;
-        }
-
-        .similarity-bar {
-            height: 10px;
-            background: var(--border);
-            border-radius: 5px;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
-
-        .similarity-fill {
-            height: 100%;
-            background: linear-gradient(to right, var(--error), var(--warning), var(--success));
-            width: 0%;
-            transition: width 1s ease;
-        }
-
-        .similarity-value {
-            font-size: 2rem;
-            font-weight: bold;
-            font-family: 'Roboto Mono', monospace;
-            color: var(--text-primary);
-        }
-
-        .similarity-text {
-            font-size: 1rem;
-            color: var(--text-secondary);
-            margin-top: 5px;
-        }
-
-        .similarity-value.high {
-            color: var(--success);
-        }
-
-        .similarity-value.medium {
-            color: var(--warning);
-        }
-
-        .similarity-value.low {
-            color: var(--error);
-        }
-
-        /* 用戶列表 */
-        .user-list {
-            max-height: 320px;
-            overflow-y: auto;
-            margin: 20px 0;
-            padding-right: 8px;
-        }
-
-        .user-list::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .user-list::-webkit-scrollbar-track {
-            background: var(--background);
-            border-radius: 3px;
-        }
-
-        .user-list::-webkit-scrollbar-thumb {
-            background: var(--disabled);
-            border-radius: 3px;
-        }
-
-        .user-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px;
-            background: var(--background);
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border: 1px solid var(--border);
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .user-item:hover {
-            border-color: var(--primary);
-            background: rgba(0, 102, 204, 0.03);
-        }
-
-        .user-item.selected {
-            border-color: var(--primary);
-            background: rgba(0, 102, 204, 0.05);
-        }
-
-        .user-avatar {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
-            object-fit: cover;
-            border: 1px solid var(--border);
-        }
-
-        .user-info {
-            flex: 1;
-        }
-
-        .user-name {
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 4px;
-            font-size: 0.95rem;
-        }
-
-        .user-details {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-        }
-
-        /* 手動輸入面板 */
-        .manual-input-panel {
-            background: var(--background);
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            border: 1px solid var(--border);
-        }
-
-        .panel-title {
-            font-size: 1rem;
-            color: var(--text-primary);
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        /* 按鈕樣式 */
-        .btn-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 40px;
-            justify-content: flex-end;
-        }
-
-        .btn {
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-weight: 600;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            border: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            background: var(--primary-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.2);
-        }
-
-        .btn-secondary {
-            background: white;
-            color: var(--text-primary);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            background: var(--background);
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-
-        .btn-success {
-            background: var(--success);
-            color: white;
-        }
-
-        .btn-success:hover:not(:disabled) {
-            background: #229954;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(39, 174, 96, 0.2);
-        }
-
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        .btn-back {
-            position: absolute;
-            top: 30px;
-            left: 30px;
-            padding: 8px 16px;
-            background: var(--background);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 0.9rem;
-        }
-
-        .btn-back:hover {
-            color: var(--primary);
-            border-color: var(--primary);
-        }
-
-        /* 進度條 */
-        .progress-container {
-            margin: 30px 0;
-        }
-
-        .progress-bar {
-            height: 6px;
-            background: var(--border);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--primary);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-
-        .progress-text {
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-        }
-
-        /* 結果顯示 */
-        .result-section {
-            background: var(--background);
-            border-radius: 8px;
-            padding: 25px;
-            margin: 25px 0;
-            border: 1px solid var(--border);
-        }
-
-        .result-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .result-item {
-            padding: 15px;
-            background: white;
-            border-radius: 6px;
-            border: 1px solid var(--border);
-        }
-
-        .result-label {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-bottom: 6px;
-        }
-
-        .result-value {
-            color: var(--text-primary);
-            font-weight: 600;
-            font-family: 'Roboto Mono', monospace;
-            font-size: 1.1rem;
-        }
-
-        .result-value.success {
-            color: var(--success);
-        }
-
-        /* 訊息框 */
-        .message-box {
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-            border: 1px solid var(--border);
-        }
-
-        .message-box.success {
-            background: rgba(39, 174, 96, 0.05);
-            border-color: var(--success);
-        }
-
-        .message-box.info {
-            background: rgba(0, 102, 204, 0.05);
-            border-color: var(--primary);
-        }
-
-        .message-box.warning {
-            background: rgba(243, 156, 18, 0.05);
-            border-color: var(--warning);
-        }
-
-        /* 頁腳 */
-        footer {
-            margin-top: 60px;
-            padding: 40px 0;
-            background: white;
-            border-top: 1px solid var(--border);
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-        }
-
-        .warning-box {
-            background: rgba(243, 156, 18, 0.05);
-            border: 1px solid var(--warning);
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-        }
-
-        .license-info {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border);
-        }
-
-        /* 響應式設計 */
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 15px;
-            }
-
-            .application-card {
-                padding: 20px 15px;
-            }
-
-            .card-title {
-                font-size: 1.3rem;
-            }
-
-            .btn-group {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .btn-back {
-                position: static;
-                margin-bottom: 20px;
-                width: auto;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .nav-menu {
-                gap: 10px;
-            }
-
-            .nav-link {
-                padding: 6px 10px;
-                font-size: 0.9rem;
-            }
-
-            .card-title {
-                font-size: 1.2rem;
-            }
-
-            .user-item {
-                flex-direction: column;
-                text-align: center;
-                gap: 10px;
-            }
-
-            .result-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>銀行轉賬申請 | 經貸智能財務</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@300;400;500;700&family=Inter:wght@400;500;600&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root {
+    --primary: #0052CC; /* 調整為更具現代感的 Royal Blue */
+    --primary-light: #E9F2FF;
+    --primary-dark: #0747A6;
+    --success: #00875A;
+    --warning: #FFAB00;
+    --error: #DE350B;
+    --background: #F4F5F7;
+    --card-bg: #FFFFFF;
+    --text-main: #172B4D;
+    --text-sub: #5E6C84;
+    --border: #DFE1E6;
+    --radius: 12px;
+    --shadow: 0 4px 20px rgba(9, 30, 66, 0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Noto Sans HK', 'Inter', sans-serif;
+    background-color: var(--background);
+    color: var(--text-main);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* --- Layout --- */
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+header {
+    background: var(--card-bg);
+    padding: 16px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 1px 0 var(--border);
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+
+.logo-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 4px 8px rgba(0,82,204,0.2);
+}
+
+/* --- Steps Sidebar --- */
+.main-content {
+    padding: 48px 0;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 40px;
+}
+
+.step-indicator {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px;
+    border-radius: var(--radius);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    background: transparent;
+}
+
+.step-item.active {
+    background: var(--card-bg);
+    box-shadow: var(--shadow);
+}
+
+.step-item.completed .step-dot {
+    background: var(--success);
+    color: white;
+}
+
+.step-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--border);
+    color: var(--text-sub);
+    display: grid;
+    place-items: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: 0.3s;
+}
+
+.step-item.active .step-dot {
+    background: var(--primary);
+    color: white;
+    transform: scale(1.1);
+}
+
+.step-label {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--text-sub);
+}
+
+.step-item.active .step-label {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+/* --- Application Card --- */
+.application-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: var(--shadow);
+    min-height: 600px;
+}
+
+h1, h2 { color: var(--text-main); margin-bottom: 12px; }
+.card-subtitle { color: var(--text-sub); margin-bottom: 32px; font-size: 1rem; }
+
+/* --- Forms & Inputs --- */
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.input-field {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s;
+    background: #FAFBFC;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: white;
+    box-shadow: 0 0 0 4px var(--primary-light);
+}
+
+/* --- Verification Options (Cards) --- */
+.verification-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 24px 0;
+}
+
+.v-option {
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.v-option:hover {
+    border-color: var(--primary);
+    transform: translateY(-4px);
+}
+
+.v-option.selected {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.v-icon { font-size: 2rem; margin-bottom: 12px; display: block; }
+
+/* --- Buttons --- */
+.btn {
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary { background: var(--primary); color: white; }
+.btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+.btn-ghost { background: transparent; color: var(--text-sub); }
+.btn-ghost:hover { color: var(--primary); }
+
+/* --- Responsive --- */
+@media (max-width: 850px) {
+    .content-grid { grid-template-columns: 1fr; }
+    .step-indicator { flex-direction: row; overflow-x: auto; padding-bottom: 16px; }
+    .step-item { flex: 0 0 auto; padding: 10px; }
+    .step-label { display: none; }
+    .verification-grid { grid-template-columns: 1fr; }
+}
+</style>
 </head>
 <body>
-    <!-- 頂部導航 -->
-    <header>
-        <div class="container nav-container">
-            <a href="index.html" class="logo">
-                <div class="logo-icon">$</div>
-                <span>經貸智能財務</span>
-            </a>
-            
-            <nav class="nav-menu">
-                <a href="index.html" class="nav-link">智能評估</a>
-                <a href="about.html" class="nav-link">關於我們</a>
-                <a href="payToBank.html" class="nav-link active">銀行轉賬</a>
-            </nav>
-        </div>
-    </header>
 
-    <!-- 主內容區域 -->
-    <div class="container main-content">
-        <div class="content-grid">
-            <!-- 步驟導航 -->
-            <div class="step-navigation">
-                <div class="step-card">
-                    <h3 class="step-title">申請流程</h3>
-                    <div class="step-list">
-                        <div class="step-item active" data-step="1">
-                            <div class="step-number">1</div>
-                            <div class="step-info">
-                                <div class="step-label">基本資料</div>
-                                <div class="step-desc">填寫申請資訊</div>
-                            </div>
-                        </div>
-                        <div class="step-item" data-step="2">
-                            <div class="step-number">2</div>
-                            <div class="step-info">
-                                <div class="step-label">身份驗證</div>
-                                <div class="step-desc">確認申請人身份</div>
-                            </div>
-                        </div>
-                        <div class="step-item" data-step="3">
-                            <div class="step-number">3</div>
-                            <div class="step-info">
-                                <div class="step-label">銀行資料</div>
-                                <div class="step-desc">填寫收款賬戶</div>
-                            </div>
-                        </div>
-                        <div class="step-item" data-step="4">
-                            <div class="step-number">4</div>
-                            <div class="step-info">
-                                <div class="step-label">確認申請</div>
-                                <div class="step-desc">審核申請資料</div>
-                            </div>
-                        </div>
-                        <div class="step-item" data-step="5">
-                            <div class="step-number">5</div>
-                            <div class="step-info">
-                                <div class="step-label">完成</div>
-                                <div class="step-desc">申請結果通知</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="license-info">
-                        <div style="color: var(--text-secondary); font-size: 0.8rem; margin-bottom: 6px;">
-                            放債人牌照號碼
-                        </div>
-                        <div style="color: var(--text-primary); font-family: 'Roboto Mono', monospace; font-size: 0.9rem; font-weight: 600;">
-                            0987/2025
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 申請卡片 -->
-            <div class="application-card">
-                <!-- 第1步：基本資料 -->
-                <div id="step1-content">
-                    <div class="card-header">
-                        <h2 class="card-title">基本資料</h2>
-                        <p class="card-subtitle">請填寫貸款申請基本資料</p>
-                    </div>
-                    
-                    <div class="form-section">
-                        <div class="form-group">
-                            <label class="form-label required">申請人姓名</label>
-                            <input type="text" class="form-input" id="applicantName" placeholder="請輸入中文全名">
-                            <div class="error-message" id="nameError">請輸入申請人姓名</div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label required">申請金額 (HKD)</label>
-                            <input type="number" class="form-input" id="loanAmount" placeholder="請輸入金額" min="5000" max="1000000">
-                            <div class="error-message" id="amountError">金額必須在 HKD 5,000 - 1,000,000 之間</div>
-                            <div class="form-hint">最低金額：5,000 HKD，最高金額：1,000,000 HKD</div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label required">還款年期</label>
-                            <div class="select-wrapper">
-                                <select class="form-input" id="loanYears">
-                                    <option value="">請選擇還款年期</option>
-                                    <option value="1">1年 (12期)</option>
-                                    <option value="2">2年 (24期)</option>
-                                    <option value="3">3年 (36期)</option>
-                                    <option value="5" selected>5年 (60期)</option>
-                                    <option value="7">7年 (84期)</option>
-                                </select>
-                            </div>
-                            <div class="error-message" id="yearsError">請選擇還款年期</div>
-                        </div>
-                    </div>
-                    
-                    <div class="btn-group">
-                        <button class="btn btn-primary" id="nextToStep2">
-                            下一步：身份驗證
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 第2步：身份驗證 -->
-                <div id="step2-content" style="display: none;">
-                    <button class="btn-back" onclick="goToStep(1)">← 返回基本資料</button>
-                    <div class="card-header">
-                        <h2 class="card-title">身份驗證</h2>
-                        <p class="card-subtitle">請選擇身份驗證方式</p>
-                    </div>
-                    
-                    <div class="message-box info">
-                        為確保交易安全，請選擇一種身份驗證方式。系統會根據您的選擇進行身份核對。
-                    </div>
-                    
-                    <div class="verification-options">
-                        <div class="verification-option" data-method="database">
-                            <div class="option-icon">👤</div>
-                            <div class="option-title">選擇已註冊用戶</div>
-                            <div class="option-desc">從系統中選擇已註冊的用戶資料</div>
-                        </div>
-                        
-                        <div class="verification-option" data-method="image">
-                            <div class="option-icon">📸</div>
-                            <div class="option-title">照片比對驗證</div>
-                            <div class="option-desc">上傳照片與資料庫圖片比對</div>
-                        </div>
-                        
-                        <div class="verification-option" data-method="manual">
-                            <div class="option-icon">📝</div>
-                            <div class="option-title">手動輸入資料</div>
-                            <div class="option-desc">手動輸入身份證及個人資料</div>
-                        </div>
-                    </div>
-                    
-                    <!-- 用戶資料庫界面 -->
-                    <div id="database-interface" style="display: none;">
-                        <div class="panel-title">請選擇申請人</div>
-                        <div class="user-list" id="userList">
-                            <!-- 用戶列表由 JavaScript 動態生成 -->
-                        </div>
-                        
-                        <div class="btn-group">
-                            <button class="btn btn-secondary" onclick="resetVerification()">
-                                重新選擇
-                            </button>
-                            <button class="btn btn-primary" id="confirmUser" disabled>
-                                確認選擇
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- 圖片比對界面 -->
-                    <div id="image-interface" style="display: none;">
-                        <div class="image-comparison-container">
-                            <div class="comparison-grid">
-                                <div class="image-upload-area">
-                                    <label class="upload-label">上傳照片進行比對</label>
-                                    <div class="upload-box" id="uploadBox">
-                                        <div class="upload-icon">📷</div>
-                                        <div class="upload-text">點擊上傳或拖放照片到此處</div>
-                                        <button class="upload-button">選擇照片</button>
-                                        <input type="file" id="imageUpload" accept="image/*" style="display: none;">
-                                    </div>
-                                    <img id="uploadedImage" class="image-preview" style="display: none;">
-                                </div>
-                                
-                                <div class="image-upload-area">
-                                    <label class="upload-label">資料庫照片</label>
-                                    <img id="databaseImage" class="database-image" src="users/user1.png" alt="資料庫照片">
-                                    <div style="margin-top: 10px; color: var(--text-secondary); font-size: 0.9rem;">
-                                        系統將比對兩張照片的相似度
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="comparison-result" id="comparisonResult" style="display: none;">
-                                <h4 style="margin-bottom: 15px; color: var(--text-primary);">照片比對結果</h4>
-                                <div class="similarity-meter">
-                                    <div class="similarity-bar">
-                                        <div class="similarity-fill" id="similarityFill"></div>
-                                    </div>
-                                    <div class="similarity-value" id="similarityValue">0%</div>
-                                    <div class="similarity-text" id="similarityText">相似度計算中...</div>
-                                </div>
-                                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 15px;">
-                                    相似度高於 80% 可通過驗證
-                                </p>
-                            </div>
-                        </div>
-                        
-                        <div class="btn-group">
-                            <button class="btn btn-secondary" onclick="resetVerification()">
-                                重新上傳
-                            </button>
-                            <button class="btn btn-primary" id="confirmImage" disabled>
-                                確認驗證
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- 手動輸入界面 -->
-                    <div id="manual-interface" style="display: none;">
-                        <div class="manual-input-panel">
-                            <div class="panel-title">手動輸入身份證資料</div>
-                            
-                            <div class="form-group">
-                                <label class="form-label required">英文姓名</label>
-                                <input type="text" class="form-input" id="manualEnglishName" placeholder="例如：CHAN TAI MAN">
-                                <div class="error-message" id="englishNameError">請輸入英文姓名</div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label required">身份證號碼</label>
-                                <input type="text" class="form-input" id="manualHKID" placeholder="例如：A123456(7)">
-                                <div class="error-message" id="hkidError">請輸入有效的身份證號碼</div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label required">出生日期</label>
-                                <input type="date" class="form-input" id="manualBirthDate">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="form-label required">聯繫電話</label>
-                                <input type="tel" class="form-input" id="manualPhone" placeholder="例如：98765432">
-                            </div>
-                        </div>
-                        
-                        <div class="btn-group">
-                            <button class="btn btn-secondary" onclick="resetVerification()">
-                                重新輸入
-                            </button>
-                            <button class="btn btn-primary" id="confirmManual">
-                                確認輸入
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="btn-group" id="continueBtnGroup" style="display: none;">
-                        <button class="btn btn-primary" id="nextToStep3">
-                            下一步：銀行資料
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 第3步：銀行資料 -->
-                <div id="step3-content" style="display: none;">
-                    <button class="btn-back" onclick="goToStep(2)">← 返回身份驗證</button>
-                    <div class="card-header">
-                        <h2 class="card-title">銀行資料</h2>
-                        <p class="card-subtitle">請提供您的銀行賬戶資料以接收款項</p>
-                    </div>
-                    
-                    <div class="message-box info">
-                        請確保填寫的銀行資料準確無誤，款項將轉賬至指定賬戶
-                    </div>
-                    
-                    <div class="form-section">
-                        <div class="form-group">
-                            <label class="form-label required">銀行名稱</label>
-                            <div class="select-wrapper">
-                                <select class="form-input" id="bankName">
-                                    <option value="">請選擇銀行</option>
-                                    <option value="HSBC">滙豐銀行 (HSBC)</option>
-                                    <option value="BankOfChina">中國銀行 (Bank of China)</option>
-                                    <option value="HangSeng">恒生銀行 (Hang Seng Bank)</option>
-                                    <option value="StandardChartered">渣打銀行 (Standard Chartered)</option>
-                                    <option value="Citibank">花旗銀行 (Citibank)</option>
-                                    <option value="DBS">星展銀行 (DBS)</option>
-                                </select>
-                            </div>
-                            <div class="error-message" id="bankError">請選擇銀行</div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label required">銀行賬戶號碼</label>
-                            <input type="text" class="form-input" id="bankAccount" placeholder="請輸入賬戶號碼">
-                            <div class="error-message" id="accountError">請輸入有效的賬戶號碼</div>
-                            <div class="form-hint">請輸入完整的銀行賬戶號碼</div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label required">賬戶持有人姓名</label>
-                            <input type="text" class="form-input" id="accountHolder" placeholder="必須與身份證姓名一致">
-                            <div class="error-message" id="holderError">必須與身份證姓名一致</div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label required">聯繫電話</label>
-                            <input type="tel" class="form-input" id="phoneNumber" placeholder="請輸入香港電話號碼">
-                            <div class="error-message" id="phoneError">請輸入有效的電話號碼</div>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label class="form-label required">電郵地址</label>
-                            <input type="email" class="form-input" id="emailAddress" placeholder="請輸入電郵地址">
-                            <div class="error-message" id="emailError">請輸入有效的電郵地址</div>
-                            <div class="form-hint">申請確認信將發送到此電郵地址</div>
-                        </div>
-                    </div>
-                    
-                    <div class="btn-group">
-                        <button class="btn btn-primary" id="nextToStep4">
-                            下一步：確認申請
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 第4步：確認申請 -->
-                <div id="step4-content" style="display: none;">
-                    <button class="btn-back" onclick="goToStep(3)">← 返回銀行資料</button>
-                    <div class="card-header">
-                        <h2 class="card-title">確認申請</h2>
-                        <p class="card-subtitle">請確認您的申請資料</p>
-                    </div>
-                    
-                    <div class="message-box info">
-                        請仔細檢查以下申請資料，確認無誤後提交申請
-                    </div>
-                    
-                    <div class="result-section">
-                        <h4 style="margin-bottom: 20px; color: var(--text-primary);">申請資料摘要</h4>
-                        <div class="result-grid">
-                            <div class="result-item">
-                                <div class="result-label">申請人姓名</div>
-                                <div class="result-value" id="summaryName">—</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">申請金額</div>
-                                <div class="result-value" id="summaryAmount">—</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">還款年期</div>
-                                <div class="result-value" id="summaryYears">—</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">驗證方式</div>
-                                <div class="result-value" id="summaryVerification">—</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">銀行名稱</div>
-                                <div class="result-value" id="summaryBank">—</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">賬戶號碼</div>
-                                <div class="result-value" id="summaryAccount">—</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">聯繫電話</div>
-                                <div class="result-value" id="summaryPhone">—</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">電郵地址</div>
-                                <div class="result-value" id="summaryEmail">—</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="result-section">
-                        <h4 style="margin-bottom: 20px; color: var(--text-primary);">還款計劃</h4>
-                        <div class="result-grid">
-                            <div class="result-item">
-                                <div class="result-label">每月還款額</div>
-                                <div class="result-value" id="monthlyPayment">—</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">總還款額</div>
-                                <div class="result-value" id="totalRepayment">—</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">年利率</div>
-                                <div class="result-value" id="interestRate">—</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">總利息</div>
-                                <div class="result-value" id="totalInterest">—</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="btn-group">
-                        <button class="btn btn-success" id="submitApplication">
-                            ✓ 確認並提交申請
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 第5步：完成申請 -->
-                <div id="step5-content" style="display: none;">
-                    <div class="card-header">
-                        <h2 class="card-title">申請完成</h2>
-                        <p class="card-subtitle">您的申請已成功提交</p>
-                    </div>
-                    
-                    <div class="message-box success" style="text-align: center;">
-                        <div style="font-size: 3rem; margin-bottom: 15px;">✅</div>
-                        <h3 style="color: var(--success); margin-bottom: 10px;">申請提交成功！</h3>
-                        <p style="color: var(--text-secondary); margin-bottom: 20px;">
-                            您的銀行轉賬申請已成功提交，系統正在處理中
-                        </p>
-                    </div>
-                    
-                    <div class="result-section">
-                        <h4 style="margin-bottom: 20px; color: var(--text-primary);">申請詳情</h4>
-                        <div class="result-grid">
-                            <div class="result-item">
-                                <div class="result-label">申請編號</div>
-                                <div class="result-value" id="applicationNumber">—</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">提交時間</div>
-                                <div class="result-value" id="submitTime">—</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">申請狀態</div>
-                                <div class="result-value success" id="applicationStatus">處理中</div>
-                            </div>
-                            <div class="result-item">
-                                <div class="result-label">預計處理時間</div>
-                                <div class="result-value" id="processingTime">1-2個工作日</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div style="margin-top: 30px; padding: 20px; background: var(--background); border-radius: 8px; border: 1px solid var(--border);">
-                        <h4 style="color: var(--primary); margin-bottom: 10px;">下一步</h4>
-                        <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6;">
-                            1. 我們的客服人員將會聯絡您確認申請詳情<br>
-                            2. 請保持電話暢通以便接收審批結果<br>
-                            3. 款項將在審批通過後轉賬至指定銀行賬戶<br>
-                            4. 您可以隨時登入系統查看申請進度
-                        </p>
-                    </div>
-                    
-                    <div class="btn-group">
-                        <a href="index.html" class="btn btn-primary">返回首頁</a>
-                        <button class="btn btn-secondary" onclick="window.print()">列印確認書</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+<header>
+    <div class="container nav-container">
+        <a href="#" class="logo">
+            <div class="logo-icon">$</div>
+            <span>經貸智能財務</span>
+        </a>
+        <nav style="display: flex; gap: 24px;">
+            <a href="#" class="btn-ghost" style="text-decoration:none">智能評估</a>
+            <a href="#" class="btn btn-primary" style="padding: 8px 16px">銀行轉賬</a>
+        </nav>
     </div>
-    
-    <!-- 頁腳 -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div>
-                    <h3 style="margin-bottom: 20px; color: var(--primary);">經貸智能財務有限公司</h3>
-                    <p style="color: var(--text-secondary); line-height: 1.8;">
-                        地址：新界青衣島青衣路20A號<br>
-                        電話: +852 2294 3266<br>
-                        電郵：info@jingdai.com.hk
-                    </p>
+</header>
+
+<div class="container main-content">
+    <div class="content-grid">
+        <aside class="step-navigation">
+            <div class="step-indicator">
+                <div class="step-item active">
+                    <div class="step-dot">1</div>
+                    <div class="step-label">基本資料</div>
                 </div>
+                <div class="step-item">
+                    <div class="step-dot">2</div>
+                    <div class="step-label">身份驗證</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-dot">3</div>
+                    <div class="step-label">銀行資料</div>
+                </div>
+                <div class="step-item">
+                    <div class="step-dot">4</div>
+                    <div class="step-label">確認申請</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 40px; padding: 20px; background: #EBECF0; border-radius: 12px; font-size: 0.85rem;">
+                <p style="color: var(--text-sub); margin-bottom: 4px;">放債人牌照號碼</p>
+                <p style="font-family: 'Roboto Mono'; font-weight: 600;">0987/2025</p>
+            </div>
+        </aside>
+
+        <main class="application-card">
+            <div id="step1">
+                <h2>基本資料</h2>
+                <p class="card-subtitle">填寫您的申請金額與年期，系統將自動計算利率。</p>
                 
-                <div>
-                    <h3 style="margin-bottom: 20px; color: var(--primary);">重要資訊</h3>
-                    <div class="warning-box">
-                        <strong style="color: var(--warning); display: block; margin-bottom: 10px;">⚠️ 重要忠告</strong>
-                        <p style="color: var(--text-secondary); line-height: 1.8; font-size: 0.9rem;">
-                            借錢梗要還，咪俾錢中介。<br>
-                            還款能力評估非常重要，請確保您有能力按時還款。<br>
-                            逾期還款可能影響您的信貸記錄。
-                        </p>
+                <div class="form-group">
+                    <label class="form-label">申請人全名 (中文)</label>
+                    <input type="text" class="input-field" placeholder="陳大文">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">申請金額 (HKD)</label>
+                    <input type="number" class="input-field" placeholder="例如: 50,000">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">還款年期</label>
+                    <select class="input-field">
+                        <option>12 個月 (1年)</option>
+                        <option>24 個月 (2年)</option>
+                        <option selected>60 個月 (5年)</option>
+                    </select>
+                </div>
+
+                <div style="margin-top: 40px; display: flex; justify-content: flex-end;">
+                    <button class="btn btn-primary">下一步：身份驗證 &rarr;</button>
+                </div>
+            </div>
+            
+            <div id="step2" style="display:none;">
+                <h2>身份驗證</h2>
+                <p class="card-subtitle">請選擇最方便您的驗證方式。</p>
+                
+                <div class="verification-grid">
+                    <div class="v-option">
+                        <span class="v-icon">👤</span>
+                        <div style="font-weight:600">已註冊用戶</div>
+                    </div>
+                    <div class="v-option">
+                        <span class="v-icon">📸</span>
+                        <div style="font-weight:600">人臉比對</div>
+                    </div>
+                    <div class="v-option">
+                        <span class="v-icon">📝</span>
+                        <div style="font-weight:600">手動輸入</div>
                     </div>
                 </div>
             </div>
-        </div>
-    </footer>
+        </main>
+    </div>
+</div>
 
-    <script>
-        // 應用狀態管理
-        const AppState = {
-            currentStep: 1,
-            applicationData: {},
-            selectedVerificationMethod: null,
-            selectedUser: null,
-            uploadedImage: null
-        };
+<footer style="margin-top: 80px; padding: 60px 0; background: white; border-top: 1px solid var(--border);">
+    <div class="container" style="text-align: center; color: var(--text-sub);">
+        <p>© 2025 經貸智能財務有限公司 | 借錢梗要還，咪俾錢中介</p>
+    </div>
+</footer>
 
-        // 用戶資料庫（真實資料）
-        const userDatabase = [
-            {
-                id: "USER001",
-                chineseName: "陳泓",
-                englishName: "CHAN WANG",
-                hkid: "S088898(4)",
-                birthDate: "2006-10-23",
-                phone: "55362770",
-                email: "owner-wt@wtechhk.com",
-                registeredDate: "2023-09-15",
-                photo: "users/user1.png",
-                bankAccount: "004-123456-888",
-                bankName: "HSBC"
-            },
-        ];
-
-        // 銀行名稱映射
-        const bankNames = {
-            'HSBC': '滙豐銀行',
-            'BankOfChina': '中國銀行',
-            'HangSeng': '恒生銀行',
-            'StandardChartered': '渣打銀行',
-            'Citibank': '花旗銀行',
-            'DBS': '星展銀行'
-        };
-
-        // 初始化應用
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeEventListeners();
-            updateStepNavigation();
-        });
-
-        // 初始化事件監聽器
-        function initializeEventListeners() {
-            // 步驟導航點擊
-            document.querySelectorAll('.step-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const step = parseInt(item.dataset.step);
-                    if (step <= AppState.currentStep) {
-                        goToStep(step);
-                    }
-                });
-            });
-
-            // 第1步：下一步按鈕
-            document.getElementById('nextToStep2').addEventListener('click', () => {
-                if (validateStep1()) {
-                    goToStep(2);
-                }
-            });
-
-            // 驗證方式選擇
-            document.querySelectorAll('.verification-option').forEach(option => {
-                option.addEventListener('click', () => {
-                    selectVerificationMethod(option.dataset.method);
-                });
-            });
-
-            // 第2步：用戶選擇確認按鈕
-            document.getElementById('confirmUser').addEventListener('click', completeDatabaseVerification);
-
-            // 第2步：手動輸入確認按鈕
-            document.getElementById('confirmManual').addEventListener('click', completeManualVerification);
-
-            // 第2步：圖片驗證確認按鈕
-            document.getElementById('confirmImage').addEventListener('click', completeImageVerification);
-
-            // 第2步：繼續按鈕
-            document.getElementById('nextToStep3').addEventListener('click', () => {
-                if (validateStep2()) {
-                    goToStep(3);
-                    autoFillBankInfo();
-                }
-            });
-
-            // 第3步：下一步按鈕
-            document.getElementById('nextToStep4').addEventListener('click', () => {
-                if (validateStep3()) {
-                    goToStep(4);
-                    loadSummaryData();
-                    calculateRepaymentPlan();
-                }
-            });
-
-            // 第4步：提交申請按鈕
-            document.getElementById('submitApplication').addEventListener('click', () => {
-                submitApplication();
-            });
-
-            // 圖片上傳功能
-            const uploadBox = document.getElementById('uploadBox');
-            const imageUpload = document.getElementById('imageUpload');
-            const uploadedImage = document.getElementById('uploadedImage');
-
-            // 點擊上傳框觸發文件選擇
-            uploadBox.addEventListener('click', () => {
-                imageUpload.click();
-            });
-
-            // 文件選擇事件
-            imageUpload.addEventListener('change', (e) => {
-                handleImageUpload(e.target.files[0]);
-            });
-
-            // 拖放功能
-            uploadBox.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                uploadBox.classList.add('dragover');
-            });
-
-            uploadBox.addEventListener('dragleave', () => {
-                uploadBox.classList.remove('dragover');
-            });
-
-            uploadBox.addEventListener('drop', (e) => {
-                e.preventDefault();
-                uploadBox.classList.remove('dragover');
-                if (e.dataTransfer.files.length > 0) {
-                    handleImageUpload(e.dataTransfer.files[0]);
-                }
-            });
-        }
-
-        // 跳轉到指定步驟
-        function goToStep(step) {
-            AppState.currentStep = step;
-            
-            // 更新步驟導航
-            updateStepNavigation();
-            
-            // 顯示對應的內容
-            showStepContent(step);
-            
-            // 滾動到頂部
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // 更新步驟導航
-        function updateStepNavigation() {
-            document.querySelectorAll('.step-item').forEach(item => {
-                const step = parseInt(item.dataset.step);
-                
-                item.classList.remove('active', 'completed');
-                
-                if (step === AppState.currentStep) {
-                    item.classList.add('active');
-                } else if (step < AppState.currentStep) {
-                    item.classList.add('completed');
-                }
-            });
-        }
-
-        // 顯示指定步驟的內容
-        function showStepContent(step) {
-            // 隱藏所有步驟內容
-            for (let i = 1; i <= 5; i++) {
-                document.getElementById(`step${i}-content`).style.display = 'none';
-            }
-            
-            // 顯示指定步驟內容
-            document.getElementById(`step${step}-content`).style.display = 'block';
-        }
-
-        // 第1步驗證
-        function validateStep1() {
-            const name = document.getElementById('applicantName').value.trim();
-            const amount = document.getElementById('loanAmount').value;
-            const years = document.getElementById('loanYears').value;
-            
-            let isValid = true;
-            
-            // 驗證姓名
-            if (!name) {
-                showError('applicantName', '請輸入姓名');
-                isValid = false;
-            } else {
-                hideError('applicantName');
-            }
-            
-            // 驗證金額
-            const amountNum = parseInt(amount);
-            if (!amount || amountNum < 5000 || amountNum > 1000000) {
-                showError('loanAmount', '金額必須在 HKD 5,000 - 1,000,000 之間');
-                isValid = false;
-            } else {
-                hideError('loanAmount');
-            }
-            
-            // 驗證年期
-            if (!years) {
-                showError('loanYears', '請選擇還款年期');
-                isValid = false;
-            } else {
-                hideError('loanYears');
-            }
-            
-            if (isValid) {
-                // 保存申請數據
-                AppState.applicationData = {
-                    name: name,
-                    amount: amountNum,
-                    years: parseInt(years)
-                };
-                return true;
-            }
-            
-            return false;
-        }
-
-        // 選擇驗證方式
-        function selectVerificationMethod(method) {
-            AppState.selectedVerificationMethod = method;
-            
-            // 更新選中狀態
-            document.querySelectorAll('.verification-option').forEach(option => {
-                option.classList.remove('selected');
-                if (option.dataset.method === method) {
-                    option.classList.add('selected');
-                }
-            });
-            
-            // 隱藏所有驗證界面
-            document.getElementById('database-interface').style.display = 'none';
-            document.getElementById('image-interface').style.display = 'none';
-            document.getElementById('manual-interface').style.display = 'none';
-            document.getElementById('continueBtnGroup').style.display = 'none';
-            
-            // 顯示對應的驗證界面
-            switch (method) {
-                case 'database':
-                    document.getElementById('database-interface').style.display = 'block';
-                    loadUserDatabase();
-                    break;
-                case 'image':
-                    document.getElementById('image-interface').style.display = 'block';
-                    break;
-                case 'manual':
-                    document.getElementById('manual-interface').style.display = 'block';
-                    break;
-            }
-            
-            // 重置驗證狀態
-            resetVerificationState();
-        }
-
-        // 載入用戶資料庫
-        function loadUserDatabase() {
-            const userList = document.getElementById('userList');
-            userList.innerHTML = '';
-            
-            userDatabase.forEach(user => {
-                const userItem = document.createElement('div');
-                userItem.className = 'user-item';
-                userItem.dataset.userId = user.id;
-                
-                userItem.innerHTML = `
-                    <img src="${user.photo}" alt="${user.chineseName}" class="user-avatar" 
-                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48Y2lyY2xlIGN4PSIyNCIgY3k9IjI0IiByPSIyNCIgZmlsbD0iIzAwNjZDQyIvPjxjaXJjbGUgY3g9IjI0IiBjeT0iMTkiIHI9IjciIGZpbGw9IiNmZmZmZmYiLz48Y2lyY2xlIGN4PSIxOCIgY3k9IjE3IiByPSIxLjUiIGZpbGw9IiMzMzMzMzMiLz48Y2lyY2xlIGN4PSIzMCIgY3k9IjE3IiByPSIxLjUiIGZpbGw9IiMzMzMzMzMiLz48cGF0aCBkPSJNMjggMjVDMjYgMjcgMjAgMjcgMTggMjUiIHN0cm9rZT0iIzMzMzMzMyIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==';">
-                    <div class="user-info">
-                        <div class="user-name">${user.chineseName} (${user.englishName})</div>
-                        <div class="user-details">身份證：${user.hkid} | 電話：${user.phone}</div>
-                    </div>
-                `;
-                
-                userItem.addEventListener('click', () => {
-                    // 移除其他選中的項目
-                    document.querySelectorAll('.user-item').forEach(item => {
-                        item.classList.remove('selected');
-                    });
-                    
-                    // 選中當前項目
-                    userItem.classList.add('selected');
-                    AppState.selectedUser = user;
-                    
-                    // 啟用確認按鈕
-                    document.getElementById('confirmUser').disabled = false;
-                });
-                
-                userList.appendChild(userItem);
-            });
-        }
-
-        // 處理圖片上傳
-        function handleImageUpload(file) {
-            if (!file) return;
-            
-            if (!file.type.match('image.*')) {
-                alert('請選擇圖片文件');
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const uploadedImage = document.getElementById('uploadedImage');
-                uploadedImage.src = e.target.result;
-                uploadedImage.style.display = 'block';
-                
-                // 保存圖片
-                AppState.uploadedImage = e.target.result;
-                
-                // 開始比對
-                startImageComparison();
-            };
-            reader.readAsDataURL(file);
-        }
-
-        // 開始圖片比對
-        function startImageComparison() {
-            const similarityValue = document.getElementById('similarityValue');
-            const similarityFill = document.getElementById('similarityFill');
-            const similarityText = document.getElementById('similarityText');
-            const comparisonResult = document.getElementById('comparisonResult');
-            const confirmImageBtn = document.getElementById('confirmImage');
-            
-            // 顯示比對結果區域
-            comparisonResult.style.display = 'block';
-            
-            // 模擬比對過程
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += Math.random() * 10;
-                if (progress > 100) progress = 100;
-                
-                similarityValue.textContent = Math.round(progress) + '%';
-                similarityFill.style.width = progress + '%';
-                
-                if (progress >= 30 && progress < 70) {
-                    similarityText.textContent = '比對中...';
-                    similarityValue.className = 'similarity-value medium';
-                } else if (progress >= 70 && progress < 85) {
-                    similarityText.textContent = '相似度較高';
-                    similarityValue.className = 'similarity-value medium';
-                } else if (progress >= 85) {
-                    similarityText.textContent = '驗證通過';
-                    similarityValue.className = 'similarity-value high';
-                } else {
-                    similarityText.textContent = '相似度較低';
-                    similarityValue.className = 'similarity-value low';
-                }
-                
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    
-                    // 設置最終相似度（隨機生成80-95%）
-                    const finalSimilarity = 80 + Math.random() * 15;
-                    similarityValue.textContent = Math.round(finalSimilarity) + '%';
-                    similarityFill.style.width = finalSimilarity + '%';
-                    
-                    if (finalSimilarity >= 80) {
-                        similarityText.textContent = '驗證通過 - 相似度符合要求';
-                        confirmImageBtn.disabled = false;
-                    } else {
-                        similarityText.textContent = '驗證失敗 - 相似度不足';
-                        confirmImageBtn.disabled = true;
-                    }
-                }
-            }, 100);
-        }
-
-        // 完成資料庫驗證
-        function completeDatabaseVerification() {
-            if (!AppState.selectedUser) return;
-            
-            AppState.applicationData.verification = {
-                method: '資料庫選擇',
-                user: AppState.selectedUser,
-                timestamp: new Date().toISOString()
-            };
-            
-            // 顯示繼續按鈕
-            document.getElementById('continueBtnGroup').style.display = 'flex';
-            document.getElementById('nextToStep3').disabled = false;
-            
-            // 自動填充申請人姓名
-            document.getElementById('applicantName').value = AppState.selectedUser.chineseName;
-            AppState.applicationData.name = AppState.selectedUser.chineseName;
-            
-            showMessage('已選擇用戶：' + AppState.selectedUser.chineseName, 'success');
-        }
-
-        // 完成圖片驗證
-        function completeImageVerification() {
-            if (!AppState.uploadedImage) return;
-            
-            // 這裡應該使用用戶資料庫中的用戶（假設匹配的是第一個用戶）
-            const matchedUser = userDatabase[0];
-            
-            AppState.applicationData.verification = {
-                method: '圖片比對',
-                user: matchedUser,
-                timestamp: new Date().toISOString(),
-                similarity: 92 // 假設相似度
-            };
-            
-            // 顯示繼續按鈕
-            document.getElementById('continueBtnGroup').style.display = 'flex';
-            document.getElementById('nextToStep3').disabled = false;
-            
-            // 自動填充申請人姓名
-            document.getElementById('applicantName').value = matchedUser.chineseName;
-            AppState.applicationData.name = matchedUser.chineseName;
-            
-            showMessage('圖片比對驗證成功，匹配用戶：' + matchedUser.chineseName, 'success');
-        }
-
-        // 完成手動驗證
-        function completeManualVerification() {
-            const englishName = document.getElementById('manualEnglishName').value.trim().toUpperCase();
-            const hkid = document.getElementById('manualHKID').value.trim().toUpperCase();
-            const birthDate = document.getElementById('manualBirthDate').value;
-            const phone = document.getElementById('manualPhone').value.trim();
-            
-            let isValid = true;
-            
-            // 驗證英文姓名
-            if (!englishName) {
-                showError('manualEnglishName', '請輸入英文姓名');
-                isValid = false;
-            } else {
-                hideError('manualEnglishName');
-            }
-            
-            // 驗證身份證
-            if (!hkid || !isValidHKID(hkid)) {
-                showError('manualHKID', '請輸入有效的香港身份證號碼');
-                isValid = false;
-            } else {
-                hideError('manualHKID');
-            }
-            
-            // 驗證電話
-            if (!phone || !/^[2-9]\d{7}$/.test(phone)) {
-                showError('manualPhone', '請輸入有效的香港電話號碼');
-                isValid = false;
-            } else {
-                hideError('manualPhone');
-            }
-            
-            if (isValid) {
-                // 查找匹配的用戶（這裡應該根據輸入的資料庫進行匹配）
-                const matchedUser = userDatabase.find(user => 
-                    user.englishName === englishName || user.hkid === hkid
-                ) || {
-                    englishName: englishName,
-                    hkid: hkid,
-                    birthDate: birthDate,
-                    phone: phone,
-                    chineseName: englishName.split(' ')[0] + ' ' + englishName.split(' ')[1] // 簡單轉換
-                };
-                
-                AppState.applicationData.verification = {
-                    method: '手動輸入',
-                    user: matchedUser,
-                    timestamp: new Date().toISOString()
-                };
-                
-                // 顯示繼續按鈕
-                document.getElementById('continueBtnGroup').style.display = 'flex';
-                document.getElementById('nextToStep3').disabled = false;
-                
-                // 自動填充申請人姓名
-                document.getElementById('applicantName').value = matchedUser.chineseName;
-                AppState.applicationData.name = matchedUser.chineseName;
-                
-                showMessage('手動輸入驗證成功', 'success');
-            }
-        }
-
-        // 重置驗證
-        function resetVerification() {
-            // 隱藏所有驗證界面
-            document.getElementById('database-interface').style.display = 'none';
-            document.getElementById('image-interface').style.display = 'none';
-            document.getElementById('manual-interface').style.display = 'none';
-            document.getElementById('continueBtnGroup').style.display = 'none';
-            
-            // 顯示驗證方式選擇
-            document.querySelectorAll('.verification-option').forEach(option => {
-                option.classList.remove('selected');
-            });
-            
-            // 重置圖片上傳
-            document.getElementById('uploadedImage').style.display = 'none';
-            document.getElementById('comparisonResult').style.display = 'none';
-            document.getElementById('confirmImage').disabled = true;
-            
-            // 重置手動輸入表單
-            document.getElementById('manualEnglishName').value = '';
-            document.getElementById('manualHKID').value = '';
-            document.getElementById('manualBirthDate').value = '';
-            document.getElementById('manualPhone').value = '';
-            
-            AppState.selectedVerificationMethod = null;
-            AppState.selectedUser = null;
-            AppState.uploadedImage = null;
-        }
-
-        // 自動填充銀行資料
-        function autoFillBankInfo() {
-            if (AppState.applicationData.verification?.user) {
-                const user = AppState.applicationData.verification.user;
-                
-                // 自動填充銀行資料
-                if (user.bankAccount) {
-                    document.getElementById('bankAccount').value = user.bankAccount;
-                }
-                
-                if (user.bankName) {
-                    document.getElementById('bankName').value = user.bankName;
-                }
-                
-                if (user.phone) {
-                    document.getElementById('phoneNumber').value = user.phone;
-                }
-                
-                if (user.email) {
-                    document.getElementById('emailAddress').value = user.email;
-                }
-                
-                // 自動填充賬戶持有人姓名
-                if (user.chineseName) {
-                    document.getElementById('accountHolder').value = user.chineseName;
-                } else if (user.englishName) {
-                    document.getElementById('accountHolder').value = user.englishName;
-                }
-            }
-        }
-
-        // 第2步驗證
-        function validateStep2() {
-            if (!AppState.applicationData.verification) {
-                showMessage('請先完成身份驗證', 'error');
-                return false;
-            }
-            return true;
-        }
-
-        // 第3步驗證
-        function validateStep3() {
-            const bank = document.getElementById('bankName').value;
-            const account = document.getElementById('bankAccount').value.trim();
-            const holder = document.getElementById('accountHolder').value.trim();
-            const phone = document.getElementById('phoneNumber').value.trim();
-            const email = document.getElementById('emailAddress').value.trim();
-            
-            let isValid = true;
-            
-            // 驗證銀行
-            if (!bank) {
-                showError('bankName', '請選擇銀行');
-                isValid = false;
-            } else {
-                hideError('bankName');
-            }
-            
-            // 驗證賬戶
-            if (!account || account.length < 8) {
-                showError('bankAccount', '請輸入有效的賬戶號碼');
-                isValid = false;
-            } else {
-                hideError('bankAccount');
-            }
-            
-            // 驗證賬戶持有人
-            if (!holder) {
-                showError('accountHolder', '請輸入賬戶持有人姓名');
-                isValid = false;
-            } else {
-                hideError('accountHolder');
-            }
-            
-            // 驗證電話
-            const phonePattern = /^[2-9]\d{7}$/;
-            if (!phonePattern.test(phone.replace(/\s+/g, ''))) {
-                showError('phoneNumber', '請輸入有效的香港電話號碼');
-                isValid = false;
-            } else {
-                hideError('phoneNumber');
-            }
-            
-            // 驗證電郵
-            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailPattern.test(email)) {
-                showError('emailAddress', '請輸入有效的電郵地址');
-                isValid = false;
-            } else {
-                hideError('emailAddress');
-            }
-            
-            if (isValid) {
-                // 保存銀行資料
-                AppState.applicationData.bank = bank;
-                AppState.applicationData.account = account;
-                AppState.applicationData.accountHolder = holder;
-                AppState.applicationData.phone = phone;
-                AppState.applicationData.email = email;
-                return true;
-            }
-            
-            return false;
-        }
-
-        // 載入摘要數據
-        function loadSummaryData() {
-            const data = AppState.applicationData;
-            const verification = AppState.applicationData.verification;
-            
-            // 填充摘要數據
-            document.getElementById('summaryName').textContent = data.name || '—';
-            document.getElementById('summaryAmount').textContent = data.amount ? `HKD ${data.amount.toLocaleString()}` : '—';
-            document.getElementById('summaryYears').textContent = data.years ? `${data.years} 年 (${data.years * 12} 期)` : '—';
-            document.getElementById('summaryVerification').textContent = verification?.method || '—';
-            document.getElementById('summaryBank').textContent = bankNames[data.bank] || '—';
-            document.getElementById('summaryAccount').textContent = data.account ? `••••${data.account.slice(-4)}` : '—';
-            document.getElementById('summaryPhone').textContent = data.phone || '—';
-            document.getElementById('summaryEmail').textContent = data.email || '—';
-        }
-
-        // 計算還款計劃
-        function calculateRepaymentPlan() {
-            const amount = AppState.applicationData.amount || 0;
-            const years = AppState.applicationData.years || 5;
-            
-            // 根據金額決定利率
-            let interestRate;
-            if (amount >= 100000) {
-                interestRate = 0.08; // 8%
-            } else if (amount >= 50000) {
-                interestRate = 0.10; // 10%
-            } else {
-                interestRate = 0.12; // 12%
-            }
-            
-            // 計算每月還款額
-            const months = years * 12;
-            const monthlyRate = interestRate / 12;
-            const monthlyPayment = (amount * monthlyRate * Math.pow(1 + monthlyRate, months)) / 
-                                  (Math.pow(1 + monthlyRate, months) - 1);
-            
-            const totalRepayment = monthlyPayment * months;
-            const totalInterest = totalRepayment - amount;
-            
-            // 顯示還款計劃
-            document.getElementById('monthlyPayment').textContent = `HKD ${Math.round(monthlyPayment).toLocaleString()}`;
-            document.getElementById('totalRepayment').textContent = `HKD ${Math.round(totalRepayment).toLocaleString()}`;
-            document.getElementById('interestRate').textContent = `${(interestRate * 100).toFixed(1)}%`;
-            document.getElementById('totalInterest').textContent = `HKD ${Math.round(totalInterest).toLocaleString()}`;
-        }
-
-        // 提交申請
-        function submitApplication() {
-            // 生成申請編號
-            const applicationNumber = 'APP-' + Date.now().toString().slice(-8) + '-' + 
-                                     Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-            
-            // 保存申請數據
-            AppState.applicationData.applicationNumber = applicationNumber;
-            AppState.applicationData.submitTime = new Date().toISOString();
-            AppState.applicationData.status = '處理中';
-            
-            // 顯示申請完成頁面
-            goToStep(5);
-            
-            // 填充申請詳情
-            document.getElementById('applicationNumber').textContent = applicationNumber;
-            document.getElementById('submitTime').textContent = new Date().toLocaleString('zh-HK');
-            
-            // 保存到本地存儲（模擬）
-            try {
-                localStorage.setItem('lastApplication', JSON.stringify(AppState.applicationData));
-            } catch (e) {
-                console.log('無法保存到本地存儲');
-            }
-            
-            // 模擬提交到服務器
-            setTimeout(() => {
-                showMessage('申請已成功提交到系統', 'success');
-            }, 1000);
-        }
-
-        // 工具函數
-        function isValidHKID(hkid) {
-            // 簡化的香港身份證驗證
-            const pattern = /^[A-Z]{1,2}[0-9]{6}\([0-9A]\)$/;
-            return pattern.test(hkid);
-        }
-
-        function showError(fieldId, message) {
-            const error = document.getElementById(fieldId);
-            if (error) {
-                error.textContent = message;
-                error.style.display = 'block';
-            }
-        }
-
-        function hideError(fieldId) {
-            const error = document.getElementById(fieldId);
-            if (error) {
-                error.style.display = 'none';
-            }
-        }
-
-        function showMessage(message, type = 'info') {
-            // 簡單的訊息顯示
-            alert(message);
-        }
-
-        // 測試模式
-        if (window.location.search.includes('test')) {
-            setTimeout(() => {
-                // 自動填充測試數據
-                document.getElementById('applicantName').value = '陳泓';
-                document.getElementById('loanAmount').value = '150000';
-                document.getElementById('accountHolder').value = 'CHAN WANG';
-                document.getElementById('phoneNumber').value = '55362770';
-                document.getElementById('emailAddress').value = 'owner-wt@wtechhk.com';
-            }, 100);
-        }
-    </script>
 </body>
 </html>
