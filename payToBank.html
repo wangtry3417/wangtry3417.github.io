@@ -1084,18 +1084,6 @@ submitApplication.addEventListener('click', function() {
     }, 1500);
 });
 
-// Format loan amount with commas
-loanAmount.addEventListener('blur', function() {
-    const value = parseFloat(this.value);
-    if (!isNaN(value)) {
-        this.value = new Intl.NumberFormat('en-HK').format(value);
-    }
-});
-
-// Remove commas when focusing for editing
-loanAmount.addEventListener('focus', function() {
-    this.value = this.value.replace(/,/g, '');
-});
 </script>
 </body>
 </html>
