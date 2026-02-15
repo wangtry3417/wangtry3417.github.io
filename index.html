@@ -1271,7 +1271,12 @@
                 });
             }, 500);
         });
-
+        // 強制叫佢出嚟
+if (window.doubaoAI) {
+    document.querySelector('.doubao-ai-container').style.display = 'block';
+} else {
+    alert('屌！裝咗未㗎？未裝就裝咗先啦！');
+}
         // 視窗大小調整時重新檢查動畫
         window.addEventListener('resize', checkScrollAnimations);
     </script>
