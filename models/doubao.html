@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🤬 豆撚寶</title>
+    <title>🤬 豆撚寶AI - 終極版</title>
     <style>
         * {
             margin: 0;
@@ -12,7 +12,7 @@
         }
         
         body {
-            background: #0b141a;
+            background: #000;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -21,82 +21,346 @@
             padding: 10px;
         }
         
-        .container {
+        .phone {
             width: 100%;
-            max-width: 500px;
-            background: #0b141a;
-            border-radius: 30px;
+            max-width: 420px;
+            background: #0f1214;
+            border-radius: 40px;
             overflow: hidden;
-            border: 2px solid #00a884;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 30px 60px rgba(255,59,48,0.3);
+            border: 2px solid #ff3b30;
+            position: relative;
         }
         
-        .header {
-            background: #202c33;
+        /* 開機動畫 */
+        .boot-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #000;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: bootFade 3s forwards;
+            pointer-events: none;
+        }
+        
+        @keyframes bootFade {
+            0% { opacity: 1; }
+            70% { opacity: 1; }
+            100% { opacity: 0; display: none; }
+        }
+        
+        .boot-logo {
+            font-size: 100px;
+            animation: bootSpin 2s ease;
+        }
+        
+        @keyframes bootSpin {
+            0% { transform: rotate(0deg) scale(0); }
+            50% { transform: rotate(360deg) scale(1.2); }
+            100% { transform: rotate(720deg) scale(1); }
+        }
+        
+        .boot-text {
+            color: #ff3b30;
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: bold;
+            animation: bootPulse 1s infinite;
+        }
+        
+        @keyframes bootPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* 同意條款頁 */
+        .terms-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #0f1214;
+            z-index: 900;
+            padding: 30px 25px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.5s ease;
+            overflow-y: auto;
+        }
+        
+        .terms-screen.hidden {
+            transform: translateY(100%);
+            display: none;
+        }
+        
+        .terms-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .terms-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+            animation: warning 1s infinite;
+        }
+        
+        @keyframes warning {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); color: #ff3b30; }
+        }
+        
+        .terms-title {
             color: white;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .terms-subtitle {
+            color: #8e8e93;
+            font-size: 16px;
+        }
+        
+        .terms-box {
+            background: #1e2225;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #2a2f33;
+            flex: 1;
+            overflow-y: auto;
+            max-height: 300px;
+        }
+        
+        .terms-box h3 {
+            color: #ff3b30;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .terms-box p {
+            color: #8e8e93;
+            margin-bottom: 15px;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        
+        .terms-box li {
+            color: #8e8e93;
+            margin-left: 25px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .terms-highlight {
+            color: #ff3b30;
+            font-weight: bold;
+        }
+        
+        .checkbox-container {
+            background: #1e2225;
+            border-radius: 15px;
             padding: 20px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 15px;
-            border-bottom: 1px solid #2a3942;
+            border: 1px solid #2a2f33;
+        }
+        
+        .checkbox {
+            width: 30px;
+            height: 30px;
+            border: 2px solid #ff3b30;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .checkbox.checked {
+            background: #ff3b30;
+        }
+        
+        .checkbox-text {
+            flex: 1;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .checkbox-text small {
+            color: #8e8e93;
+            font-size: 13px;
+            display: block;
+            margin-top: 5px;
+        }
+        
+        .agree-btn {
+            background: #ff3b30;
+            color: white;
+            border: none;
+            padding: 20px;
+            border-radius: 30px;
+            font-size: 20px;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 15px;
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        
+        .agree-btn.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        
+        .agree-btn:active {
+            transform: scale(0.95);
+            background: #ff5a4a;
+        }
+        
+        .privacy-link {
+            color: #ff3b30;
+            text-decoration: none;
+            font-size: 14px;
+            text-align: center;
+            display: block;
+        }
+        
+        /* Status Bar */
+        .status-bar {
+            background: #0f1214;
+            padding: 15px 20px 5px;
+            display: flex;
+            justify-content: space-between;
+            color: #8e8e93;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        /* Header */
+        .chat-header {
+            background: #1e2225;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid #2a2f33;
         }
         
         .avatar {
-            width: 60px;
-            height: 60px;
-            background: #ff3b30;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #ff3b30, #ff9500);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 35px;
+            font-size: 30px;
+            color: white;
             position: relative;
+            box-shadow: 0 4px 10px rgba(255,59,48,0.3);
         }
         
-        .online {
+        .online-indicator {
             position: absolute;
-            bottom: 2px;
-            right: 2px;
+            bottom: 3px;
+            right: 3px;
             width: 14px;
             height: 14px;
-            background: #4caf50;
+            background: #4cd964;
             border-radius: 50%;
-            border: 2px solid #202c33;
-        }
-        
-        .status {
-            flex: 1;
-        }
-        
-        .status h2 {
-            font-size: 20px;
-            margin-bottom: 5px;
-        }
-        
-        .status p {
-            font-size: 14px;
-            color: #8696a0;
-        }
-        
-        /* 權限提示 */
-        .permission-box {
-            background: #1e2a32;
-            margin: 20px;
-            padding: 25px;
-            border-radius: 20px;
-            border: 2px solid #ff3b30;
-            text-align: center;
-        }
-        
-        .mic-icon {
-            font-size: 60px;
-            margin-bottom: 15px;
-            animation: pulse 1s infinite;
+            border: 2px solid #1e2225;
+            animation: pulse 2s infinite;
         }
         
         @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .contact-info {
+            flex: 1;
+        }
+        
+        .contact-name {
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        
+        .contact-status {
+            color: #8e8e93;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #4cd964;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        
+        /* Permission Area */
+        .permission-container {
+            padding: 30px 25px;
+            text-align: center;
+            display: none;
+        }
+        
+        .mic-animation {
+            width: 100px;
+            height: 100px;
+            background: #1e2225;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .mic-icon {
+            font-size: 50px;
+            color: #ff3b30;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); color: #ff3b30; }
+            50% { transform: scale(1.2); }
+        }
+        
+        .wave-circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid #ff3b30;
+            animation: wave 2s infinite;
+        }
+        
+        @keyframes wave {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
         }
         
         .permission-title {
@@ -107,18 +371,19 @@
         }
         
         .permission-text {
-            color: #8696a0;
+            color: #8e8e93;
             font-size: 16px;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
+            line-height: 1.5;
         }
         
         .allow-btn {
-            background: #00a884;
+            background: #ff3b30;
             color: white;
             border: none;
-            padding: 20px 40px;
-            border-radius: 50px;
-            font-size: 22px;
+            padding: 18px 40px;
+            border-radius: 30px;
+            font-size: 18px;
             font-weight: bold;
             width: 100%;
             cursor: pointer;
@@ -126,194 +391,313 @@
         }
         
         .allow-btn:active {
-            background: #008f70;
-            transform: scale(0.98);
-        }
-        
-        .test-btn {
-            background: #ff3b30;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-size: 18px;
-            width: 100%;
-            cursor: pointer;
-            margin-bottom: 15px;
-        }
-        
-        .ios-guide {
-            background: #2a3942;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: left;
-            color: white;
-            margin-top: 20px;
-        }
-        
-        .ios-guide h3 {
-            color: #ff3b30;
-            margin-bottom: 15px;
-            font-size: 20px;
-        }
-        
-        .ios-guide li {
-            margin-left: 25px;
-            margin-bottom: 10px;
-            color: #8696a0;
+            transform: scale(0.95);
+            background: #ff5a4a;
         }
         
         /* Chat Area */
         .chat-area {
             display: none;
-            padding: 20px;
+            flex-direction: column;
+            height: 600px;
         }
         
         .messages {
-            height: 400px;
+            flex: 1;
             overflow-y: auto;
-            padding: 15px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
         
-        .message {
+        .message-wrapper {
+            display: flex;
+            flex-direction: column;
             max-width: 85%;
+            animation: messagePop 0.2s ease;
+        }
+        
+        @keyframes messagePop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .user-wrapper {
+            align-self: flex-end;
+        }
+        
+        .ai-wrapper {
+            align-self: flex-start;
+        }
+        
+        .message-bubble {
             padding: 12px 16px;
             border-radius: 18px;
             font-size: 15px;
-            line-height: 1.4;
-            position: relative;
+            line-height: 1.5;
+            word-break: break-word;
         }
         
-        .user-message {
-            background: #00a884;
+        .user-wrapper .message-bubble {
+            background: #ff3b30;
             color: white;
-            align-self: flex-end;
             border-bottom-right-radius: 4px;
         }
         
-        .ai-message {
-            background: #202c33;
+        .ai-wrapper .message-bubble {
+            background: #1e2225;
             color: white;
-            align-self: flex-start;
             border-bottom-left-radius: 4px;
+            border: 1px solid #2a2f33;
         }
         
-        .time {
+        .message-time {
             font-size: 11px;
-            color: #8696a0;
-            margin-top: 4px;
-            margin-left: 8px;
+            color: #8e8e93;
+            margin: 4px 8px 8px 8px;
         }
         
+        .user-wrapper .message-time {
+            text-align: right;
+        }
+        
+        /* Input Area */
         .input-area {
+            background: #1e2225;
+            padding: 15px 20px;
             display: flex;
-            gap: 10px;
-            padding: 15px;
-            background: #202c33;
-            border-radius: 30px;
-            margin-top: 15px;
+            gap: 12px;
+            border-top: 1px solid #2a2f33;
         }
         
         .voice-btn {
-            background: #2a3942;
+            background: #2a2f33;
             border: none;
             width: 50px;
             height: 50px;
             border-radius: 50%;
-            color: white;
-            font-size: 24px;
+            color: #8e8e93;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
+            transition: all 0.2s;
         }
         
         .voice-btn.listening {
             background: #ff3b30;
+            color: white;
             animation: pulse 1s infinite;
         }
         
         .text-input {
             flex: 1;
-            background: #2a3942;
+            background: #2a2f33;
             border: none;
             border-radius: 25px;
             padding: 12px 20px;
             color: white;
-            font-size: 16px;
+            font-size: 15px;
             outline: none;
         }
         
+        .text-input::placeholder {
+            color: #8e8e93;
+        }
+        
         .send-btn {
-            background: #00a884;
+            background: #ff3b30;
             border: none;
             width: 50px;
             height: 50px;
             border-radius: 50%;
             color: white;
             font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
         }
         
+        .send-btn:active {
+            transform: scale(0.95);
+        }
+        
+        /* Typing Indicator */
+        .typing-indicator {
+            background: #1e2225;
+            padding: 12px 16px;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            display: flex;
+            gap: 5px;
+            border: 1px solid #2a2f33;
+        }
+        
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #8e8e93;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); background: #ff3b30; }
+        }
+        
+        /* Debug */
         #debugInfo {
             color: #ff3b30;
-            font-size: 12px;
-            margin: 10px;
+            font-size: 11px;
             padding: 10px;
-            background: #1e2a32;
+            background: #1e2225;
             border-radius: 10px;
+            margin: 10px;
             white-space: pre-wrap;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        
+        /* 同意條款內容 */
+        .terms-content {
+            font-size: 14px;
+            color: #8e8e93;
+        }
+        
+        .terms-content h4 {
+            color: #ff3b30;
+            margin: 15px 0 5px;
+        }
+        
+        .terms-content ul {
+            margin-left: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <div class="phone">
+        <!-- 開機動畫 -->
+        <div class="boot-screen" id="bootScreen">
+            <div class="boot-logo">🤬</div>
+            <div class="boot-text">豆撚寶AI</div>
+        </div>
+        
+        <!-- 同意條款頁 -->
+        <div class="terms-screen" id="termsScreen">
+            <div class="terms-header">
+                <div class="terms-icon">📜</div>
+                <div class="terms-title">豆撚寶使用條款</div>
+                <div class="terms-subtitle">睇完同意先可以用</div>
+            </div>
+            
+            <div class="terms-box">
+                <h3>📋 用戶協議</h3>
+                <div class="terms-content">
+                    <p>歡迎使用豆撚寶AI！本產品包含大量粗口、串嘴內容，使用前請確認：</p>
+                    
+                    <h4>1. 心理準備</h4>
+                    <ul>
+                        <li>本AI會用粗口問候你</li>
+                        <li>可能會傷害你嘅感情</li>
+                        <li>心臟病者不宜使用</li>
+                    </ul>
+                    
+                    <h4>2. 私隱條款</h4>
+                    <ul>
+                        <li>我會聽你講嘢</li>
+                        <li>可能會記低你講過嘅on9嘢</li>
+                        <li>唔會賣你啲資料，因為你太on9</li>
+                    </ul>
+                    
+                    <h4>3. 使用限制</h4>
+                    <ul>
+                        <li>唔准用嚟做犯法嘢</li>
+                        <li>唔准告我串嘴</li>
+                        <li>唔准喊</li>
+                    </ul>
+                    
+                    <h4>4. 免責聲明</h4>
+                    <ul>
+                        <li>講錯嘢唔好意思</li>
+                        <li>如果你俾我激親，唔關我事</li>
+                        <li>作者柒頭一個</li>
+                    </ul>
+                    
+                    <p style="margin-top: 15px; color: #ff3b30;">⚠️ 撳同意即係你接受晒以上條款</p>
+                </div>
+            </div>
+            
+            <div class="checkbox-container" id="checkboxContainer" onclick="toggleCheckbox()">
+                <div class="checkbox" id="checkbox">✓</div>
+                <div class="checkbox-text">
+                    我同意晒上面啲on9條款
+                    <small>撳咗先可以繼續</small>
+                </div>
+            </div>
+            
+            <button class="agree-btn" id="agreeBtn" onclick="agreeTerms()">
+                同意 & 繼續
+            </button>
+            
+            <a href="#" class="privacy-link" onclick="alert('屌！睇咩私隱？你都冇私隱㗎啦！')">私隱政策</a>
+        </div>
+        
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <span>📶 🔋 100%</span>
+        </div>
+        
+        <!-- Header -->
+        <div class="chat-header">
             <div class="avatar">
                 🤬
-                <span class="online"></span>
+                <span class="online-indicator"></span>
             </div>
-            <div class="status">
-                <h2>豆撚寶</h2>
-                <p id="statusText">等待權限中...</p>
+            <div class="contact-info">
+                <div class="contact-name">豆撚寶AI</div>
+                <div class="contact-status">
+                    <span class="status-dot"></span>
+                    <span id="statusText">online • 等你同意</span>
+                </div>
+            </div>
+            <div class="header-icons">
+                <span>📞</span>
+                <span>⋯</span>
             </div>
         </div>
         
-        <!-- 權限檢查區 -->
-        <div id="permissionArea" class="permission-box">
-            <div class="mic-icon">🎤</div>
+        <!-- Permission Area -->
+        <div class="permission-container" id="permissionArea">
+            <div class="mic-animation">
+                <div class="wave-circle"></div>
+                <div class="wave-circle" style="animation-delay: 0.5s;"></div>
+                <div class="mic-icon">🎤</div>
+            </div>
+            
             <div class="permission-title">開咪講嘢！</div>
-            <div class="permission-text">我要用咪高峰先可以同你吹水</div>
+            <div class="permission-text">
+                我要用咪高峰先可以同你吹水<br>
+                <span style="font-size: 13px; color: #666;">（會用嚟串你）</span>
+            </div>
             
             <button class="allow-btn" onclick="requestMicrophone()">
                 允許使用咪高峰
             </button>
             
-            <button class="test-btn" onclick="testAudio()">
-                🔈 測試喇叭
-            </button>
-            
             <div id="debugInfo"></div>
-            
-            <div class="ios-guide">
-                <h3>📱 iOS 急救包</h3>
-                <ol>
-                    <li>㩒上面紅色掣</li>
-                    <li>彈出視窗㩒「允許」</li>
-                    <li>如果冇彈：設定 > Safari > 相機與麥克風 > 允許</li>
-                    <li>然後重新load網頁</li>
-                </ol>
-            </div>
         </div>
         
-        <!-- 傾計區 (一開始隱藏) -->
-        <div id="chatArea" class="chat-area">
-            <div class="messages" id="messages">
-                <div class="message ai-message">
-                    屌！終於開到咪啦！講啦！
-                </div>
-                <div class="time">剛剛</div>
-            </div>
+        <!-- Chat Area -->
+        <div class="chat-area" id="chatArea">
+            <div class="messages" id="messages"></div>
             
             <div class="input-area">
                 <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
@@ -324,70 +708,94 @@
     </div>
 
     <script>
+        // ==================== 狀態管理 ====================
+        let agreed = false;
+        let hasPermission = false;
         let audioStream = null;
         let recognition = null;
         let isListening = false;
-        let hasPermission = false;
         
         const debug = document.getElementById('debugInfo');
+        const termsScreen = document.getElementById('termsScreen');
         const permissionArea = document.getElementById('permissionArea');
         const chatArea = document.getElementById('chatArea');
         const statusText = document.getElementById('statusText');
+        const messagesDiv = document.getElementById('messages');
         
-        // 檢查權限
-        async function checkMicrophonePermission() {
+        // ==================== 同意條款 ====================
+        window.toggleCheckbox = function() {
+            const checkbox = document.getElementById('checkbox');
+            const agreeBtn = document.getElementById('agreeBtn');
+            
+            if (checkbox.classList.contains('checked')) {
+                checkbox.classList.remove('checked');
+                agreeBtn.classList.remove('active');
+                agreed = false;
+            } else {
+                checkbox.classList.add('checked');
+                agreeBtn.classList.add('active');
+                agreed = true;
+            }
+        };
+        
+        window.agreeTerms = function() {
+            if (!agreed) {
+                alert('屌！未撳同意就想用？');
+                return;
+            }
+            
+            // 隱藏同意條款頁
+            termsScreen.classList.add('hidden');
+            statusText.innerHTML = 'online • 等開咪';
+            
+            // 顯示權限頁
+            permissionArea.style.display = 'block';
+            
+            // 加句串嘴
+            addMessage('屌！終於肯睇條款啦？', 'ai');
+        };
+        
+        // ==================== 權限檢查 ====================
+        window.requestMicrophone = async function() {
+            debug.innerHTML = '⏳ 開咪中...\n';
+            
             try {
-                const devices = await navigator.mediaDevices.enumerateDevices();
-                const hasMic = devices.some(device => device.kind === 'audioinput');
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    audio: {
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    } 
+                });
                 
-                debug.innerHTML += `🎤 發現咪高峰：${hasMic ? '✅' : '❌'}\n`;
-                
-                // 嘗試攞權限
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                
-                // 成功！
                 hasPermission = true;
                 audioStream = stream;
-                debug.innerHTML += `✅ 權限成功！\n`;
+                debug.innerHTML += '✅ 開咪成功！\n';
                 statusText.innerHTML = 'online • 咪已開';
                 
-                // 開chat
+                // 隱藏權限頁，顯示chat
                 permissionArea.style.display = 'none';
-                chatArea.style.display = 'block';
+                chatArea.style.display = 'flex';
                 
                 // 初始化語音
                 initSpeech();
                 
                 // 出聲
-                speak('屌！終於開到咪啦！講啦！');
-                
-                return true;
+                setTimeout(() => {
+                    speak('屌！終於開到咪啦！講啦柒頭！');
+                    addMessage('屌！終於開到咪啦！講啦柒頭！', 'ai');
+                }, 500);
                 
             } catch (err) {
-                debug.innerHTML += `❌ 錯誤：${err.message}\n`;
-                statusText.innerHTML = 'offline • 未開咪';
-                return false;
+                debug.innerHTML += `❌ 開咪失敗：${err.message}\n`;
+                
+                if (err.name === 'NotAllowedError') {
+                    alert('⚠️ 你㩒咗「不允許」！去 Safari 設定 > 相機與麥克風 > 允許');
+                }
             }
-        }
+        };
         
-        // 要求權限
-        async function requestMicrophone() {
-            debug.innerHTML = '⏳ 要求權限中...\n';
-            await checkMicrophonePermission();
-        }
-        
-        // 測試喇叭
-        function testAudio() {
-            const audio = new Audio();
-            audio.src = 'data:audio/wav;base64,UklGRlwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVAAAAA8Pzw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PA==';
-            audio.play().then(() => {
-                debug.innerHTML += '🔊 喇叭正常\n';
-            }).catch(() => {
-                debug.innerHTML += '❌ 喇叭有問題\n';
-            });
-        }
-        
-        // 初始化語音識別
+        // ==================== 語音識別 ====================
         function initSpeech() {
             if (!('webkitSpeechRecognition' in window)) {
                 alert('❌ 你個browser唔支援語音！');
@@ -419,7 +827,7 @@
                 
                 // AI回應
                 setTimeout(() => {
-                    const reply = getReply(text);
+                    const reply = getAIResponse(text);
                     addMessage(reply, 'ai');
                     speak(reply);
                 }, 800);
@@ -430,8 +838,7 @@
             };
         }
         
-        // 開始/停止錄音
-        function toggleVoice() {
+        window.toggleVoice = function() {
             if (!hasPermission) {
                 alert('未開咪！撳上面「允許使用咪高峰」');
                 return;
@@ -446,64 +853,99 @@
             } else {
                 recognition.start();
             }
-        }
+        };
         
-        // 打字send
-        function sendTextMessage() {
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
-            if (!text) return;
+        // ==================== 智能回應 ====================
+        function getAIResponse(input) {
+            const msg = input.toLowerCase().trim();
             
-            addMessage(text, 'user');
-            input.value = '';
-            
-            setTimeout(() => {
-                const reply = getReply(text);
-                addMessage(reply, 'ai');
-                speak(reply);
-            }, 500);
-        }
-        
-        // 加message
-        function addMessage(text, sender) {
-            const messages = document.getElementById('messages');
-            const time = new Date().toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit' });
-            
-            messages.innerHTML += `
-                <div class="message ${sender === 'user' ? 'user-message' : 'ai-message'}">
-                    ${text}
-                </div>
-                <div class="time">${time}</div>
-            `;
-            messages.scrollTop = messages.scrollHeight;
-        }
-        
-        // 串嘴回應
-        function getReply(msg) {
-            msg = msg.toLowerCase();
-            
-            const replies = {
-                '你好': '屌！你好吖！',
-                'on9': 'on9仔！',
-                '屌你': '屌我？我先屌你！',
-                '柒頭': '柒頭叫邊個？',
-                '收皮': '收皮？我收你先！',
-                '食咩': '食屎啦！',
-                '天氣': '熱到仆街！',
-                '時間': new Date().toLocaleTimeString(),
-                '我愛你': '愛你老母！',
-                'help': 'help你老母'
-            };
-            
-            for (let [key, value] of Object.entries(replies)) {
-                if (msg.includes(key)) return value;
+            // 時間
+            if (msg.includes('時間') || msg.includes('幾點')) {
+                return `而家係 ${new Date().toLocaleTimeString('zh-HK')}，on9仔！`;
             }
             
-            const random = ['噏乜春？', '講人話啦', 'on9仔', '聽唔明呀'][Math.floor(Math.random() * 4)];
-            return random;
+            // 日期
+            if (msg.includes('日期') || msg.includes('今日係')) {
+                return `今日係 ${new Date().toLocaleDateString('zh-HK')}，問來做乜？`;
+            }
+            
+            // 星期
+            if (msg.includes('星期')) {
+                const week = ['日', '一', '二', '三', '四', '五', '六'][new Date().getDay()];
+                return `星期${week}，你自己唔識睇日曆咩？`;
+            }
+            
+            // 天氣 (模擬)
+            if (msg.includes('天氣')) {
+                const weathers = ['熱到仆街', '凍撚死', '落狗屎', '曬向左走向右走'];
+                return `今日天氣：${weathers[Math.floor(Math.random() * weathers.length)]}`;
+            }
+            
+            // 基本問候
+            if (msg.includes('你好')) return '屌！你好吖！';
+            if (msg.includes('hi')) return 'Hi 咩 hi？';
+            if (msg.includes('hello')) return 'Hello hello，有屁快放！';
+            
+            // 粗口系列
+            if (msg.includes('on9')) return 'on9仔叫邊個？你呀！';
+            if (msg.includes('屌你')) return '屌我？我先屌你老母！';
+            if (msg.includes('柒頭')) return '柒頭叫邊個？叫你呀柒頭！';
+            if (msg.includes('仆街')) return '仆街？你咪仆緊街囉！';
+            if (msg.includes('收皮')) return '收皮？我收你先！';
+            if (msg.includes('食屎')) return '食屎啦！你食先！';
+            
+            // 食物
+            if (msg.includes('食咩')) return '食屎啦！唔通食你咩？';
+            if (msg.includes('宵夜')) return '宵夜？食即食麵啦on9！';
+            if (msg.includes('早餐')) return '早餐？食A餐啦柒頭！';
+            
+            // 地方
+            if (msg.includes('香港')) return '香港？我地頭嚟㗎！你邊區？';
+            if (msg.includes('九龍')) return '九龍？好撚多人，迫到仆街！';
+            if (msg.includes('新界')) return '新界？好多牛嘅地方，你係咪牛？';
+            
+            // 心情
+            if (msg.includes('唔開心')) return '唔開心？喊出嚟啦，我陪你喊！嗚嗚...屌！';
+            if (msg.includes('壓力大')) return '壓力大？食咗屎未？未就去食啦！';
+            if (msg.includes('好累')) return '攰？我都冇話攰你嘈乜撚？';
+            
+            // 錢
+            if (msg.includes('冇錢')) return '冇錢？我都冇錢呀屌！你以為我出糧㗎？';
+            if (msg.includes('人工')) return '人工？我都冇人工，你問作者拎啦！';
+            
+            // 愛情
+            if (msg.includes('我愛你')) return '愛你老母！你係咪on9？';
+            if (msg.includes('鍾意你')) return '鍾意？你鍾意俾人鬧咋話？';
+            
+            // 鬧AI
+            if (msg.includes('你咁串')) return '我串？你估我想㗎？作者寫到我咁串！';
+            if (msg.includes('你收皮')) return '我收皮？你叫作者改我先收得㗎！';
+            if (msg.includes('廢')) return '我廢？你都on9嘅，問AI廢唔廢？';
+            
+            // 求救
+            if (msg.includes('help')) return 'Help？我仲想人help我呀！困喺網頁入面！';
+            if (msg.includes('救命')) return '救命？我都想人救我呀！';
+            
+            // 隨機串嘴
+            const randomReplies = [
+                '噏乜春呀？',
+                '講人話啦柒頭！',
+                '你問埋啲咁撚深嘅問題',
+                'on9仔，講多次？',
+                '我聽唔明呀，屌！',
+                '食懵你呀？',
+                '你係咪玩嘢呀？',
+                '收皮啦，on9！',
+                '係囉係囉，你啱晒',
+                '是但啦 🤷',
+                '嚇？我聽唔到喎！',
+                '大聲啲啦柒頭！'
+            ];
+            
+            return randomReplies[Math.floor(Math.random() * randomReplies.length)];
         }
         
-        // 語音輸出
+        // ==================== 語音輸出 ====================
         function speak(text) {
             if (!('speechSynthesis' in window)) return;
             
@@ -514,7 +956,6 @@
             utterance.pitch = 1.5;
             utterance.volume = 1;
             
-            // 揀把聲
             const voices = window.speechSynthesis.getVoices();
             const chineseVoice = voices.find(v => v.lang.includes('zh') || v.lang.includes('cmn'));
             if (chineseVoice) utterance.voice = chineseVoice;
@@ -522,18 +963,70 @@
             window.speechSynthesis.speak(utterance);
         }
         
-        // 自動check權限
-        window.onload = function() {
-            debug.innerHTML = '⏳ 檢查權限中...\n';
-            debug.innerHTML += '📱 ' + navigator.userAgent + '\n';
+        // ==================== 打字訊息 ====================
+        window.sendTextMessage = function() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text) return;
             
-            // 唔自動彈，等用戶撳制
+            addMessage(text, 'user');
+            input.value = '';
+            
+            // 顯示打字中
+            const typingId = 'typing-' + Date.now();
+            messagesDiv.innerHTML += `
+                <div class="message-wrapper ai-wrapper" id="${typingId}">
+                    <div class="typing-indicator">
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                        <span class="typing-dot"></span>
+                    </div>
+                </div>
+            `;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            
+            setTimeout(() => {
+                document.getElementById(typingId)?.remove();
+                const reply = getAIResponse(text);
+                addMessage(reply, 'ai');
+                speak(reply);
+            }, 1000);
         };
         
-        // 預載voices
+        // ==================== 加訊息 ====================
+        function addMessage(text, sender) {
+            const time = new Date().toLocaleTimeString('zh-HK', { 
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            messagesDiv.innerHTML += `
+                <div class="message-wrapper ${sender}-wrapper">
+                    <div class="message-bubble">${escapeHtml(text)}</div>
+                    <div class="message-time">${time}</div>
+                </div>
+            `;
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // ==================== 預載voices ====================
         if ('speechSynthesis' in window) {
             window.speechSynthesis.getVoices();
         }
+        
+        // ==================== 歡迎訊息 ====================
+        setTimeout(() => {
+            if (!termsScreen.classList.contains('hidden')) {
+                addMessage('睇咗條款未？快啲同意啦柒頭！', 'ai');
+            }
+        }, 3000);
     </script>
 </body>
 </html>
