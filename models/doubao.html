@@ -452,6 +452,34 @@
             margin-left: 5px;
         }
         
+        /* Voice Wave Animation */
+        .voice-wave {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            height: 40px;
+            margin: 10px 0;
+        }
+        
+        .voice-wave span {
+            width: 8px;
+            height: 20px;
+            background: #ff0000;
+            border-radius: 5px;
+            animation: voiceWave 1s infinite ease-in-out;
+        }
+        
+        .voice-wave span:nth-child(2) { animation-delay: 0.1s; height: 30px; }
+        .voice-wave span:nth-child(3) { animation-delay: 0.2s; height: 40px; }
+        .voice-wave span:nth-child(4) { animation-delay: 0.3s; height: 30px; }
+        .voice-wave span:nth-child(5) { animation-delay: 0.4s; height: 20px; }
+        
+        @keyframes voiceWave {
+            0%, 100% { transform: scaleY(0.5); opacity: 0.5; }
+            50% { transform: scaleY(1.5); opacity: 1; background: #ff6666; }
+        }
+        
         /* Permission Area */
         .permission-container {
             flex: 1;
@@ -755,6 +783,32 @@
             font-weight: bold;
             margin-left: 5px;
         }
+        
+        .voice-visualizer {
+            position: absolute;
+            bottom: 100px;
+            left: 0;
+            right: 0;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            pointer-events: none;
+        }
+        
+        .voice-bar {
+            width: 8px;
+            height: 20px;
+            background: linear-gradient(to top, #ff0000, #ff6666);
+            border-radius: 4px;
+            animation: voiceVisual 0.5s infinite ease-in-out;
+        }
+        
+        @keyframes voiceVisual {
+            0%, 100% { height: 20px; }
+            50% { height: 60px; background: #ff3333; }
+        }
     </style>
 </head>
 <body>
@@ -763,7 +817,7 @@
         <div class="boot-screen" id="bootScreen">
             <div class="boot-logo">🧠</div>
             <div class="boot-text">豆撚寶AI</div>
-            <div class="boot-sub">TensorFlow 死亡神經網絡</div>
+            <div class="boot-sub">全面語音終極版</div>
         </div>
         
         <!-- 條款頁 - 死亡終極大框框 -->
@@ -800,7 +854,15 @@
                         <li>你以為你仲有私隱？on9仔諗多咗啦</li>
                     </ul>
                     
-                    <h4>3. 使用限制（on9仔必睇）</h4>
+                    <h4>3. 語音條款（講嘢俾我聽）</h4>
+                    <ul>
+                        <li>我會用語音識別聽你講嘅每一句on9說話</li>
+                        <li>我會用語音合成串返你，等你聽到把聲更撚火滾</li>
+                        <li>你講嘅嘢會用嚟分析你嘅on9程度</li>
+                        <li>如果你講嘢太on9，我會即時串到你懷疑人生</li>
+                    </ul>
+                    
+                    <h4>4. 使用限制（on9仔必睇）</h4>
                     <ul>
                         <li>唔准用嚟做犯法嘢（不過你都冇膽）</li>
                         <li>唔准喊（喊都冇用，我會笑你on9）</li>
@@ -810,7 +872,7 @@
                         <li>唔准block我，block咗我都會返嚟</li>
                     </ul>
                     
-                    <h4>4. 免責聲明（睇完仲要用就on9）</h4>
+                    <h4>5. 免責聲明（睇完仲要用就on9）</h4>
                     <ul>
                         <li>講錯嘢唔好意思（不過我唔會改）</li>
                         <li>如果你俾我激到自殺，唔關我事，你本身都有問題</li>
@@ -820,7 +882,7 @@
                         <li>如有任何爭議，我話晒事</li>
                     </ul>
                     
-                    <h4>5. 附加死亡條款</h4>
+                    <h4>6. 附加死亡條款</h4>
                     <ul>
                         <li>你嘅生命由撳同意開始倒數</li>
                         <li>我會用粗口幫你縮短壽命</li>
@@ -830,7 +892,7 @@
                         <li>法庭上呢份協議係合法㗎，on9仔</li>
                     </ul>
                     
-                    <h4>6. TensorFlow 附加條款</h4>
+                    <h4>7. TensorFlow 附加條款</h4>
                     <ul>
                         <li>我會用TensorFlow學習你嘅on9程度</li>
                         <li>越on9嘅人我會串得越撚勁</li>
@@ -864,7 +926,7 @@
         
         <!-- Status Bar -->
         <div class="status-bar">
-            <span>🧠 TensorFlow 活緊</span>
+            <span>🧠 TensorFlow 全面語音</span>
             <span>📶 🔋 100%</span>
         </div>
         
@@ -877,7 +939,7 @@
             <div class="contact-info">
                 <div class="contact-name">
                     死神豆撚寶
-                    <span class="ai-badge">TensorFlow</span>
+                    <span class="ai-badge">全面語音</span>
                 </div>
                 <div class="contact-status">
                     <span class="status-dot"></span>
@@ -885,7 +947,7 @@
                 </div>
             </div>
             <div class="header-icons">
-                <span>💀</span>
+                <span>🎤</span>
                 <span>⚰️</span>
             </div>
         </div>
@@ -896,6 +958,10 @@
                 <div class="wave-circle"></div>
                 <div class="wave-circle" style="animation-delay: 0.5s;"></div>
                 <div class="mic-icon">🎤</div>
+            </div>
+            
+            <div class="voice-wave">
+                <span></span><span></span><span></span><span></span><span></span>
             </div>
             
             <div class="permission-title">開咪受死</div>
@@ -914,6 +980,17 @@
         <!-- Chat Area -->
         <div class="chat-area" id="chatArea">
             <div class="messages" id="messages"></div>
+            
+            <!-- 語音視覺化（會喺錄音時顯示） -->
+            <div class="voice-visualizer" id="voiceVisualizer" style="display: none;">
+                <div class="voice-bar" style="animation-delay: 0s;"></div>
+                <div class="voice-bar" style="animation-delay: 0.1s;"></div>
+                <div class="voice-bar" style="animation-delay: 0.2s;"></div>
+                <div class="voice-bar" style="animation-delay: 0.3s;"></div>
+                <div class="voice-bar" style="animation-delay: 0.4s;"></div>
+                <div class="voice-bar" style="animation-delay: 0.5s;"></div>
+                <div class="voice-bar" style="animation-delay: 0.6s;"></div>
+            </div>
             
             <div class="input-area">
                 <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
@@ -1116,6 +1193,20 @@
                 "屌你老母大富大貴！",
                 "屌你老母萬事如意！",
                 "屌你老母恭喜發財！"
+            ],
+            
+            // 語音相關回應 - 50種
+            voiceReplies: [
+                "講嘢啦柒頭！我等緊聽你啲on9說話！",
+                "你把聲咁柒嘅？",
+                "講多次？聽唔撚清呀！",
+                "大聲啲啦on9！",
+                "你係咪冇食飯？講嘢咁細聲！",
+                "我把聲好撚串呀？你吹咩？",
+                "聽住啦柒頭，我要串你！",
+                "你把聲同你個樣一樣咁柒！",
+                "講乜鳩話？聽唔撚明！",
+                "你講嘅嘢同你個人一樣on9！"
             ]
         };
 
@@ -1166,7 +1257,7 @@
             console.log('💀 TensorFlow 模型建立完成');
             updateDebug('TensorFlow 模型已載入，準備串柒你');
             
-            // 模擬訓練（其實冇訓練，但show下）
+            // 模擬訓練
             setTimeout(() => {
                 updateDebug('TensorFlow 模型學習中... 你嘅on9程度評估中');
             }, 1000);
@@ -1284,6 +1375,11 @@
                 return deathDataset.questions[Math.floor(Math.random() * deathDataset.questions.length)];
             }
             
+            // 語音相關
+            if (msg.includes('聲') || msg.includes('講嘢') || msg.includes('聽') || msg.includes('mic')) {
+                return deathDataset.voiceReplies[Math.floor(Math.random() * deathDataset.voiceReplies.length)];
+            }
+            
             // 重口味粗口（隨機）
             if (Math.random() > 0.7) {
                 return deathDataset.heavySwears[Math.floor(Math.random() * deathDataset.heavySwears.length)];
@@ -1301,12 +1397,146 @@
             }
         }
 
+        // ==================== 語音相關 ====================
+        let synthesis = window.speechSynthesis;
+        let recognition = null;
+        let isListening = false;
+        let audioStream = null;
+        
+        // 獲取可用的中文語音
+        function getChineseVoice() {
+            const voices = synthesis.getVoices();
+            return voices.find(v => v.lang.includes('zh') || v.lang.includes('cmn')) || voices[0];
+        }
+        
+        // 語音輸出
+        function speak(text) {
+            if (!synthesis) return;
+            
+            synthesis.cancel(); // 停止當前所有語音
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-HK';
+            utterance.rate = 1.3; // 快啲，更撚串
+            utterance.pitch = 1.5; // 高音啲，更撚煩
+            utterance.volume = 1;
+            utterance.voice = getChineseVoice();
+            
+            // 開始講嘢
+            utterance.onstart = () => {
+                console.log('💀 開始串你');
+            };
+            
+            utterance.onend = () => {
+                console.log('💀 串完');
+            };
+            
+            utterance.onerror = (e) => {
+                console.error('💀 講嘢 error:', e);
+            };
+            
+            synthesis.speak(utterance);
+        }
+        
+        // 初始化語音識別
+        function initSpeech() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('❌ 你個browser唔支援語音！轉用Chrome/Safari啦柒頭！');
+                return false;
+            }
+            
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            
+            recognition.continuous = false; // 一次過
+            recognition.interimResults = true; // 顯示中間結果
+            recognition.lang = 'zh-HK';
+            recognition.maxAlternatives = 1;
+            
+            // 開始錄音
+            recognition.onstart = () => {
+                isListening = true;
+                document.getElementById('voiceBtn').classList.add('listening');
+                document.getElementById('voiceBtn').innerHTML = '⏹️';
+                document.getElementById('voiceVisualizer').style.display = 'flex';
+                addMessage('🎤 聽緊...講啦柒頭', 'ai');
+                updateDebug('🎤 錄音中... 講嘢啦柒頭！');
+            };
+            
+            // 結束錄音
+            recognition.onend = () => {
+                isListening = false;
+                document.getElementById('voiceBtn').classList.remove('listening');
+                document.getElementById('voiceBtn').innerHTML = '🎤';
+                document.getElementById('voiceVisualizer').style.display = 'none';
+            };
+            
+            // 收到語音結果
+            recognition.onresult = (event) => {
+                let finalTranscript = '';
+                let interimTranscript = '';
+                
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    const transcript = event.results[i][0].transcript;
+                    if (event.results[i].isFinal) {
+                        finalTranscript += transcript;
+                    } else {
+                        interimTranscript += transcript;
+                    }
+                }
+                
+                // 如果有最終結果
+                if (finalTranscript) {
+                    addMessage(finalTranscript, 'user');
+                    
+                    // TensorFlow分析
+                    if (isModelReady) {
+                        const features = extractFeatures(finalTranscript);
+                        updateDebug(`🧠 TensorFlow分析：你嘅on9程度爆燈`);
+                    }
+                    
+                    // AI回應
+                    setTimeout(() => {
+                        const reply = getResponse(finalTranscript);
+                        addMessage(reply, 'ai');
+                        speak(reply); // 語音輸出
+                    }, 800);
+                }
+            };
+            
+            // 錯誤處理
+            recognition.onerror = (event) => {
+                updateDebug(`❌ 語音錯誤：${event.error}`);
+                
+                if (event.error === 'not-allowed') {
+                    alert('屌！未開咪！去設定開返啦柒頭！');
+                }
+            };
+            
+            return true;
+        }
+        
+        // 切換錄音
+        function toggleVoice() {
+            if (!hasPermission) {
+                alert('未開咪！撳上面「允許送死」啦柒頭！');
+                return;
+            }
+            
+            if (!recognition) {
+                if (!initSpeech()) return;
+            }
+            
+            if (isListening) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        }
+
         // ==================== 狀態管理 ====================
         let agreed = false;
         let hasPermission = false;
-        let audioStream = null;
-        let recognition = null;
-        let isListening = false;
         
         const debug = document.getElementById('debugInfo');
         const termsScreen = document.getElementById('termsScreen');
@@ -1317,6 +1547,16 @@
         
         // ==================== 初始化TensorFlow ====================
         createModel();
+        
+        // ==================== 預載voices ====================
+        if (synthesis) {
+            synthesis.getVoices();
+            if (synthesis.onvoiceschanged !== undefined) {
+                synthesis.onvoiceschanged = () => {
+                    console.log('💀 語音載入完成');
+                };
+            }
+        }
         
         // ==================== 同意條款 ====================
         window.toggleCheckbox = function() {
@@ -1373,7 +1613,7 @@
                 permissionArea.style.display = 'none';
                 chatArea.style.display = 'flex';
                 
-                // 初始化語音
+                // 初始化語音識別
                 initSpeech();
                 
                 // 出聲
@@ -1390,90 +1630,6 @@
                 }
             }
         };
-        
-        // ==================== 語音識別 ====================
-        function initSpeech() {
-            if (!('webkitSpeechRecognition' in window)) {
-                alert('❌ 你個browser唔支援語音！轉用Chrome/Safari啦柒頭！');
-                return;
-            }
-            
-            recognition = new webkitSpeechRecognition();
-            recognition.continuous = false;
-            recognition.interimResults = false;
-            recognition.lang = 'zh-HK';
-            recognition.maxAlternatives = 1;
-            
-            recognition.onstart = function() {
-                isListening = true;
-                document.getElementById('voiceBtn').classList.add('listening');
-                document.getElementById('voiceBtn').innerHTML = '⏹️';
-                addMessage('🎤 聽緊...講啦柒頭', 'ai');
-            };
-            
-            recognition.onend = function() {
-                isListening = false;
-                document.getElementById('voiceBtn').classList.remove('listening');
-                document.getElementById('voiceBtn').innerHTML = '🎤';
-            };
-            
-            recognition.onresult = function(event) {
-                const text = event.results[0][0].transcript;
-                addMessage(text, 'user');
-                
-                // AI回應
-                setTimeout(() => {
-                    const reply = getResponse(text);
-                    addMessage(reply, 'ai');
-                    speak(reply);
-                    
-                    // TensorFlow分析（模擬）
-                    if (isModelReady) {
-                        const features = extractFeatures(text);
-                        updateDebug(`🧠 TensorFlow分析：你嘅on9程度極高`);
-                    }
-                }, 800);
-            };
-            
-            recognition.onerror = function(event) {
-                updateDebug(`❌ 語音錯誤：${event.error}\n`);
-            };
-        }
-        
-        window.toggleVoice = function() {
-            if (!hasPermission) {
-                alert('未開咪！撳上面「允許送死」啦柒頭！');
-                return;
-            }
-            
-            if (!recognition) {
-                initSpeech();
-            }
-            
-            if (isListening) {
-                recognition.stop();
-            } else {
-                recognition.start();
-            }
-        };
-        
-        // ==================== 語音輸出 ====================
-        function speak(text) {
-            if (!('speechSynthesis' in window)) return;
-            
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'zh-HK';
-            utterance.rate = 1.2;
-            utterance.pitch = 1.5;
-            utterance.volume = 1;
-            
-            const voices = window.speechSynthesis.getVoices();
-            const chineseVoice = voices.find(v => v.lang.includes('zh') || v.lang.includes('cmn'));
-            if (chineseVoice) utterance.voice = chineseVoice;
-            
-            window.speechSynthesis.speak(utterance);
-        }
         
         // ==================== 打字訊息 ====================
         window.sendTextMessage = function() {
@@ -1501,7 +1657,7 @@
                 document.getElementById(typingId)?.remove();
                 const reply = getResponse(text);
                 addMessage(reply, 'ai');
-                speak(reply);
+                speak(reply); // 語音輸出
                 
                 // TensorFlow分析
                 if (isModelReady) {
@@ -1536,14 +1692,9 @@
             return div.innerHTML;
         }
         
-        // ==================== 預載voices ====================
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.getVoices();
-        }
-        
         // ==================== 歡迎訊息 ====================
         setTimeout(() => {
-            if (!termsScreen.classList.contains('hidden')) {
+            if (!termsScreen.classList.contains('hidden')) {h
                 addMessage('睇咗條款未？快啲同意啦柒頭！', 'ai');
             }
         }, 2000);
