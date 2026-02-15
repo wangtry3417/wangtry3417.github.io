@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🤬 豆撚寶 - WhatsApp風格</title>
+    <title>🤬 豆撚寶</title>
     <style>
         * {
             margin: 0;
@@ -17,179 +17,223 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            padding: 10px;
         }
         
-        .whatsapp-container {
+        .container {
             width: 100%;
             max-width: 500px;
-            height: 90vh;
             background: #0b141a;
-            display: flex;
-            flex-direction: column;
             border-radius: 30px;
             overflow: hidden;
+            border: 2px solid #00a884;
             box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            border: 1px solid #2a3942;
         }
         
-        /* WhatsApp Header */
-        .wa-header {
+        .header {
             background: #202c33;
-            padding: 15px 20px;
+            color: white;
+            padding: 20px;
             display: flex;
             align-items: center;
             gap: 15px;
-            color: white;
             border-bottom: 1px solid #2a3942;
         }
         
-        .wa-avatar {
-            width: 50px;
-            height: 50px;
+        .avatar {
+            width: 60px;
+            height: 60px;
             background: #ff3b30;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            color: white;
+            font-size: 35px;
             position: relative;
         }
         
-        .online-dot {
+        .online {
             position: absolute;
             bottom: 2px;
             right: 2px;
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             background: #4caf50;
             border-radius: 50%;
             border: 2px solid #202c33;
         }
         
-        .wa-contact {
+        .status {
             flex: 1;
         }
         
-        .wa-contact-name {
+        .status h2 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .status p {
+            font-size: 14px;
+            color: #8696a0;
+        }
+        
+        /* 權限提示 */
+        .permission-box {
+            background: #1e2a32;
+            margin: 20px;
+            padding: 25px;
+            border-radius: 20px;
+            border: 2px solid #ff3b30;
+            text-align: center;
+        }
+        
+        .mic-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); color: #ff3b30; }
+        }
+        
+        .permission-title {
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .permission-text {
+            color: #8696a0;
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+        
+        .allow-btn {
+            background: #00a884;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 22px;
+            font-weight: bold;
+            width: 100%;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        
+        .allow-btn:active {
+            background: #008f70;
+            transform: scale(0.98);
+        }
+        
+        .test-btn {
+            background: #ff3b30;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
             font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 4px;
+            width: 100%;
+            cursor: pointer;
+            margin-bottom: 15px;
         }
         
-        .wa-contact-status {
-            font-size: 13px;
-            color: #8696a0;
+        .ios-guide {
+            background: #2a3942;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: left;
+            color: white;
+            margin-top: 20px;
         }
         
-        .wa-header-icons {
-            display: flex;
-            gap: 20px;
-            color: #8696a0;
+        .ios-guide h3 {
+            color: #ff3b30;
+            margin-bottom: 15px;
             font-size: 20px;
         }
         
+        .ios-guide li {
+            margin-left: 25px;
+            margin-bottom: 10px;
+            color: #8696a0;
+        }
+        
         /* Chat Area */
-        .wa-chat {
-            flex: 1;
-            background: #0b141a;
+        .chat-area {
+            display: none;
             padding: 20px;
+        }
+        
+        .messages {
+            height: 400px;
             overflow-y: auto;
+            padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="10" fill="%23202c33" opacity="0.1"/></svg>');
-            background-repeat: repeat;
+            gap: 10px;
         }
         
-        /* Message Bubbles - WhatsApp Style */
-        .message-wrapper {
-            display: flex;
-            flex-direction: column;
+        .message {
             max-width: 85%;
-            animation: popIn 0.2s ease;
-        }
-        
-        @keyframes popIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        
-        .user-wrapper {
-            align-self: flex-end;
-        }
-        
-        .ai-wrapper {
-            align-self: flex-start;
-        }
-        
-        .message-bubble {
             padding: 12px 16px;
             border-radius: 18px;
             font-size: 15px;
-            line-height: 1.5;
-            word-break: break-word;
+            line-height: 1.4;
             position: relative;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         
-        .user-wrapper .message-bubble {
-            background: #005c4b;
+        .user-message {
+            background: #00a884;
             color: white;
+            align-self: flex-end;
             border-bottom-right-radius: 4px;
         }
         
-        .ai-wrapper .message-bubble {
+        .ai-message {
             background: #202c33;
             color: white;
+            align-self: flex-start;
             border-bottom-left-radius: 4px;
         }
         
-        .message-time {
+        .time {
             font-size: 11px;
             color: #8696a0;
-            margin: 4px 8px 8px 8px;
+            margin-top: 4px;
+            margin-left: 8px;
+        }
+        
+        .input-area {
             display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .user-wrapper .message-time {
-            justify-content: flex-end;
-        }
-        
-        .message-status {
-            color: #53bdeb;
-            font-size: 14px;
-        }
-        
-        /* Date Separator */
-        .date-separator {
-            text-align: center;
-            margin: 15px 0;
-        }
-        
-        .date-badge {
-            background: #1e2a32;
-            color: #8696a0;
-            padding: 6px 18px;
-            border-radius: 20px;
-            font-size: 12px;
-            display: inline-block;
-        }
-        
-        /* Input Area */
-        .wa-input-area {
+            gap: 10px;
+            padding: 15px;
             background: #202c33;
-            padding: 15px 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            border-top: 1px solid #2a3942;
+            border-radius: 30px;
+            margin-top: 15px;
         }
         
-        .wa-input {
+        .voice-btn {
+            background: #2a3942;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .voice-btn.listening {
+            background: #ff3b30;
+            animation: pulse 1s infinite;
+        }
+        
+        .text-input {
             flex: 1;
             background: #2a3942;
             border: none;
@@ -200,373 +244,201 @@
             outline: none;
         }
         
-        .wa-input::placeholder {
-            color: #8696a0;
-        }
-        
-        .wa-input:focus {
-            background: #33444d;
-        }
-        
-        .wa-send-btn {
+        .send-btn {
             background: #00a884;
             border: none;
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             color: white;
             font-size: 20px;
             cursor: pointer;
-            transition: background 0.2s;
         }
         
-        .wa-send-btn:active {
-            background: #008f70;
-            transform: scale(0.95);
-        }
-        
-        .wa-attach-btn {
-            color: #8696a0;
-            font-size: 24px;
-            cursor: pointer;
-        }
-        
-        /* Typing Indicator */
-        .typing-indicator {
-            background: #202c33;
-            padding: 12px 16px;
-            border-radius: 18px;
-            border-bottom-left-radius: 4px;
-            display: flex;
-            gap: 5px;
-            width: fit-content;
-        }
-        
-        .typing-dot {
-            width: 8px;
-            height: 8px;
-            background: #8696a0;
-            border-radius: 50%;
-            animation: typing 1.4s infinite;
-        }
-        
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
-        
-        @keyframes typing {
-            0%, 60%, 100% { transform: translateY(0); }
-            30% { transform: translateY(-8px); background: #00a884; }
-        }
-        
-        /* Audio Message */
-        .audio-message {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: #202c33;
-            border-radius: 30px;
-            padding: 8px 12px;
-            min-width: 200px;
-        }
-        
-        .audio-play {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: #00a884;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-        
-        .audio-wave {
-            flex: 1;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            gap: 3px;
-        }
-        
-        .audio-wave span {
-            width: 4px;
-            height: 10px;
-            background: #00a884;
-            border-radius: 2px;
-            animation: wave 1s infinite ease-in-out;
-        }
-        
-        .audio-wave span:nth-child(2) { height: 15px; animation-delay: 0.1s; }
-        .audio-wave span:nth-child(3) { height: 20px; animation-delay: 0.2s; }
-        .audio-wave span:nth-child(4) { height: 15px; animation-delay: 0.3s; }
-        .audio-wave span:nth-child(5) { height: 10px; animation-delay: 0.4s; }
-        
-        @keyframes wave {
-            0%, 100% { height: 10px; }
-            50% { height: 25px; }
-        }
-        
-        /* Emoji Picker (simple) */
-        .emoji-panel {
-            display: none;
-            position: absolute;
-            bottom: 80px;
-            right: 20px;
-            background: #202c33;
-            border-radius: 20px;
-            padding: 15px;
-            grid-template-columns: repeat(6, 1fr);
-            gap: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-        }
-        
-        .emoji-item {
-            font-size: 24px;
-            cursor: pointer;
-            text-align: center;
-            padding: 5px;
+        #debugInfo {
+            color: #ff3b30;
+            font-size: 12px;
+            margin: 10px;
+            padding: 10px;
+            background: #1e2a32;
             border-radius: 10px;
-        }
-        
-        .emoji-item:hover {
-            background: #2a3942;
-        }
-        
-        /* Voice Message Button */
-        .voice-btn {
-            background: #2a3942;
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #8696a0;
-            font-size: 20px;
-            cursor: pointer;
-        }
-        
-        .voice-btn.listening {
-            background: #ff3b30;
-            color: white;
-            animation: pulse 1s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            white-space: pre-wrap;
         }
     </style>
 </head>
 <body>
-    <div class="whatsapp-container">
-        <!-- Header -->
-        <div class="wa-header">
-            <div class="wa-avatar">
+    <div class="container">
+        <div class="header">
+            <div class="avatar">
                 🤬
-                <span class="online-dot"></span>
+                <span class="online"></span>
             </div>
-            <div class="wa-contact">
-                <div class="wa-contact-name">豆撚寶</div>
-                <div class="wa-contact-status">online • 打緊飛機</div>
-            </div>
-            <div class="wa-header-icons">
-                <span>📞</span>
-                <span>⋯</span>
+            <div class="status">
+                <h2>豆撚寶</h2>
+                <p id="statusText">等待權限中...</p>
             </div>
         </div>
         
-        <!-- Chat Area -->
-        <div class="wa-chat" id="chatArea">
-            <div class="date-separator">
-                <span class="date-badge">今日</span>
-            </div>
+        <!-- 權限檢查區 -->
+        <div id="permissionArea" class="permission-box">
+            <div class="mic-icon">🎤</div>
+            <div class="permission-title">開咪講嘢！</div>
+            <div class="permission-text">我要用咪高峰先可以同你吹水</div>
             
-            <div class="message-wrapper ai-wrapper">
-                <div class="message-bubble">
-                    㗅～ 搵我做乜撚嘢？！
-                </div>
-                <div class="message-time">
-                    12:34
-                </div>
+            <button class="allow-btn" onclick="requestMicrophone()">
+                允許使用咪高峰
+            </button>
+            
+            <button class="test-btn" onclick="testAudio()">
+                🔈 測試喇叭
+            </button>
+            
+            <div id="debugInfo"></div>
+            
+            <div class="ios-guide">
+                <h3>📱 iOS 急救包</h3>
+                <ol>
+                    <li>㩒上面紅色掣</li>
+                    <li>彈出視窗㩒「允許」</li>
+                    <li>如果冇彈：設定 > Safari > 相機與麥克風 > 允許</li>
+                    <li>然後重新load網頁</li>
+                </ol>
             </div>
         </div>
         
-        <!-- Input Area -->
-        <div class="wa-input-area">
-            <div class="wa-attach-btn" onclick="toggleEmoji()">😊</div>
-            
-            <div class="emoji-panel" id="emojiPanel">
-                <span class="emoji-item" onclick="addEmoji('😊')">😊</span>
-                <span class="emoji-item" onclick="addEmoji('😂')">😂</span>
-                <span class="emoji-item" onclick="addEmoji('🤬')">🤬</span>
-                <span class="emoji-item" onclick="addEmoji('😭')">😭</span>
-                <span class="emoji-item" onclick="addEmoji('🥹')">🥹</span>
-                <span class="emoji-item" onclick="addEmoji('😡')">😡</span>
-                <span class="emoji-item" onclick="addEmoji('👍')">👍</span>
-                <span class="emoji-item" onclick="addEmoji('👎')">👎</span>
-                <span class="emoji-item" onclick="addEmoji('❤️')">❤️</span>
-                <span class="emoji-item" onclick="addEmoji('💀')">💀</span>
-                <span class="emoji-item" onclick="addEmoji('🤡')">🤡</span>
-                <span class="emoji-item" onclick="addEmoji('💩')">💩</span>
+        <!-- 傾計區 (一開始隱藏) -->
+        <div id="chatArea" class="chat-area">
+            <div class="messages" id="messages">
+                <div class="message ai-message">
+                    屌！終於開到咪啦！講啦！
+                </div>
+                <div class="time">剛剛</div>
             </div>
             
-            <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
-            
-            <input type="text" class="wa-input" id="messageInput" placeholder="訊息" autocomplete="off">
-            
-            <button class="wa-send-btn" id="sendBtn" onclick="sendMessage()">➤</button>
+            <div class="input-area">
+                <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
+                <input type="text" class="text-input" id="messageInput" placeholder="打字都得" autocomplete="off">
+                <button class="send-btn" onclick="sendTextMessage()">➤</button>
+            </div>
         </div>
     </div>
 
     <script>
-        const chatArea = document.getElementById('chatArea');
-        const messageInput = document.getElementById('messageInput');
-        const voiceBtn = document.getElementById('voiceBtn');
-        
-        // 終極粗口知識庫
-        const knowledgeBase = {
-            '你好': '屌！你好吖！',
-            'hi': 'Hi 咩 hi？',
-            'hello': 'Hello hello',
-            'on9': 'on9仔！',
-            '屌你': '屌我？我先屌你！',
-            '柒頭': '柒頭叫邊個？',
-            '仆街': '你咪仆街囉！',
-            '收皮': '收皮？我收你先！',
-            '食咩': '食屎啦！',
-            '天氣': '熱到仆街！',
-            '時間': new Date().toLocaleTimeString('zh-HK'),
-            '星期': '星期' + ['日','一','二','三','四','五','六'][new Date().getDay()],
-            '做咩': '做緊陪你on9囉！',
-            '你係誰': '我係豆撚寶囉！',
-            '你叫咩': '叫我豆撚寶啦柒頭！',
-            'help': 'help你老母',
-            '救命': '我都想人救呀！',
-            '點解': '因為on9囉！',
-            '點算': '算撚數啦！',
-            '我愛你': '愛你老母！',
-            '打飛機': '自己打啦！',
-        };
-        
-        // 發送訊息
-        function sendMessage() {
-            const message = messageInput.value.trim();
-            if (!message) return;
-            
-            // 加用戶訊息
-            addMessage(message, 'user');
-            messageInput.value = '';
-            
-            // 顯示打字中
-            const typingId = 'typing-' + Date.now();
-            chatArea.innerHTML += `
-                <div class="message-wrapper ai-wrapper" id="${typingId}">
-                    <div class="typing-indicator">
-                        <span class="typing-dot"></span>
-                        <span class="typing-dot"></span>
-                        <span class="typing-dot"></span>
-                    </div>
-                </div>
-            `;
-            chatArea.scrollTop = chatArea.scrollHeight;
-            
-            // AI回應
-            setTimeout(() => {
-                document.getElementById(typingId)?.remove();
-                const reply = getReply(message);
-                addMessage(reply, 'ai');
-                
-                // 如果有語音權限就講埋
-                speak(reply);
-            }, 1500);
-        }
-        
-        // 加訊息到chat
-        function addMessage(text, sender) {
-            const time = new Date().toLocaleTimeString('zh-HK', { 
-                hour12: false, 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
-            
-            const messageHtml = `
-                <div class="message-wrapper ${sender}-wrapper">
-                    <div class="message-bubble">${escapeHtml(text)}</div>
-                    <div class="message-time">
-                        ${time}
-                        ${sender === 'user' ? '<span class="message-status">✓✓</span>' : ''}
-                    </div>
-                </div>
-            `;
-            
-            chatArea.innerHTML += messageHtml;
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
-        
-        // 拎回應
-        function getReply(msg) {
-            msg = msg.toLowerCase();
-            
-            // 直接匹配
-            for (let [key, value] of Object.entries(knowledgeBase)) {
-                if (msg.includes(key)) {
-                    return value;
-                }
-            }
-            
-            // 亂答
-            const replies = [
-                '噏乜春？', '講人話啦', 'on9仔', '聽唔明呀', 
-                '食懵你？', '玩嘢？', '收皮啦', '屌！', 
-                '係囉係囉', '是但啦', '嚇？', '大聲啲'
-            ];
-            return replies[Math.floor(Math.random() * replies.length)];
-        }
-        
-        // Escape HTML
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-        
-        // 語音輸入
+        let audioStream = null;
         let recognition = null;
         let isListening = false;
+        let hasPermission = false;
         
-        function toggleVoice() {
+        const debug = document.getElementById('debugInfo');
+        const permissionArea = document.getElementById('permissionArea');
+        const chatArea = document.getElementById('chatArea');
+        const statusText = document.getElementById('statusText');
+        
+        // 檢查權限
+        async function checkMicrophonePermission() {
+            try {
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const hasMic = devices.some(device => device.kind === 'audioinput');
+                
+                debug.innerHTML += `🎤 發現咪高峰：${hasMic ? '✅' : '❌'}\n`;
+                
+                // 嘗試攞權限
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                
+                // 成功！
+                hasPermission = true;
+                audioStream = stream;
+                debug.innerHTML += `✅ 權限成功！\n`;
+                statusText.innerHTML = 'online • 咪已開';
+                
+                // 開chat
+                permissionArea.style.display = 'none';
+                chatArea.style.display = 'block';
+                
+                // 初始化語音
+                initSpeech();
+                
+                // 出聲
+                speak('屌！終於開到咪啦！講啦！');
+                
+                return true;
+                
+            } catch (err) {
+                debug.innerHTML += `❌ 錯誤：${err.message}\n`;
+                statusText.innerHTML = 'offline • 未開咪';
+                return false;
+            }
+        }
+        
+        // 要求權限
+        async function requestMicrophone() {
+            debug.innerHTML = '⏳ 要求權限中...\n';
+            await checkMicrophonePermission();
+        }
+        
+        // 測試喇叭
+        function testAudio() {
+            const audio = new Audio();
+            audio.src = 'data:audio/wav;base64,UklGRlwAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVAAAAA8Pzw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PA==';
+            audio.play().then(() => {
+                debug.innerHTML += '🔊 喇叭正常\n';
+            }).catch(() => {
+                debug.innerHTML += '❌ 喇叭有問題\n';
+            });
+        }
+        
+        // 初始化語音識別
+        function initSpeech() {
             if (!('webkitSpeechRecognition' in window)) {
-                alert('你個browser唔支援語音！用Chrome/Safari啦！');
+                alert('❌ 你個browser唔支援語音！');
+                return;
+            }
+            
+            recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'zh-HK';
+            recognition.maxAlternatives = 1;
+            
+            recognition.onstart = function() {
+                isListening = true;
+                document.getElementById('voiceBtn').classList.add('listening');
+                document.getElementById('voiceBtn').innerHTML = '⏹️';
+                addMessage('🎤 聽緊...', 'ai');
+            };
+            
+            recognition.onend = function() {
+                isListening = false;
+                document.getElementById('voiceBtn').classList.remove('listening');
+                document.getElementById('voiceBtn').innerHTML = '🎤';
+            };
+            
+            recognition.onresult = function(event) {
+                const text = event.results[0][0].transcript;
+                addMessage(text, 'user');
+                
+                // AI回應
+                setTimeout(() => {
+                    const reply = getReply(text);
+                    addMessage(reply, 'ai');
+                    speak(reply);
+                }, 800);
+            };
+            
+            recognition.onerror = function(event) {
+                debug.innerHTML += `❌ 語音錯誤：${event.error}\n`;
+            };
+        }
+        
+        // 開始/停止錄音
+        function toggleVoice() {
+            if (!hasPermission) {
+                alert('未開咪！撳上面「允許使用咪高峰」');
                 return;
             }
             
             if (!recognition) {
-                recognition = new webkitSpeechRecognition();
-                recognition.continuous = false;
-                recognition.lang = 'zh-HK';
-                
-                recognition.onstart = function() {
-                    isListening = true;
-                    voiceBtn.classList.add('listening');
-                    voiceBtn.innerHTML = '⏹️';
-                };
-                
-                recognition.onend = function() {
-                    isListening = false;
-                    voiceBtn.classList.remove('listening');
-                    voiceBtn.innerHTML = '🎤';
-                };
-                
-                recognition.onresult = function(event) {
-                    const text = event.results[0][0].transcript;
-                    messageInput.value = text;
-                    sendMessage();
-                };
+                initSpeech();
             }
             
             if (isListening) {
@@ -574,6 +446,61 @@
             } else {
                 recognition.start();
             }
+        }
+        
+        // 打字send
+        function sendTextMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text) return;
+            
+            addMessage(text, 'user');
+            input.value = '';
+            
+            setTimeout(() => {
+                const reply = getReply(text);
+                addMessage(reply, 'ai');
+                speak(reply);
+            }, 500);
+        }
+        
+        // 加message
+        function addMessage(text, sender) {
+            const messages = document.getElementById('messages');
+            const time = new Date().toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit' });
+            
+            messages.innerHTML += `
+                <div class="message ${sender === 'user' ? 'user-message' : 'ai-message'}">
+                    ${text}
+                </div>
+                <div class="time">${time}</div>
+            `;
+            messages.scrollTop = messages.scrollHeight;
+        }
+        
+        // 串嘴回應
+        function getReply(msg) {
+            msg = msg.toLowerCase();
+            
+            const replies = {
+                '你好': '屌！你好吖！',
+                'on9': 'on9仔！',
+                '屌你': '屌我？我先屌你！',
+                '柒頭': '柒頭叫邊個？',
+                '收皮': '收皮？我收你先！',
+                '食咩': '食屎啦！',
+                '天氣': '熱到仆街！',
+                '時間': new Date().toLocaleTimeString(),
+                '我愛你': '愛你老母！',
+                'help': 'help你老母'
+            };
+            
+            for (let [key, value] of Object.entries(replies)) {
+                if (msg.includes(key)) return value;
+            }
+            
+            const random = ['噏乜春？', '講人話啦', 'on9仔', '聽唔明呀'][Math.floor(Math.random() * 4)];
+            return random;
         }
         
         // 語音輸出
@@ -585,38 +512,28 @@
             utterance.lang = 'zh-HK';
             utterance.rate = 1.2;
             utterance.pitch = 1.5;
+            utterance.volume = 1;
+            
+            // 揀把聲
+            const voices = window.speechSynthesis.getVoices();
+            const chineseVoice = voices.find(v => v.lang.includes('zh') || v.lang.includes('cmn'));
+            if (chineseVoice) utterance.voice = chineseVoice;
+            
             window.speechSynthesis.speak(utterance);
         }
         
-        // Emoji picker
-        function toggleEmoji() {
-            const panel = document.getElementById('emojiPanel');
-            panel.style.display = panel.style.display === 'grid' ? 'none' : 'grid';
+        // 自動check權限
+        window.onload = function() {
+            debug.innerHTML = '⏳ 檢查權限中...\n';
+            debug.innerHTML += '📱 ' + navigator.userAgent + '\n';
+            
+            // 唔自動彈，等用戶撳制
+        };
+        
+        // 預載voices
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
         }
-        
-        function addEmoji(emoji) {
-            messageInput.value += emoji;
-            document.getElementById('emojiPanel').style.display = 'none';
-            messageInput.focus();
-        }
-        
-        // Enter send
-        messageInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
-        
-        // 歡迎訊息
-        setTimeout(() => {
-            addMessage('屌！終於嚟啦？有咩講啦柒頭！', 'ai');
-            speak('屌！終於嚟啦？有咩講啦柒頭！');
-        }, 1000);
-        
-        // 點其他地方關emoji panel
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.wa-attach-btn') && !e.target.closest('.emoji-panel')) {
-                document.getElementById('emojiPanel').style.display = 'none';
-            }
-        });
     </script>
 </body>
 </html>
