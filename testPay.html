@@ -1,160 +1,781 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Apple Pay 測試 - 簡化版</title>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://applepay.cdn-apple.com/jsapi/v1/apple-pay-sdk.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>✨ 星級支付 · 模擬試用</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+        * {
             margin: 0;
-            background: #f5f5f5;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
-        .container {
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .payment-card {
+            max-width: 480px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 32px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .payment-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            color: white;
+            position: relative;
+        }
+
+        .payment-header::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 0;
+            right: 0;
+            height: 40px;
             background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            text-align: center;
-            max-width: 400px;
-            width: 90%;
+            border-radius: 40px 40px 0 0;
         }
-        #apple-pay-button {
+
+        .merchant-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .merchant-logo {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            backdrop-filter: blur(5px);
+        }
+
+        .merchant-details {
+            flex: 1;
+        }
+
+        .merchant-name {
+            font-size: 18px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .amount {
+            font-size: 36px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .amount small {
+            font-size: 16px;
+            font-weight: 400;
+            opacity: 0.8;
+        }
+
+        .payment-body {
+            padding: 40px 30px 30px;
+        }
+
+        .payment-methods {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .method-tab {
+            flex: 1;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .method-tab.active {
+            background: white;
+            border-color: #667eea;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.1);
+        }
+
+        .method-tab i {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .method-tab span {
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .method-tab.active span {
+            color: #667eea;
+        }
+
+        /* 信用卡表單 */
+        .card-form {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .card-form.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 14px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        /* 信用卡模擬 */
+        .card-preview {
+            background: linear-gradient(135deg, #1a1f3a 0%, #2a2f4f 100%);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            color: white;
+            position: relative;
+            height: 180px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .card-chip {
+            width: 45px;
+            height: 35px;
+            background: linear-gradient(135deg, #d4af37 0%, #f1c40f 100%);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .card-number {
+            font-size: 22px;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-holder {
+            text-transform: uppercase;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .card-expiry {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* Apple Pay 按鈕 */
+        .apple-pay-section {
+            display: none;
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .apple-pay-section.active {
+            display: block;
+        }
+
+        .apple-pay-button {
             -webkit-appearance: -apple-pay-button;
             apple-pay-button-type: buy;
             apple-pay-button-style: black;
             width: 100%;
-            height: 45px;
+            height: 50px;
+            border-radius: 12px;
             margin: 20px 0;
+        }
+
+        .mock-apple-pay {
+            background: #000;
+            color: white;
+            padding: 16px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mock-apple-pay:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .mock-apple-pay i {
+            font-size: 24px;
+        }
+
+        /* 轉數快 */
+        .fps-section {
             display: none;
+            text-align: center;
+            padding: 20px 0;
         }
-        .message {
+
+        .fps-section.active {
+            display: block;
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            background: #f5f5f5;
             padding: 15px;
-            border-radius: 10px;
-            margin: 10px 0;
-            font-size: 14px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .info { background: #e2f3f5; color: #0c5460; }
+
+        .qr-code svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .fps-info {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 12px;
+            color: #2e7d32;
+            margin-top: 20px;
+        }
+
+        /* 支付按鈕 */
+        .pay-button {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .pay-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .pay-button:active {
+            transform: translateY(0);
+        }
+
+        .pay-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 支付成功彈窗 */
+        .success-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+        }
+
+        .success-content {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            animation: scaleIn 0.3s ease;
+            max-width: 320px;
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #4caf50;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            color: white;
+            animation: bounce 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .success-message {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .transaction-id {
+            background: #f5f5f5;
+            padding: 12px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .close-button {
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* 加載動畫 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 響應式 */
+        @media (max-width: 480px) {
+            .payment-card {
+                border-radius: 24px;
+            }
+            
+            .payment-header {
+                padding: 20px;
+            }
+            
+            .payment-body {
+                padding: 30px 20px 20px;
+            }
+            
+            .amount {
+                font-size: 28px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🍎 Apple Pay 測試</h1>
-        
-        <div id="message" class="message info">
-            檢查 Apple Pay 中...
+    <div class="payment-card">
+        <div class="payment-header">
+            <div class="merchant-info">
+                <div class="merchant-logo">
+                    🛍️
+                </div>
+                <div class="merchant-details">
+                    <div class="merchant-name">星級商店</div>
+                    <div class="amount">
+                        HK$ 128.00
+                        <small>HKD</small>
+                    </div>
+                </div>
+            </div>
         </div>
-        
-        <button id="apple-pay-button"></button>
-        
-        <div id="debug" style="margin-top: 20px; font-size: 12px; color: #666;"></div>
+
+        <div class="payment-body">
+            <!-- 支付方式切換 -->
+            <div class="payment-methods">
+                <div class="method-tab active" onclick="switchMethod('card')">
+                    <i>💳</i>
+                    <span>信用卡</span>
+                </div>
+                <div class="method-tab" onclick="switchMethod('apple')">
+                    <i>🍎</i>
+                    <span>Apple Pay</span>
+                </div>
+                <div class="method-tab" onclick="switchMethod('fps')">
+                    <i>📱</i>
+                    <span>轉數快</span>
+                </div>
+            </div>
+
+            <!-- 信用卡區域 -->
+            <div id="card-section" class="card-form active">
+                <!-- 信用卡預覽 -->
+                <div class="card-preview" id="cardPreview">
+                    <div class="card-chip"></div>
+                    <div class="card-number" id="previewNumber">**** **** **** ****</div>
+                    <div class="card-footer">
+                        <div class="card-holder" id="previewName">卡片持有人</div>
+                        <div class="card-expiry" id="previewExpiry">**/**</div>
+                    </div>
+                </div>
+
+                <!-- 信用卡表單 -->
+                <div class="form-group">
+                    <label class="form-label">卡號</label>
+                    <input type="text" class="form-input" id="cardNumber" 
+                           placeholder="1234 5678 9012 3456" maxlength="19"
+                           oninput="formatCardNumber(this); updateCardPreview()">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">持有人姓名</label>
+                    <input type="text" class="form-input" id="cardName" 
+                           placeholder="CHAN TAI MAN" 
+                           oninput="updateCardPreview()">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">到期日</label>
+                        <input type="text" class="form-input" id="cardExpiry" 
+                               placeholder="MM/YY" maxlength="5"
+                               oninput="formatExpiry(this); updateCardPreview()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CVV</label>
+                        <input type="password" class="form-input" id="cardCvv" 
+                               placeholder="***" maxlength="3">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Apple Pay 區域 -->
+            <div id="apple-section" class="apple-pay-section">
+                <div style="margin: 20px 0;">
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 24 24'%3E%3Cpath fill='%23000000' d='M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11'/%3E%3C/svg%3E" 
+                         style="width: 50px; height: 50px; margin-bottom: 10px;">
+                </div>
+                <div class="mock-apple-pay" onclick="mockApplePay()">
+                    <i>🍎</i>
+                    <span>使用 Apple Pay 付款</span>
+                </div>
+                <p style="color: #999; font-size: 12px; margin-top: 10px;">
+                    雙擊側邊按鈕以付款
+                </p>
+            </div>
+
+            <!-- 轉數快區域 -->
+            <div id="fps-section" class="fps-section">
+                <div class="qr-code" id="qrcode"></div>
+                <div class="fps-info">
+                    <strong>FPS 轉數快</strong><br>
+                    收款人: 經財支付服務有限公司<br>
+                    FPS ID: 091341567
+                </div>
+                <p style="color: #999; font-size: 12px; margin-top: 15px;">
+                    打開轉數快 App 掃描二維碼
+                </p>
+            </div>
+
+            <!-- 支付按鈕 -->
+            <button class="pay-button" id="payBtn" onclick="processPayment()">
+                立即付款 HK$ 128.00
+            </button>
+        </div>
+    </div>
+
+    <!-- 成功彈窗 -->
+    <div class="success-modal" id="successModal">
+        <div class="success-content">
+            <div class="success-icon">✓</div>
+            <div class="success-title">付款成功！</div>
+            <div class="success-message">多謝你嘅訂單</div>
+            <div class="transaction-id" id="transactionId">TXN_20240215_001</div>
+            <button class="close-button" onclick="closeModal()">完成</button>
+        </div>
     </div>
 
     <script>
-    const MERCHANT_ID = 'merchant.com.apple.sandbox.test';
-    
-    document.addEventListener('DOMContentLoaded', init);
+        // 切換支付方式
+        function switchMethod(method) {
+            // 更新 tabs
+            document.querySelectorAll('.method-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
 
-    async function init() {
-        if (!window.ApplePaySession) {
-            showMessage('請使用 Safari 瀏覽器', 'error');
-            return;
+            // 隱藏所有 section
+            document.getElementById('card-section').classList.remove('active');
+            document.getElementById('apple-section').classList.remove('active');
+            document.getElementById('fps-section').classList.remove('active');
+
+            // 顯示對應 section
+            document.getElementById(method + '-section').classList.add('active');
+
+            // 更新按鈕文字
+            const payBtn = document.getElementById('payBtn');
+            if (method === 'card') {
+                payBtn.textContent = '使用信用卡付款 HK$ 128.00';
+            } else if (method === 'apple') {
+                payBtn.textContent = '使用 Apple Pay 付款 HK$ 128.00';
+            } else {
+                payBtn.textContent = '使用轉數快付款 HK$ 128.00';
+            }
         }
 
-        // 檢查 Apple Pay 可用性
-        if (ApplePaySession.canMakePayments()) {
-            showMessage('Apple Pay 已就緒', 'success');
-            document.getElementById('apple-pay-button').style.display = 'block';
-        } else {
-            showMessage('請先在 Wallet 加入卡片', 'error');
-        }
-    }
-
-    document.getElementById('apple-pay-button').onclick = startApplePay;
-
-    function startApplePay() {
-        try {
-            // 最簡單嘅 payment request
-            const paymentRequest = {
-                countryCode: 'HK',
-                currencyCode: 'HKD',
-                supportedNetworks: ['visa', 'masterCard', 'amex'],
-                merchantCapabilities: ['supports3DS'],
-                merchantIdentifier: MERCHANT_ID,
-                total: {
-                    label: '測試商品',
-                    amount: '0.01',
-                    type: 'final'
+        // 格式化卡號
+        function formatCardNumber(input) {
+            let value = input.value.replace(/\s/g, '').replace(/\D/g, '');
+            let formatted = '';
+            
+            for (let i = 0; i < value.length; i++) {
+                if (i > 0 && i % 4 === 0) {
+                    formatted += ' ';
                 }
-            };
+                formatted += value[i];
+            }
+            
+            input.value = formatted.substring(0, 19);
+        }
 
-            // 用 version 4 (最穩定)
-            const session = new ApplePaySession(4, paymentRequest);
+        // 格式化到期日
+        function formatExpiry(input) {
+            let value = input.value.replace(/\D/g, '');
+            
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            
+            input.value = value;
+        }
 
-            // 1. Merchant Validation
-            session.onvalidatemerchant = (event) => {
-                debug('收到 validation URL');
+        // 更新卡片預覽
+        function updateCardPreview() {
+            const number = document.getElementById('cardNumber').value;
+            const name = document.getElementById('cardName').value;
+            const expiry = document.getElementById('cardExpiry').value;
+            
+            // 卡號預覽
+            if (number) {
+                const last4 = number.replace(/\s/g, '').slice(-4);
+                document.getElementById('previewNumber').textContent = 
+                    '**** **** **** ' + last4.padStart(4, '*');
+            }
+            
+            // 姓名預覽
+            document.getElementById('previewName').textContent = 
+                name || '卡片持有人';
+            
+            // 到期日預覽
+            document.getElementById('previewExpiry').textContent = 
+                expiry || '**/**';
+        }
+
+        // 模擬 Apple Pay
+        function mockApplePay() {
+            const payBtn = document.getElementById('payBtn');
+            payBtn.disabled = true;
+            payBtn.innerHTML = '<span class="loading"></span> 處理中...';
+            
+            setTimeout(() => {
+                showSuccess('APPLE_PAY_' + Date.now());
+                payBtn.disabled = false;
+                payBtn.innerHTML = '使用 Apple Pay 付款 HK$ 128.00';
+            }, 1500);
+        }
+
+        // 處理支付
+        function processPayment() {
+            const payBtn = document.getElementById('payBtn');
+            payBtn.disabled = true;
+            payBtn.innerHTML = '<span class="loading"></span> 處理中...';
+            
+            // 檢查邊個支付方式 active
+            let method = 'card';
+            if (document.getElementById('apple-section').classList.contains('active')) {
+                method = 'apple';
+            } else if (document.getElementById('fps-section').classList.contains('active')) {
+                method = 'fps';
+            }
+            
+            // 模擬支付處理
+            setTimeout(() => {
+                let transactionId = '';
+                if (method === 'card') {
+                    const last4 = document.getElementById('cardNumber').value.replace(/\s/g, '').slice(-4) || '0000';
+                    transactionId = 'CARD_' + last4 + '_' + Date.now();
+                } else if (method === 'apple') {
+                    transactionId = 'APPLE_PAY_' + Date.now();
+                } else {
+                    transactionId = 'FPS_' + Date.now();
+                }
                 
-                // 官方測試 merchant - 直接回傳基本資料
-                session.completeMerchantValidation({
-                    merchantIdentifier: MERCHANT_ID,
-                    domainName: window.location.hostname,
-                    displayName: '測試商店'
+                showSuccess(transactionId);
+                
+                payBtn.disabled = false;
+                payBtn.innerHTML = '立即付款 HK$ 128.00';
+            }, 2000);
+        }
+
+        // 顯示成功彈窗
+        function showSuccess(transactionId) {
+            document.getElementById('transactionId').textContent = transactionId;
+            document.getElementById('successModal').style.display = 'flex';
+            
+            // 震動效果（如果有）
+            if (navigator.vibrate) {
+                navigator.vibrate([50, 50, 50]);
+            }
+        }
+
+        // 關閉彈窗
+        function closeModal() {
+            document.getElementById('successModal').style.display = 'none';
+        }
+
+        // 生成 QR Code（簡單版）
+        function generateSimpleQR() {
+            const qrContainer = document.getElementById('qrcode');
+            const size = 200;
+            const cellSize = 10;
+            const cols = size / cellSize;
+            
+            let svg = '<svg width="200" height="200" viewBox="0 0 200 200">';
+            
+            // 生成簡單嘅 QR 圖案（只係裝飾用）
+            for (let i = 0; i < cols; i++) {
+                for (let j = 0; j < cols; j++) {
+                    if ((i * j) % 7 === 0 || (i + j) % 5 === 0) {
+                        svg += `<rect x="${i * cellSize}" y="${j * cellSize}" 
+                                   width="${cellSize}" height="${cellSize}" fill="#000" />`;
+                    }
+                }
+            }
+            
+            // 加入三個定位標記
+            svg += '<rect x="10" y="10" width="40" height="40" fill="#000" />';
+            svg += '<rect x="150" y="10" width="40" height="40" fill="#000" />';
+            svg += '<rect x="10" y="150" width="40" height="40" fill="#000" />';
+            
+            svg += '</svg>';
+            
+            qrContainer.innerHTML = svg;
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            generateSimpleQR();
+            
+            // 信用卡輸入效果
+            const cardInputs = document.querySelectorAll('.form-input');
+            cardInputs.forEach(input => {
+                input.addEventListener('focus', () => {
+                    input.style.transform = 'scale(1.02)';
                 });
                 
-                debug('商戶驗證完成');
-                showMessage('商戶驗證成功 ✓', 'success');
-            };
-
-            // 2. Payment Authorization
-            session.onpaymentauthorized = (event) => {
-                debug('收到支付授權');
-                
-                // 支付成功！
-                const result = {
-                    status: ApplePaySession.STATUS_SUCCESS
-                };
-                
-                session.completePayment(result);
-                
-                showMessage('✅ 支付成功！', 'success');
-                debug('交易完成：' + event.payment.token.transactionId);
-            };
-
-            // 3. Cancel
-            session.oncancel = (event) => {
-                showMessage('用戶取消支付', 'info');
-                debug('用戶取消');
-            };
-
-            // 開始
-            session.begin();
-            showMessage('請完成 Face ID / Touch ID', 'info');
+                input.addEventListener('blur', () => {
+                    input.style.transform = 'scale(1)';
+                });
+            });
             
-        } catch (error) {
-            showMessage('錯誤：' + error.message, 'error');
-            debug('Error: ' + error.toString());
-        }
-    }
+            // 自動跳轉下一個 input（可以加）
+        });
 
-    function showMessage(text, type) {
-        const msg = document.getElementById('message');
-        msg.className = `message ${type}`;
-        msg.textContent = text;
-    }
-
-    function debug(text) {
-        const d = document.getElementById('debug');
-        d.innerHTML = d.innerHTML + '<br>' + new Date().toLocaleTimeString() + ': ' + text;
-        console.log(text);
-    }
+        // 點擊其他地方關閉 modal
+        document.getElementById('successModal').addEventListener('click', (e) => {
+            if (e.target === document.getElementById('successModal')) {
+                closeModal();
+            }
+        });
     </script>
 </body>
 </html>
