@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://applepay.cdn-apple.com/jsapi/v1/apple-pay-sdk.js"></script>
+</head>
+<body>
+    <button id="payBtn" style="-webkit-appearance: -apple-pay-button;"></button>
+    
+    <script>
+    document.getElementById('payBtn').onclick = () => {
+        const session = new ApplePaySession(6, {
+            countryCode: 'HK',
+            currencyCode: 'HKD',
+            supportedNetworks: ['visa', 'masterCard'],
+            merchantCapabilities: ['supports3DS'],
+            merchantIdentifier: 'merchant.com.apple.sandbox.test',  // 直接用！
+            total: {
+                label: 'iphone 17',
+                amount: '800'
+            }
+        });
+        
+        // 就咁 complete 就得，唔使 call API
+        session.onvalidatemerchant = (event) => {
+            session.completeMerchantValidation({
+                merchantIdentifier: 'merchant.com.apple.sandbox.test',
+                domainName: window.location.hostname,
+                displayName: 'Test Store'
+            });
+        };
+        
+        session.onpaymentauthorized = (event) => {
+            session.completePayment(ApplePaySession.STATUS_SUCCESS);
+            alert('支付成功！');
+        };
+        
+        session.begin();
+    };
+    </script>
+</body>
+</html>
