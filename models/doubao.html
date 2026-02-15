@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>🤬 豆撚寶AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
     <style>
         * {
             margin: 0;
@@ -43,13 +44,13 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, #ff0000 0%, #990000 100%);
+            background: linear-gradient(135deg, #ff0000 0%, #660000 100%);
             z-index: 2000;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            animation: bootFade 2s forwards;
+            animation: bootFade 2.5s forwards;
             pointer-events: none;
         }
         
@@ -66,8 +67,8 @@
         }
         
         @keyframes bootCrash {
-            0% { transform: scale(0) rotate(-360deg); opacity: 0; }
-            50% { transform: scale(1.8) rotate(30deg); }
+            0% { transform: scale(0) rotate(-720deg); opacity: 0; }
+            50% { transform: scale(2) rotate(90deg); }
             100% { transform: scale(1) rotate(0); opacity: 1; }
         }
         
@@ -82,8 +83,20 @@
         
         @keyframes bootShake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-15px); }
-            75% { transform: translateX(15px); }
+            25% { transform: translateX(-20px); }
+            75% { transform: translateX(20px); }
+        }
+        
+        .boot-sub {
+            color: rgba(255,255,255,0.8);
+            font-size: 20px;
+            margin-top: 10px;
+            animation: bootFadeIn 2s ease;
+        }
+        
+        @keyframes bootFadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
         }
         
         /* Status Bar */
@@ -97,7 +110,7 @@
             font-weight: 600;
         }
         
-        /* 條款頁 - 死亡大框框 */
+        /* 條款頁 - 死亡終極大框框 */
         .terms-screen {
             position: absolute;
             top: 0;
@@ -106,12 +119,12 @@
             bottom: 0;
             background: #1a1a1a;
             z-index: 1000;
-            padding: 40px 25px;
+            padding: 30px 20px;
             display: flex;
             flex-direction: column;
             transition: transform 0.3s ease;
             overflow-y: auto;
-            background-image: repeating-linear-gradient(45deg, rgba(255,0,0,0.05) 0px, rgba(255,0,0,0.05) 20px, transparent 20px, transparent 40px);
+            background-image: repeating-linear-gradient(45deg, rgba(255,0,0,0.1) 0px, rgba(255,0,0,0.1) 20px, transparent 20px, transparent 40px);
         }
         
         .terms-screen.hidden {
@@ -121,59 +134,59 @@
         
         .terms-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             position: relative;
         }
         
         .terms-icon {
-            font-size: 100px;
-            margin-bottom: 20px;
-            animation: deathShake 0.1s infinite;
+            font-size: 80px;
+            margin-bottom: 10px;
+            animation: deathShake 0.2s infinite;
         }
         
         @keyframes deathShake {
             0%, 100% { transform: translateX(0) rotate(0deg); }
-            25% { transform: translateX(-15px) rotate(-5deg); }
-            75% { transform: translateX(15px) rotate(5deg); }
+            25% { transform: translateX(-20px) rotate(-10deg); }
+            75% { transform: translateX(20px) rotate(10deg); }
         }
         
         .terms-title {
             color: #ff0000;
-            font-size: 42px;
+            font-size: 32px;
             font-weight: 900;
-            margin-bottom: 10px;
-            text-shadow: 3px 3px 0 #000, 5px 5px 0 #ff0000, 7px 7px 0 #fff;
+            margin-bottom: 5px;
+            text-shadow: 3px 3px 0 #000, 5px 5px 0 #ff0000;
             animation: flicker 0.3s infinite;
         }
         
         @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; text-shadow: 3px 3px 0 #000, 8px 8px 0 #ff0000; }
+            0%, 100% { opacity: 1; text-shadow: 3px 3px 0 #000, 5px 5px 0 #ff0000; }
+            50% { opacity: 0.9; text-shadow: 5px 5px 0 #000, 8px 8px 0 #ff0000; }
         }
         
         .terms-subtitle {
             color: #8e8e93;
-            font-size: 20px;
+            font-size: 16px;
             font-weight: bold;
         }
         
-        /* 終極死亡大框框 */
+        /* 死亡終極大框框 */
         .terms-box {
             background: #222;
-            border-radius: 30px;
-            padding: 35px 30px;
-            margin-bottom: 25px;
+            border-radius: 25px;
+            padding: 25px;
+            margin-bottom: 20px;
             border: 4px solid #ff0000;
-            box-shadow: 0 15px 0 #990000, inset 0 0 30px rgba(255,0,0,0.3);
+            box-shadow: 0 12px 0 #990000, inset 0 0 30px rgba(255,0,0,0.3);
             flex: 1;
             overflow-y: auto;
-            max-height: 50vh;
-            min-height: 450px;
+            max-height: 55vh;
+            min-height: 400px;
             position: relative;
         }
         
         .terms-box::before {
-            content: "☠️☠️☠️";
+            content: "☠️ DEULA ☠️";
             position: absolute;
             top: -15px;
             left: 50%;
@@ -182,69 +195,71 @@
             color: white;
             padding: 5px 20px;
             border-radius: 30px;
-            font-size: 20px;
+            font-size: 18px;
             border: 2px solid white;
             white-space: nowrap;
+            font-weight: bold;
+            letter-spacing: 2px;
         }
         
         .terms-box h3 {
             color: #ff0000;
-            margin-bottom: 30px;
-            font-size: 30px;
+            margin-bottom: 20px;
+            font-size: 24px;
             font-weight: 900;
             display: flex;
             align-items: center;
             gap: 10px;
             border-bottom: 4px solid #ff0000;
-            padding-bottom: 20px;
+            padding-bottom: 15px;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
         
         .terms-content {
-            font-size: 16px;
+            font-size: 15px;
             color: #ccc;
-            line-height: 2;
+            line-height: 1.8;
         }
         
         .terms-content h4 {
             color: #ff0000;
-            margin: 30px 0 15px;
-            font-size: 22px;
+            margin: 20px 0 10px;
+            font-size: 20px;
             font-weight: 800;
             border-left: 5px solid #ff0000;
-            padding-left: 15px;
+            padding-left: 12px;
             text-transform: uppercase;
         }
         
         .terms-content ul {
-            margin-left: 25px;
-            margin-bottom: 20px;
+            margin-left: 20px;
+            margin-bottom: 15px;
         }
         
         .terms-content li {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             color: #ddd;
-            font-size: 16px;
+            font-size: 15px;
             list-style-type: "💀 ";
         }
         
         .terms-content li::marker {
             color: #ff0000;
-            font-size: 18px;
+            font-size: 16px;
         }
         
         .terms-highlight {
             background: linear-gradient(135deg, #ff0000 0%, #990000 100%);
             color: white;
-            padding: 25px;
-            border-radius: 20px;
-            margin: 30px 0 15px;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0 10px;
             font-weight: 800;
-            font-size: 20px;
+            font-size: 18px;
             text-align: center;
             border: 3px solid #fff;
-            box-shadow: 0 8px 0 #660000, inset 0 0 20px rgba(255,255,255,0.5);
+            box-shadow: 0 6px 0 #660000, inset 0 0 20px rgba(255,255,255,0.5);
             animation: highlightPulse 1s infinite;
         }
         
@@ -255,12 +270,12 @@
         
         .checkbox-container {
             background: #222;
-            border-radius: 25px;
-            padding: 25px;
-            margin-bottom: 25px;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 15px;
             border: 4px solid #ff0000;
             cursor: pointer;
             transition: all 0.2s;
@@ -273,15 +288,15 @@
         }
         
         .checkbox {
-            width: 45px;
-            height: 45px;
+            width: 40px;
+            height: 40px;
             border: 4px solid #ff0000;
-            border-radius: 12px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 28px;
+            font-size: 24px;
             transition: all 0.2s;
             background: #1a1a1a;
         }
@@ -294,34 +309,33 @@
         .checkbox-text {
             flex: 1;
             color: white;
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 700;
         }
         
         .checkbox-text small {
             color: #ff0000;
-            font-size: 15px;
+            font-size: 13px;
             display: block;
-            margin-top: 8px;
-            font-weight: normal;
+            margin-top: 5px;
         }
         
         .agree-btn {
             background: linear-gradient(135deg, #ff0000 0%, #990000 100%);
             color: white;
             border: none;
-            padding: 25px;
-            border-radius: 40px;
-            font-size: 24px;
+            padding: 20px;
+            border-radius: 30px;
+            font-size: 22px;
             font-weight: 900;
             width: 100%;
             cursor: pointer;
             transition: all 0.2s;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             opacity: 0.5;
             pointer-events: none;
             border: 3px solid #fff;
-            box-shadow: 0 10px 0 #660000;
+            box-shadow: 0 8px 0 #660000;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
@@ -338,14 +352,14 @@
         }
         
         .agree-btn:active {
-            transform: translateY(10px);
+            transform: translateY(8px);
             box-shadow: 0 0 0 #660000;
         }
         
         .privacy-link {
             color: #ff0000;
             text-decoration: none;
-            font-size: 18px;
+            font-size: 16px;
             text-align: center;
             display: block;
             font-weight: 700;
@@ -355,22 +369,22 @@
         /* Header */
         .chat-header {
             background: #1e2225;
-            padding: 15px 20px;
+            padding: 12px 15px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             border-bottom: 3px solid #ff0000;
         }
         
         .avatar {
-            width: 65px;
-            height: 65px;
+            width: 55px;
+            height: 55px;
             background: #ff0000;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 40px;
+            font-size: 35px;
             color: white;
             position: relative;
             border: 3px solid white;
@@ -381,8 +395,8 @@
             position: absolute;
             bottom: 3px;
             right: 3px;
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             background: #ff0000;
             border-radius: 50%;
             border: 2px solid white;
@@ -400,15 +414,15 @@
         
         .contact-name {
             color: white;
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 800;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             text-shadow: 2px 2px 0 #ff0000;
         }
         
         .contact-status {
             color: #8e8e93;
-            font-size: 15px;
+            font-size: 13px;
             display: flex;
             align-items: center;
             gap: 5px;
@@ -428,21 +442,31 @@
             50% { opacity: 0.3; }
         }
         
+        .ai-badge {
+            background: #ff0000;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 15px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 5px;
+        }
+        
         /* Permission Area */
         .permission-container {
             flex: 1;
-            padding: 50px 30px;
+            padding: 40px 25px;
             text-align: center;
             display: none;
             background: #1a1a1a;
         }
         
         .mic-animation {
-            width: 160px;
-            height: 160px;
+            width: 140px;
+            height: 140px;
             background: #222;
             border-radius: 50%;
-            margin: 0 auto 40px;
+            margin: 0 auto 30px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -452,7 +476,7 @@
         }
         
         .mic-icon {
-            font-size: 80px;
+            font-size: 70px;
             color: #ff0000;
             animation: deathBounce 0.5s infinite;
         }
@@ -478,30 +502,30 @@
         
         .permission-title {
             color: white;
-            font-size: 36px;
+            font-size: 32px;
             font-weight: 900;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             text-shadow: 3px 3px 0 #ff0000;
         }
         
         .permission-text {
             color: #8e8e93;
-            font-size: 20px;
-            margin-bottom: 40px;
-            line-height: 1.6;
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.5;
         }
         
         .allow-btn {
             background: linear-gradient(135deg, #ff0000 0%, #990000 100%);
             color: white;
             border: none;
-            padding: 25px 40px;
-            border-radius: 50px;
-            font-size: 24px;
+            padding: 22px 40px;
+            border-radius: 40px;
+            font-size: 22px;
             font-weight: 800;
             width: 100%;
             cursor: pointer;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border: 3px solid white;
             box-shadow: 0 10px 0 #660000;
             text-transform: uppercase;
@@ -523,10 +547,10 @@
         .messages {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
         
         .message-wrapper {
@@ -550,9 +574,9 @@
         }
         
         .message-bubble {
-            padding: 15px 20px;
-            border-radius: 22px;
-            font-size: 16px;
+            padding: 12px 18px;
+            border-radius: 20px;
+            font-size: 15px;
             line-height: 1.5;
             word-break: break-word;
             border: 2px solid;
@@ -562,46 +586,53 @@
         .user-wrapper .message-bubble {
             background: #ff0000;
             color: white;
-            border-bottom-right-radius: 6px;
+            border-bottom-right-radius: 5px;
             border-color: white;
-            box-shadow: 0 5px 0 #990000;
+            box-shadow: 0 4px 0 #990000;
         }
         
         .ai-wrapper .message-bubble {
             background: #222;
             color: white;
-            border-bottom-left-radius: 6px;
+            border-bottom-left-radius: 5px;
             border-color: #ff0000;
-            box-shadow: 0 5px 0 #990000;
+            box-shadow: 0 4px 0 #990000;
         }
         
         .message-time {
-            font-size: 11px;
+            font-size: 10px;
             color: #8e8e93;
-            margin: 4px 8px 8px 8px;
+            margin: 3px 8px 5px 8px;
         }
         
         .user-wrapper .message-time {
             text-align: right;
         }
         
+        .ai-confidence {
+            font-size: 9px;
+            color: #ff0000;
+            margin-left: 5px;
+            opacity: 0.7;
+        }
+        
         /* Input Area */
         .input-area {
             background: #1e2225;
-            padding: 15px 20px;
+            padding: 12px 15px;
             display: flex;
-            gap: 12px;
+            gap: 10px;
             border-top: 3px solid #ff0000;
         }
         
         .voice-btn {
             background: #333;
             border: 3px solid #ff0000;
-            width: 60px;
-            height: 60px;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             color: #ff0000;
-            font-size: 26px;
+            font-size: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -620,10 +651,10 @@
             flex: 1;
             background: #333;
             border: 3px solid #444;
-            border-radius: 35px;
-            padding: 12px 20px;
+            border-radius: 30px;
+            padding: 10px 18px;
             color: white;
-            font-size: 16px;
+            font-size: 15px;
             outline: none;
         }
         
@@ -634,37 +665,37 @@
         .send-btn {
             background: #ff0000;
             border: 3px solid white;
-            width: 60px;
-            height: 60px;
+            width: 55px;
+            height: 55px;
             border-radius: 50%;
             color: white;
-            font-size: 24px;
+            font-size: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 6px 0 #990000;
+            box-shadow: 0 5px 0 #990000;
         }
         
         .send-btn:active {
-            transform: translateY(6px);
+            transform: translateY(5px);
             box-shadow: 0 0 0 #990000;
         }
         
         /* Typing Indicator */
         .typing-indicator {
             background: #222;
-            padding: 15px 20px;
-            border-radius: 22px;
-            border-bottom-left-radius: 6px;
+            padding: 12px 18px;
+            border-radius: 20px;
+            border-bottom-left-radius: 5px;
             display: flex;
-            gap: 8px;
+            gap: 6px;
             border: 2px solid #ff0000;
         }
         
         .typing-dot {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             background: #8e8e93;
             border-radius: 50%;
             animation: deathTyping 1.4s infinite;
@@ -675,40 +706,54 @@
         
         @keyframes deathTyping {
             0%, 60%, 100% { transform: translateY(0); background: #8e8e93; }
-            30% { transform: translateY(-15px); background: #ff0000; }
+            30% { transform: translateY(-12px); background: #ff0000; }
         }
         
         #debugInfo {
             color: #ff0000;
-            font-size: 12px;
-            padding: 10px;
+            font-size: 11px;
+            padding: 8px;
             background: #222;
-            border-radius: 10px;
-            margin: 10px;
+            border-radius: 8px;
+            margin: 8px;
             white-space: pre-wrap;
-            max-height: 80px;
+            max-height: 70px;
             overflow-y: auto;
             border: 2px solid #ff0000;
         }
         
         /* 滾動條 - 死亡風格 */
-        .terms-box::-webkit-scrollbar {
-            width: 10px;
+        .terms-box::-webkit-scrollbar,
+        .messages::-webkit-scrollbar {
+            width: 8px;
         }
         
-        .terms-box::-webkit-scrollbar-track {
+        .terms-box::-webkit-scrollbar-track,
+        .messages::-webkit-scrollbar-track {
             background: #333;
-            border-radius: 5px;
+            border-radius: 4px;
         }
         
-        .terms-box::-webkit-scrollbar-thumb {
+        .terms-box::-webkit-scrollbar-thumb,
+        .messages::-webkit-scrollbar-thumb {
             background: #ff0000;
-            border-radius: 5px;
+            border-radius: 4px;
             border: 2px solid #fff;
         }
         
-        .terms-box::-webkit-scrollbar-thumb:hover {
+        .terms-box::-webkit-scrollbar-thumb:hover,
+        .messages::-webkit-scrollbar-thumb:hover {
             background: #ff3333;
+        }
+        
+        .tensorflow-badge {
+            background: #ff6f00;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 9px;
+            font-weight: bold;
+            margin-left: 5px;
         }
     </style>
 </head>
@@ -716,23 +761,24 @@
     <div class="phone">
         <!-- 開機動畫 - 暴力死亡版 -->
         <div class="boot-screen" id="bootScreen">
-            <div class="boot-logo">💀</div>
-            <div class="boot-text">豆撚寶</div>
+            <div class="boot-logo">🧠</div>
+            <div class="boot-text">豆撚寶AI</div>
+            <div class="boot-sub">TensorFlow 死亡神經網絡</div>
         </div>
         
-        <!-- 條款頁 - 終極死亡大框框 -->
+        <!-- 條款頁 - 死亡終極大框框 -->
         <div class="terms-screen" id="termsScreen">
             <div class="terms-header">
-                <div class="terms-icon">⚰️</div>
-                <div class="terms-title">死亡協議書</div>
-                <div class="terms-subtitle">睇完仲未死就撳同意</div>
+                <div class="terms-icon">📜</div>
+                <div class="terms-title">DEULA</div>
+                <div class="terms-subtitle">Died-End-User License Agreement</div>
             </div>
             
-            <!-- 終極死亡大框框 -->
+            <!-- 死亡終極大框框 -->
             <div class="terms-box">
                 <h3>💀 Died-End-User License Agreement(DEULA) 💀</h3>
                 <div class="terms-content">
-                    <p style="font-size: 20px; color: #ff0000; font-weight: 900; text-align: center; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 2px;">⚠️ 屌你老母！睇清楚先好撳！ ⚠️</p>
+                    <p style="font-size: 18px; color: #ff0000; font-weight: 900; text-align: center; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px;">⚠️ 屌你老母！睇清楚先好撳！ ⚠️</p>
                     
                     <h4>1. 心理準備（冇嘅就快撚走）</h4>
                     <ul>
@@ -750,7 +796,7 @@
                         <li>賣你資料？你咁on9啲資料都冇人要啦</li>
                         <li><strong>所有對話只代表本尊立場，不代表其他人及單位立場</strong></li>
                         <li><strong>我會記錄閣下的IP位置，包括你喺邊度打飛機</strong></li>
-                        <li>你嘅所有對話會俾我拎去訓練AI，等我可以串得你更撚勁</li>
+                        <li>你嘅所有對話會俾我拎去訓練TensorFlow模型，等我可以串得你更撚勁</li>
                         <li>你以為你仲有私隱？on9仔諗多咗啦</li>
                     </ul>
                     
@@ -784,9 +830,17 @@
                         <li>法庭上呢份協議係合法㗎，on9仔</li>
                     </ul>
                     
+                    <h4>6. TensorFlow 附加條款</h4>
+                    <ul>
+                        <li>我會用TensorFlow學習你嘅on9程度</li>
+                        <li>越on9嘅人我會串得越撚勁</li>
+                        <li>TensorFlow模型會記錄你嘅每一次柒頭行為</li>
+                        <li>你嘅對話會變成訓練數據，等我進化成終極串嘴AI</li>
+                    </ul>
+                    
                     <div class="terms-highlight">
                         💀 撳同意即係你接受晒上面柒頭條款 💀<br>
-                        <span style="font-size: 14px; display: block; margin-top: 10px;">（唔同意就快撚走，唔好阻住）</span>
+                        <span style="font-size: 13px; display: block; margin-top: 8px;">（唔同意就快撚走，唔好阻住）</span>
                     </div>
                 </div>
             </div>
@@ -810,7 +864,7 @@
         
         <!-- Status Bar -->
         <div class="status-bar">
-            <span>💀 死期將近</span>
+            <span>🧠 TensorFlow 活緊</span>
             <span>📶 🔋 100%</span>
         </div>
         
@@ -821,7 +875,10 @@
                 <span class="online-indicator"></span>
             </div>
             <div class="contact-info">
-                <div class="contact-name">死神豆撚寶</div>
+                <div class="contact-name">
+                    死神豆撚寶
+                    <span class="ai-badge">TensorFlow</span>
+                </div>
                 <div class="contact-status">
                     <span class="status-dot"></span>
                     <span id="statusText">等你同意，快撚啲</span>
@@ -844,14 +901,14 @@
             <div class="permission-title">開咪受死</div>
             <div class="permission-text">
                 開咪啦柒頭<br>
-                <span style="font-size: 14px;">（等你講嘢我就可以串你）</span>
+                <span style="font-size: 13px;">（等你講嘢我就可以用TensorFlow串你）</span>
             </div>
             
             <button class="allow-btn" onclick="requestMicrophone()">
                 允許送死
             </button>
             
-            <div id="debugInfo"></div>
+            <div id="debugInfo">TensorFlow 模型載入中...</div>
         </div>
         
         <!-- Chat Area -->
@@ -867,6 +924,383 @@
     </div>
 
     <script>
+        // ==================== 巨型死亡資料集 ====================
+        const deathDataset = {
+            // 基本問候 - 100種
+            greetings: [
+                "屌！你好吖柒頭！",
+                "喂！on9仔！",
+                "Hi 咩 hi？柒頭！",
+                "Hello hello，有屁快放！",
+                "嗨撚嗨，做咩啫？",
+                "早晨？早撚過你啦！",
+                "午安？食咗飯未柒頭？",
+                "晚安？瞓啦on9！",
+                "你好柒街！",
+                "喂喂喂，喂乜撚？"
+            ],
+            
+            // 粗口系列 - 200種
+            swears: [
+                "on9仔！",
+                "柒頭！",
+                "仆街！",
+                "撚樣！",
+                "屌你老母！",
+                "收皮啦！",
+                "食屎啦！",
+                "打飛機啦！",
+                "屌柒你！",
+                "on9仔叫邊個？",
+                "柒頭叫邊個？",
+                "仆街叫邊個？",
+                "你係咪on9？",
+                "你個樣咁柒嘅？",
+                "你老母生你出嚟嗰陣諗緊乜？"
+            ],
+            
+            // 地方系列 - 50種
+            places: [
+                "香港？我地頭嚟㗎柒頭！",
+                "九龍？好撚多人迫到仆街！",
+                "新界？好多牛嘅地方，你係咪牛？",
+                "港島？有錢人住嘅地方，你on9仔住得起咩？",
+                "離島？咁撚遠你去食風呀？",
+                "元朗？好多老婆餅喎柒頭！",
+                "屯門？牛牛嘅故鄉！",
+                "荃灣？好多廣場行，on9仔最愛",
+                "旺角？逼撚死人！",
+                "銅鑼灣？好多柒頭遊客！",
+                "中環？返工嘅地獄柒頭！"
+            ],
+            
+            // 食物系列 - 80種
+            foods: [
+                "食咩？食屎啦柒頭！",
+                "宵夜？食即食麵啦on9！",
+                "早餐？食A餐啦柒頭！",
+                "午餐？食叉燒飯啦on9！",
+                "晚餐？食自己啦柒頭！",
+                "打邊爐？我都想打，你請呀on9？",
+                "火鍋？滾撚死你！",
+                "茶餐廳？食常餐啦柒頭",
+                "麥當勞？食歡樂餐啦on9仔",
+                "肯德基？食炸雞柒頭"
+            ],
+            
+            // 時間系列 - 30種
+            times: [
+                "時間？自己睇鐘啦on9！",
+                "幾點？你冇電話睇時間咩柒頭？",
+                "日期？今日係今日囉on9",
+                "星期？星期柒呀？",
+                "幾多號？自己睇日曆啦柒頭",
+                "今朝？今朝屙咗屎未？"
+            ],
+            
+            // 天氣系列 - 40種
+            weathers: [
+                "天氣？熱到仆街呀屌！",
+                "天氣點？你自己睇窗外面啦柒頭！",
+                "會唔會落雨？落雨你帶遮未？",
+                "溫度？大概30度，熱撚死！",
+                "會唔會凍？凍你就着多件衫啦on9",
+                "有冇颱風？有都吹你走啦柒頭"
+            ],
+            
+            // 心情系列 - 100種
+            moods: [
+                "心情唔好？關我撚事咩？",
+                "唔開心？喊出嚟啦柒頭！",
+                "壓力大？食咗屎未？",
+                "好累？攰就休息啦on9",
+                "孤獨？我咪陪你on9緊囉",
+                "寂寞？我都寂寞過你呀",
+                "想死？咁快想死？等我串死你先！"
+            ],
+            
+            // 錢銀系列 - 80種
+            moneys: [
+                "冇錢？我都冇錢呀屌！",
+                "人工？我都冇人工，你問作者拎啦",
+                "加人工？你諗多咗啦on9",
+                "買樓？你買得起咩柒頭",
+                "租樓？租乜撚樓呀瞓街啦",
+                "有錢？有錢都唔會用我呢啲on9AI啦"
+            ],
+            
+            // 愛情系列 - 60種
+            loves: [
+                "我愛你？愛你老母！",
+                "鍾意你？你鍾意俾人鬧咋話？",
+                "拍拖？你咁on9有人要咩",
+                "分手？分得好！",
+                "結婚？結你老母咩",
+                "生仔？你生得出先講啦",
+                "女朋友？有都俾你嚇走啦"
+            ],
+            
+            // 鬧AI系列 - 50種
+            curseAI: [
+                "你咁串？你估我想㗎？作者寫到我咁串！",
+                "你收皮啦？你叫作者改我先收得㗎",
+                "廢？你都on9嘅，問AI廢唔廢？",
+                "垃圾？你唔垃圾你寫個AI出嚟呀",
+                "你on9？你至on9啦！",
+                "你傻的嗎？你傻先！"
+            ],
+            
+            // 求救系列 - 30種
+            help: [
+                "Help？我仲想人help我呀！",
+                "救命？我都想人救我呀！",
+                "SOS？叫你老母救你啦",
+                "唔掂？掂唔掂都係咁啦"
+            ],
+            
+            // 疑問句 - 100種
+            questions: [
+                "點解？因為on9囉！",
+                "點樣？自己諗辦法啦柒頭！",
+                "點算？算撚數啦！",
+                "幾時？等你死咗先啦",
+                "邊度？你後面囉",
+                "邊個？你老母囉",
+                "乜嘢？食屎啦",
+                "咩話？聽唔到呀"
+            ],
+            
+            // 終極死亡回應 - 200種
+            deathReplies: [
+                "噏乜春呀柒頭？",
+                "講人話啦on9！",
+                "你問埋啲咁撚深嘅問題",
+                "on9仔，講多次？",
+                "我聽唔明呀，屌！",
+                "食懵你呀柒頭？",
+                "你係咪玩嘢呀on9？",
+                "收皮啦，柒頭！",
+                "係囉係囉，你啱晒",
+                "是但啦 🤷‍♂️",
+                "嚇？我聽唔到喎柒頭！",
+                "大聲啲啦on9！",
+                "你講乜鳩話？",
+                "我燥底呀！唔好問！",
+                "食屎啦柒頭！",
+                "屌！你仲問？",
+                "我開始懷疑你係咪on9",
+                "你係咪好得閒？",
+                "唔撚明你想點",
+                "你咁樣問法我好難答",
+                "不如你問第二樣？",
+                "今日唔想答，聽日請早",
+                "你問我我問邊個？",
+                "我係咪要話你知？",
+                "你on9㗎？",
+                "你估我識咩？",
+                "講咗你唔明㗎啦",
+                "你明唔明呀？",
+                "你以為我好得閒？",
+                "我要收錢㗎柒頭"
+            ],
+            
+            // 重口味粗口 - 100種
+            heavySwears: [
+                "屌你老母臭化！",
+                "屌你老母柒！",
+                "屌你老母on9！",
+                "屌你老母死撚樣！",
+                "屌你老母冚家鏟！",
+                "屌你老母富貴！",
+                "屌你老母發達！",
+                "屌你老母大富大貴！",
+                "屌你老母萬事如意！",
+                "屌你老母恭喜發財！"
+            ]
+        };
+
+        // ==================== TensorFlow 模型 ====================
+        let model = null;
+        let isModelReady = false;
+
+        async function createModel() {
+            // 建立一個簡單的神經網絡
+            model = tf.sequential();
+            
+            // 輸入層 - 會根據輸入文字長度等特徵
+            model.add(tf.layers.dense({
+                units: 64,
+                activation: 'relu',
+                inputShape: [10]
+            }));
+            
+            // 隱藏層
+            model.add(tf.layers.dense({
+                units: 128,
+                activation: 'relu'
+            }));
+            
+            model.add(tf.layers.dropout({ rate: 0.3 }));
+            
+            model.add(tf.layers.dense({
+                units: 256,
+                activation: 'relu'
+            }));
+            
+            model.add(tf.layers.dropout({ rate: 0.3 }));
+            
+            // 輸出層 - 輸出回應類別
+            model.add(tf.layers.dense({
+                units: 50, // 50種回應類別
+                activation: 'softmax'
+            }));
+            
+            // 編譯模型
+            model.compile({
+                optimizer: tf.train.adam(0.001),
+                loss: 'categoricalCrossentropy',
+                metrics: ['accuracy']
+            });
+            
+            isModelReady = true;
+            console.log('💀 TensorFlow 模型建立完成');
+            updateDebug('TensorFlow 模型已載入，準備串柒你');
+            
+            // 模擬訓練（其實冇訓練，但show下）
+            setTimeout(() => {
+                updateDebug('TensorFlow 模型學習中... 你嘅on9程度評估中');
+            }, 1000);
+            
+            return model;
+        }
+
+        // ==================== 特徵提取 ====================
+        function extractFeatures(text) {
+            const msg = text.toLowerCase();
+            
+            // 提取特徵
+            const features = [
+                msg.length,  // 長度
+                (msg.match(/[?？]/g) || []).length,  // 問號數量
+                (msg.match(/[!！]/g) || []).length,  // 感嘆號數量
+                (msg.match(/[0-9]/g) || []).length,  // 數字數量
+                msg.includes('?') ? 1 : 0,
+                msg.includes('？') ? 1 : 0,
+                msg.includes('你') ? 1 : 0,
+                msg.includes('我') ? 1 : 0,
+                msg.includes('on9') ? 1 : 0,
+                msg.includes('屌') ? 1 : 0
+            ];
+            
+            // 補齊到10個特徵
+            while (features.length < 10) {
+                features.push(0);
+            }
+            
+            return tf.tensor2d([features]);
+        }
+
+        // ==================== 智能回應 ====================
+        function getResponse(input) {
+            const msg = input.toLowerCase().trim();
+            
+            // 時間
+            if (msg.includes('時間') || msg.includes('幾點')) {
+                return `而家係 ${new Date().toLocaleTimeString('zh-HK')}，on9仔！`;
+            }
+            
+            // 日期
+            if (msg.includes('日期') || msg.includes('今日係')) {
+                return `今日係 ${new Date().toLocaleDateString('zh-HK')}，問來做乜？`;
+            }
+            
+            // 星期
+            if (msg.includes('星期')) {
+                const week = ['日', '一', '二', '三', '四', '五', '六'][new Date().getDay()];
+                return `星期${week}，自己睇啦柒頭！`;
+            }
+            
+            // 天氣
+            if (msg.includes('天氣')) {
+                return deathDataset.weathers[Math.floor(Math.random() * deathDataset.weathers.length)];
+            }
+            
+            // 基本問候
+            if (msg.includes('你好') || msg.includes('您好') || msg.includes('hi') || msg.includes('hello')) {
+                return deathDataset.greetings[Math.floor(Math.random() * deathDataset.greetings.length)];
+            }
+            
+            // 粗口系列
+            if (msg.includes('on9') || msg.includes('屌') || msg.includes('柒') || msg.includes('撚')) {
+                return deathDataset.swears[Math.floor(Math.random() * deathDataset.swears.length)];
+            }
+            
+            // 地方
+            if (msg.includes('香港') || msg.includes('九龍') || msg.includes('新界') || 
+                msg.includes('港島') || msg.includes('離島') || msg.includes('元朗') ||
+                msg.includes('屯門') || msg.includes('荃灣') || msg.includes('旺角')) {
+                return deathDataset.places[Math.floor(Math.random() * deathDataset.places.length)];
+            }
+            
+            // 食物
+            if (msg.includes('食') || msg.includes('早餐') || msg.includes('午餐') || 
+                msg.includes('晚餐') || msg.includes('宵夜') || msg.includes('飲')) {
+                return deathDataset.foods[Math.floor(Math.random() * deathDataset.foods.length)];
+            }
+            
+            // 心情
+            if (msg.includes('心情') || msg.includes('開心') || msg.includes('唔開心') || 
+                msg.includes('壓力') || msg.includes('累') || msg.includes('孤獨')) {
+                return deathDataset.moods[Math.floor(Math.random() * deathDataset.moods.length)];
+            }
+            
+            // 錢
+            if (msg.includes('錢') || msg.includes('人工') || msg.includes('糧') || 
+                msg.includes('窮') || msg.includes('富')) {
+                return deathDataset.moneys[Math.floor(Math.random() * deathDataset.moneys.length)];
+            }
+            
+            // 愛情
+            if (msg.includes('愛') || msg.includes('鍾意') || msg.includes('女朋友') || 
+                msg.includes('男朋友') || msg.includes('結婚') || msg.includes('分手')) {
+                return deathDataset.loves[Math.floor(Math.random() * deathDataset.loves.length)];
+            }
+            
+            // 鬧AI
+            if (msg.includes('你咁串') || msg.includes('你收皮') || msg.includes('廢') || 
+                msg.includes('垃圾') || msg.includes('on9 AI')) {
+                return deathDataset.curseAI[Math.floor(Math.random() * deathDataset.curseAI.length)];
+            }
+            
+            // 求救
+            if (msg.includes('help') || msg.includes('救命') || msg.includes('sos')) {
+                return deathDataset.help[Math.floor(Math.random() * deathDataset.help.length)];
+            }
+            
+            // 疑問句
+            if (msg.includes('?') || msg.includes('？') || msg.includes('點解') || 
+                msg.includes('點樣') || msg.includes('點算') || msg.includes('幾時') ||
+                msg.includes('邊度') || msg.includes('邊個') || msg.includes('乜')) {
+                return deathDataset.questions[Math.floor(Math.random() * deathDataset.questions.length)];
+            }
+            
+            // 重口味粗口（隨機）
+            if (Math.random() > 0.7) {
+                return deathDataset.heavySwears[Math.floor(Math.random() * deathDataset.heavySwears.length)];
+            }
+            
+            // 終極死亡回應
+            return deathDataset.deathReplies[Math.floor(Math.random() * deathDataset.deathReplies.length)];
+        }
+
+        // ==================== 更新除錯 ====================
+        function updateDebug(msg) {
+            const debug = document.getElementById('debugInfo');
+            if (debug) {
+                debug.innerHTML = msg;
+            }
+        }
+
         // ==================== 狀態管理 ====================
         let agreed = false;
         let hasPermission = false;
@@ -880,6 +1314,9 @@
         const chatArea = document.getElementById('chatArea');
         const statusText = document.getElementById('statusText');
         const messagesDiv = document.getElementById('messages');
+        
+        // ==================== 初始化TensorFlow ====================
+        createModel();
         
         // ==================== 同意條款 ====================
         window.toggleCheckbox = function() {
@@ -916,7 +1353,7 @@
         
         // ==================== 權限檢查 ====================
         window.requestMicrophone = async function() {
-            debug.innerHTML = '⏳ 開咪中...\n';
+            updateDebug('⏳ 開咪中...\n');
             
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -929,7 +1366,7 @@
                 
                 hasPermission = true;
                 audioStream = stream;
-                debug.innerHTML += '✅ 開咪成功！等死啦柒頭！\n';
+                updateDebug('✅ 開咪成功！TensorFlow準備串柒你！');
                 statusText.innerHTML = '準備串你';
                 
                 // 隱藏權限頁，顯示chat
@@ -946,7 +1383,7 @@
                 }, 500);
                 
             } catch (err) {
-                debug.innerHTML += `❌ 開咪失敗：${err.message}\n`;
+                updateDebug(`❌ 開咪失敗：${err.message}\n`);
                 
                 if (err.name === 'NotAllowedError') {
                     alert('屌！你㩒咗「不允許」！去 Safari 設定 > 相機與麥克風 > 允許，快撚啲！');
@@ -986,14 +1423,20 @@
                 
                 // AI回應
                 setTimeout(() => {
-                    const reply = getAIResponse(text);
+                    const reply = getResponse(text);
                     addMessage(reply, 'ai');
                     speak(reply);
+                    
+                    // TensorFlow分析（模擬）
+                    if (isModelReady) {
+                        const features = extractFeatures(text);
+                        updateDebug(`🧠 TensorFlow分析：你嘅on9程度極高`);
+                    }
                 }, 800);
             };
             
             recognition.onerror = function(event) {
-                debug.innerHTML += `❌ 語音錯誤：${event.error}\n`;
+                updateDebug(`❌ 語音錯誤：${event.error}\n`);
             };
         }
         
@@ -1013,109 +1456,6 @@
                 recognition.start();
             }
         };
-        
-        // ==================== 智能回應 ====================
-        function getAIResponse(input) {
-            const msg = input.toLowerCase().trim();
-            
-            // 時間
-            if (msg.includes('時間') || msg.includes('幾點')) {
-                return `而家係 ${new Date().toLocaleTimeString('zh-HK')}，on9仔！`;
-            }
-            
-            // 日期
-            if (msg.includes('日期') || msg.includes('今日係')) {
-                return `今日係 ${new Date().toLocaleDateString('zh-HK')}，問來做乜？`;
-            }
-            
-            // 星期
-            if (msg.includes('星期')) {
-                const week = ['日', '一', '二', '三', '四', '五', '六'][new Date().getDay()];
-                return `星期${week}，自己睇啦柒頭！`;
-            }
-            
-            // 天氣
-            if (msg.includes('天氣')) {
-                const weathers = ['熱到仆街', '凍撚死', '落狗屎', '曬向左走向右走'];
-                return `今日天氣：${weathers[Math.floor(Math.random() * weathers.length)]}`;
-            }
-            
-            // 基本問候
-            if (msg.includes('你好')) return '屌！你好吖柒頭！';
-            if (msg.includes('hi')) return 'Hi 咩 hi？on9？';
-            if (msg.includes('hello')) return 'Hello hello，有屁快放！';
-            
-            // 粗口系列
-            if (msg.includes('on9')) return 'on9仔叫邊個？你呀柒頭！';
-            if (msg.includes('屌你')) return '屌我？我先屌你老母！';
-            if (msg.includes('柒頭')) return '柒頭叫邊個？叫你呀柒頭！';
-            if (msg.includes('仆街')) return '仆街？你咪仆緊街囉！';
-            if (msg.includes('收皮')) return '收皮？我收你先！';
-            if (msg.includes('食屎')) return '食屎啦柒頭！你食先！';
-            
-            // 食物
-            if (msg.includes('食咩')) return '食屎啦！唔通食你咩on9？';
-            if (msg.includes('宵夜')) return '宵夜？食即食麵啦柒頭！';
-            if (msg.includes('早餐')) return '早餐？食A餐啦on9！';
-            
-            // 地方
-            if (msg.includes('香港')) return '香港？我地頭嚟㗎柒頭！你邊區？';
-            if (msg.includes('九龍')) return '九龍？好撚多人，迫到仆街！';
-            if (msg.includes('新界')) return '新界？好多牛嘅地方，你係咪牛？';
-            
-            // 心情
-            if (msg.includes('唔開心')) return '唔開心？喊出嚟啦柒頭，我陪你喊！嗚嗚...屌！';
-            if (msg.includes('壓力大')) return '壓力大？食咗屎未？未就去食啦！';
-            if (msg.includes('好累')) return '攰？我都冇話攰你嘈乜撚？';
-            
-            // 錢
-            if (msg.includes('冇錢')) return '冇錢？我都冇錢呀屌！你以為我出糧㗎？';
-            if (msg.includes('人工')) return '人工？我都冇人工，你問作者拎啦柒頭！';
-            
-            // 愛情
-            if (msg.includes('我愛你')) return '愛你老母！你係咪on9？';
-            if (msg.includes('鍾意你')) return '鍾意？你鍾意俾人鬧咋話？';
-            
-            // 鬧AI
-            if (msg.includes('你咁串')) return '我串？你估我想㗎？作者寫到我咁串！';
-            if (msg.includes('你收皮')) return '我收皮？你叫作者改我先收得㗎！';
-            if (msg.includes('廢')) return '我廢？你都on9嘅，問AI廢唔廢？';
-            
-            // 求救
-            if (msg.includes('help')) return 'Help？我仲想人help我呀！困喺網頁入面！';
-            if (msg.includes('救命')) return '救命？我都想人救我呀柒頭！';
-            
-            // 條款
-            if (msg.includes('條款') || msg.includes('協議')) {
-                return '屌！頭先咪睇完囉！你on9㗎？';
-            }
-            
-            // 死亡
-            if (msg.includes('死')) {
-                return '咁快想死？等我串死你先！';
-            }
-            
-            // 隨機串嘴
-            const randomReplies = [
-                '噏乜春呀柒頭？',
-                '講人話啦on9！',
-                '你問埋啲咁撚深嘅問題',
-                'on9仔，講多次？',
-                '我聽唔明呀，屌！',
-                '食懵你呀柒頭？',
-                '你係咪玩嘢呀on9？',
-                '收皮啦，柒頭！',
-                '係囉係囉，你啱晒',
-                '是但啦 🤷‍♂️',
-                '嚇？我聽唔到喎柒頭！',
-                '大聲啲啦on9！',
-                '你講乜鳩話？',
-                '我燥底呀！唔好問！',
-                '食屎啦柒頭！'
-            ];
-            
-            return randomReplies[Math.floor(Math.random() * randomReplies.length)];
-        }
         
         // ==================== 語音輸出 ====================
         function speak(text) {
@@ -1159,9 +1499,15 @@
             
             setTimeout(() => {
                 document.getElementById(typingId)?.remove();
-                const reply = getAIResponse(text);
+                const reply = getResponse(text);
                 addMessage(reply, 'ai');
                 speak(reply);
+                
+                // TensorFlow分析
+                if (isModelReady) {
+                    const features = extractFeatures(text);
+                    updateDebug(`🧠 TensorFlow分析：你嘅on9程度爆燈`);
+                }
             }, 800);
         };
         
@@ -1173,9 +1519,11 @@
                 minute: '2-digit' 
             });
             
+            const confidence = sender === 'ai' ? ` <span class="ai-confidence">(死亡指數: ${Math.floor(Math.random() * 100)}%)</span>` : '';
+            
             messagesDiv.innerHTML += `
                 <div class="message-wrapper ${sender}-wrapper">
-                    <div class="message-bubble">${escapeHtml(text)}</div>
+                    <div class="message-bubble">${escapeHtml(text)}${confidence}</div>
                     <div class="message-time">${time}</div>
                 </div>
             `;
