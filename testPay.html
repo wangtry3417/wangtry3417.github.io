@@ -1,249 +1,159 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Apple Pay 測試（已修正）</title>
+    <title>Apple Pay 測試 - 簡化版</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://applepay.cdn-apple.com/jsapi/v1/apple-pay-sdk.js"></script>
     <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
         #apple-pay-button {
             -webkit-appearance: -apple-pay-button;
             apple-pay-button-type: buy;
             apple-pay-button-style: black;
-            width: 250px;
+            width: 100%;
             height: 45px;
-            display: none;
-            margin: 20px auto;
-        }
-        .container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            text-align: center;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-        }
-        .status {
-            padding: 15px;
-            border-radius: 8px;
             margin: 20px 0;
+            display: none;
+        }
+        .message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            font-size: 14px;
         }
         .success { background: #d4edda; color: #155724; }
         .error { background: #f8d7da; color: #721c24; }
         .info { background: #e2f3f5; color: #0c5460; }
-        pre {
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 5px;
-            text-align: left;
-            overflow: auto;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🍎 Apple Pay 測試</h1>
         
-        <div id="status" class="status info">檢查 Apple Pay 可用性...</div>
+        <div id="message" class="message info">
+            檢查 Apple Pay 中...
+        </div>
         
         <button id="apple-pay-button"></button>
         
-        <div id="result" style="margin-top: 30px;"></div>
-        
-        <div id="debug" style="margin-top: 30px; display: none;">
-            <h3>Debug 資訊：</h3>
-            <pre id="debug-info"></pre>
-        </div>
+        <div id="debug" style="margin-top: 20px; font-size: 12px; color: #666;"></div>
     </div>
 
     <script>
-    // 官方測試 merchant
-    const TEST_MERCHANT = 'merchant.com.apple.sandbox.test';
-    let applePaySession = null;
+    const MERCHANT_ID = 'merchant.com.apple.sandbox.test';
+    
+    document.addEventListener('DOMContentLoaded', init);
 
-    // 初始化
-    document.addEventListener('DOMContentLoaded', async () => {
-        await checkApplePay();
-    });
-
-    async function checkApplePay() {
-        const status = document.getElementById('status');
-        
+    async function init() {
         if (!window.ApplePaySession) {
-            status.className = 'status error';
-            status.innerHTML = '❌ 此瀏覽器唔支援 Apple Pay<br>請用 Safari 瀏覽器';
+            showMessage('請使用 Safari 瀏覽器', 'error');
             return;
         }
 
-        // 檢查 Apple Pay 版本
-        const version = ApplePaySession.supportsVersion(6) ? 6 : 
-                       ApplePaySession.supportsVersion(5) ? 5 : 
-                       ApplePaySession.supportsVersion(4) ? 4 : 3;
-        
-        console.log('Apple Pay 版本:', version);
-
-        // 檢查是否可以支付
+        // 檢查 Apple Pay 可用性
         if (ApplePaySession.canMakePayments()) {
-            status.className = 'status success';
-            status.innerHTML = '✅ Apple Pay 可用！<br>請按下方按鈕測試';
+            showMessage('Apple Pay 已就緒', 'success');
             document.getElementById('apple-pay-button').style.display = 'block';
         } else {
-            status.className = 'status error';
-            status.innerHTML = '❌ 此設備未設定 Apple Pay<br>' +
-                             '請去 Wallet App 加入一張卡';
+            showMessage('請先在 Wallet 加入卡片', 'error');
         }
     }
 
-    // 處理 Apple Pay
-    document.getElementById('apple-pay-button').onclick = async () => {
+    document.getElementById('apple-pay-button').onclick = startApplePay;
+
+    function startApplePay() {
         try {
-            // 1. 建立支付請求
+            // 最簡單嘅 payment request
             const paymentRequest = {
                 countryCode: 'HK',
                 currencyCode: 'HKD',
-                supportedNetworks: ['visa', 'masterCard', 'amex', 'discover'],
-                merchantCapabilities: ['supports3DS', 'supportsCredit', 'supportsDebit'],
-                merchantIdentifier: TEST_MERCHANT,
-                
-                // 支付總額
+                supportedNetworks: ['visa', 'masterCard', 'amex'],
+                merchantCapabilities: ['supports3DS'],
+                merchantIdentifier: MERCHANT_ID,
                 total: {
-                    label: 'Apple Pay 測試商品',
+                    label: '測試商品',
                     amount: '0.01',
                     type: 'final'
-                },
-                
-                // 可選：加入更多資料
-                lineItems: [
-                    {
-                        label: '商品測試',
-                        amount: '0.01'
-                    }
-                ],
-                
-                // 需要嘅聯絡資料
-                requiredBillingContactFields: ['postalAddress', 'name'],
-                requiredShippingContactFields: ['email', 'phone'],
-                
-                // 送貨方式
-                shippingMethods: [
-                    {
-                        label: '免費送貨',
-                        amount: '0.00',
-                        detail: '3-5 日',
-                        identifier: 'free'
-                    }
-                ]
-            };
-
-            // 2. 檢查支付請求
-            console.log('Payment Request:', paymentRequest);
-
-            // 3. 建立 Session（用檢測到嘅版本）
-            const version = ApplePaySession.supportsVersion(6) ? 6 : 4;
-            applePaySession = new ApplePaySession(version, paymentRequest);
-
-            // 4. Merchant Validation - 最關鍵部分！
-            applePaySession.onvalidatemerchant = (event) => {
-                console.log('Validation URL:', event.validationURL);
-                updateStatus('🔑 驗證商戶中...', 'info');
-                
-                try {
-                    // ✅ 官方測試環境 - 直接回傳 merchant session
-                    const merchantSession = {
-                        merchantIdentifier: TEST_MERCHANT,
-                        domainName: window.location.hostname,
-                        displayName: '測試商店',
-                        // 加入必要嘅欄位
-                        initiative: 'web',
-                        initiativeContext: window.location.hostname
-                    };
-                    
-                    console.log('Merchant Session:', merchantSession);
-                    
-                    // 完成驗證
-                    applePaySession.completeMerchantValidation(merchantSession);
-                    updateStatus('✅ 商戶驗證成功', 'success');
-                    
-                } catch (error) {
-                    console.error('Validation Error:', error);
-                    updateStatus('❌ 商戶驗證失敗：' + error.message, 'error');
-                    applePaySession.abort();
                 }
             };
 
-            // 5. 揀咗送貨方式
-            applePaySession.onshippingmethodselected = (event) => {
-                console.log('Shipping Method:', event.shippingMethod);
-                
-                // 更新總額（可以根據送貨方式調整）
-                const newTotal = {
-                    label: 'Apple Pay 測試商品',
-                    amount: event.shippingMethod.identifier === 'free' ? '0.01' : '30.01',
-                    type: 'final'
-                };
-                
-                applePaySession.completeShippingMethodSelection(
-                    ApplePaySession.STATUS_SUCCESS,
-                    newTotal,
-                    event.shippingMethod
-                );
-            };
+            // 用 version 4 (最穩定)
+            const session = new ApplePaySession(4, paymentRequest);
 
-            // 6. 支付授權
-            applePaySession.onpaymentauthorized = (event) => {
-                console.log('Payment Authorized:', event.payment);
+            // 1. Merchant Validation
+            session.onvalidatemerchant = (event) => {
+                debug('收到 validation URL');
                 
-                // 顯示支付資料
-                displayResult(event.payment);
-                
-                // ✅ 支付成功
-                applePaySession.completePayment({
-                    status: ApplePaySession.STATUS_SUCCESS
+                // 官方測試 merchant - 直接回傳基本資料
+                session.completeMerchantValidation({
+                    merchantIdentifier: MERCHANT_ID,
+                    domainName: window.location.hostname,
+                    displayName: '測試商店'
                 });
                 
-                updateStatus('✅ 支付成功！', 'success');
+                debug('商戶驗證完成');
+                showMessage('商戶驗證成功 ✓', 'success');
             };
 
-            // 7. 用戶取消
-            applePaySession.oncancel = (event) => {
-                console.log('Payment Cancelled:', event);
-                updateStatus('❌ 用戶取消支付', 'info');
-                applePaySession = null;
+            // 2. Payment Authorization
+            session.onpaymentauthorized = (event) => {
+                debug('收到支付授權');
+                
+                // 支付成功！
+                const result = {
+                    status: ApplePaySession.STATUS_SUCCESS
+                };
+                
+                session.completePayment(result);
+                
+                showMessage('✅ 支付成功！', 'success');
+                debug('交易完成：' + event.payment.token.transactionId);
             };
 
-            // 8. 開始 Apple Pay
-            applePaySession.begin();
+            // 3. Cancel
+            session.oncancel = (event) => {
+                showMessage('用戶取消支付', 'info');
+                debug('用戶取消');
+            };
 
+            // 開始
+            session.begin();
+            showMessage('請完成 Face ID / Touch ID', 'info');
+            
         } catch (error) {
-            console.error('Apple Pay Error:', error);
-            updateStatus('❌ 錯誤：' + error.message, 'error');
+            showMessage('錯誤：' + error.message, 'error');
+            debug('Error: ' + error.toString());
         }
-    };
-
-    // Helper functions
-    function updateStatus(message, type) {
-        const status = document.getElementById('status');
-        status.className = `status ${type}`;
-        status.innerHTML = message;
     }
 
-    function displayResult(payment) {
-        const result = document.getElementById('result');
-        const token = payment.token;
-        
-        result.innerHTML = `
-            <h3>✅ 支付成功！</h3>
-            <div style="text-align: left; background: #f9f9f9; padding: 15px; border-radius: 5px;">
-                <p><strong>Transaction ID:</strong> ${token.transactionId}</p>
-                <p><strong>Payment Method:</strong> ${token.paymentMethod.network} (${token.paymentMethod.type})</p>
-                <p><strong>Shipping:</strong> ${payment.shippingContact?.givenName} ${payment.shippingContact?.familyName}</p>
-                <p><strong>Email:</strong> ${payment.shippingContact?.emailAddress}</p>
-                <p><small>呢個係測試，唔會真正扣錢</small></p>
-            </div>
-        `;
-        
-        // Debug info
-        document.getElementById('debug-info').innerText = JSON.stringify(payment, null, 2);
-        document.getElementById('debug').style.display = 'block';
+    function showMessage(text, type) {
+        const msg = document.getElementById('message');
+        msg.className = `message ${type}`;
+        msg.textContent = text;
+    }
+
+    function debug(text) {
+        const d = document.getElementById('debug');
+        d.innerHTML = d.innerHTML + '<br>' + new Date().toLocaleTimeString() + ': ' + text;
+        console.log(text);
     }
     </script>
 </body>
