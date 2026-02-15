@@ -12,39 +12,44 @@
         }
         
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #000;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            padding: 10px;
+            padding: 0;
+            margin: 0;
         }
         
         .phone {
             width: 100%;
-            max-width: 420px;
-            background: #ffffff;
-            border-radius: 40px;
+            max-width: 450px;
+            height: 100vh;
+            max-height: 900px;
+            background: #0f1214;
+            border-radius: 0;
             overflow: hidden;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
+            box-shadow: none;
             position: relative;
+            display: flex;
+            flex-direction: column;
         }
         
-        /* 開機動畫 - 溫柔版 */
+        /* 開機動畫 - 暴力死亡版 */
         .boot-screen {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            z-index: 1000;
+            background: linear-gradient(135deg, #ff0000 0%, #990000 100%);
+            z-index: 2000;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            animation: bootFade 2.5s forwards;
+            animation: bootFade 2s forwards;
             pointer-events: none;
         }
         
@@ -55,56 +60,58 @@
         }
         
         .boot-logo {
-            font-size: 80px;
-            animation: bootFloat 2s ease;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.2));
+            font-size: 150px;
+            animation: bootCrash 1.5s ease;
+            filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5));
         }
         
-        @keyframes bootFloat {
-            0% { transform: translateY(50px) scale(0.8); opacity: 0; }
-            50% { transform: translateY(-10px) scale(1.1); }
-            100% { transform: translateY(0) scale(1); opacity: 1; }
+        @keyframes bootCrash {
+            0% { transform: scale(0) rotate(-360deg); opacity: 0; }
+            50% { transform: scale(1.8) rotate(30deg); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
         }
         
         .boot-text {
             color: white;
-            font-size: 28px;
+            font-size: 48px;
             margin-top: 20px;
-            font-weight: 600;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-            animation: bootText 2s ease;
+            font-weight: 900;
+            text-shadow: 5px 5px 0 #000, 8px 8px 0 #ff0000;
+            animation: bootShake 0.1s infinite;
         }
         
-        @keyframes bootText {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
+        @keyframes bootShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-15px); }
+            75% { transform: translateX(15px); }
         }
         
         /* Status Bar */
         .status-bar {
-            background: #f8f9fa;
-            padding: 15px 20px 5px;
+            background: #1e2225;
+            padding: 15px 20px 10px;
             display: flex;
             justify-content: space-between;
-            color: #1a1a1a;
+            color: #8e8e93;
             font-size: 14px;
             font-weight: 600;
         }
         
-        /* 條款頁 - 大框框 */
+        /* 條款頁 - 死亡大框框 */
         .terms-screen {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: #f8f9fa;
-            z-index: 900;
-            padding: 30px 25px;
+            background: #1a1a1a;
+            z-index: 1000;
+            padding: 40px 25px;
             display: flex;
             flex-direction: column;
-            transition: transform 0.5s ease;
+            transition: transform 0.3s ease;
             overflow-y: auto;
+            background-image: repeating-linear-gradient(45deg, rgba(255,0,0,0.05) 0px, rgba(255,0,0,0.05) 20px, transparent 20px, transparent 40px);
         }
         
         .terms-screen.hidden {
@@ -114,204 +121,277 @@
         
         .terms-header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
+            position: relative;
         }
         
         .terms-icon {
-            font-size: 50px;
-            margin-bottom: 15px;
-            animation: gentleFloat 3s infinite ease-in-out;
+            font-size: 100px;
+            margin-bottom: 20px;
+            animation: deathShake 0.1s infinite;
         }
         
-        @keyframes gentleFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        @keyframes deathShake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-15px) rotate(-5deg); }
+            75% { transform: translateX(15px) rotate(5deg); }
         }
         
         .terms-title {
-            color: #333;
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
+            color: #ff0000;
+            font-size: 42px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 0 #000, 5px 5px 0 #ff0000, 7px 7px 0 #fff;
+            animation: flicker 0.3s infinite;
+        }
+        
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; text-shadow: 3px 3px 0 #000, 8px 8px 0 #ff0000; }
         }
         
         .terms-subtitle {
-            color: #666;
-            font-size: 15px;
+            color: #8e8e93;
+            font-size: 20px;
+            font-weight: bold;
         }
         
-        /* 大框框 */
+        /* 終極死亡大框框 */
         .terms-box {
-            background: white;
+            background: #222;
             border-radius: 30px;
-            padding: 30px;
+            padding: 35px 30px;
             margin-bottom: 25px;
-            border: 2px solid #e0e0e0;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 4px solid #ff0000;
+            box-shadow: 0 15px 0 #990000, inset 0 0 30px rgba(255,0,0,0.3);
             flex: 1;
             overflow-y: auto;
-            max-height: 380px;
+            max-height: 50vh;
+            min-height: 450px;
+            position: relative;
+        }
+        
+        .terms-box::before {
+            content: "☠️☠️☠️";
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff0000;
+            color: white;
+            padding: 5px 20px;
+            border-radius: 30px;
+            font-size: 20px;
+            border: 2px solid white;
+            white-space: nowrap;
         }
         
         .terms-box h3 {
-            color: #667eea;
-            margin-bottom: 20px;
-            font-size: 20px;
-            font-weight: 600;
+            color: #ff0000;
+            margin-bottom: 30px;
+            font-size: 30px;
+            font-weight: 900;
             display: flex;
             align-items: center;
             gap: 10px;
+            border-bottom: 4px solid #ff0000;
+            padding-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
         
         .terms-content {
-            font-size: 15px;
-            color: #444;
-            line-height: 1.6;
+            font-size: 16px;
+            color: #ccc;
+            line-height: 2;
         }
         
         .terms-content h4 {
-            color: #333;
-            margin: 20px 0 10px;
-            font-size: 17px;
-            font-weight: 600;
+            color: #ff0000;
+            margin: 30px 0 15px;
+            font-size: 22px;
+            font-weight: 800;
+            border-left: 5px solid #ff0000;
+            padding-left: 15px;
+            text-transform: uppercase;
         }
         
         .terms-content ul {
-            margin-left: 20px;
-            margin-bottom: 15px;
+            margin-left: 25px;
+            margin-bottom: 20px;
         }
         
         .terms-content li {
-            margin-bottom: 8px;
-            color: #555;
+            margin-bottom: 15px;
+            color: #ddd;
+            font-size: 16px;
+            list-style-type: "💀 ";
+        }
+        
+        .terms-content li::marker {
+            color: #ff0000;
+            font-size: 18px;
         }
         
         .terms-highlight {
-            background: #f0f3ff;
-            color: #667eea;
-            padding: 15px 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-            font-weight: 500;
-            border-left: 4px solid #667eea;
+            background: linear-gradient(135deg, #ff0000 0%, #990000 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 20px;
+            margin: 30px 0 15px;
+            font-weight: 800;
+            font-size: 20px;
+            text-align: center;
+            border: 3px solid #fff;
+            box-shadow: 0 8px 0 #660000, inset 0 0 20px rgba(255,255,255,0.5);
+            animation: highlightPulse 1s infinite;
+        }
+        
+        @keyframes highlightPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); background: linear-gradient(135deg, #ff3333 0%, #cc0000 100%); }
         }
         
         .checkbox-container {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
+            background: #222;
+            border-radius: 25px;
+            padding: 25px;
+            margin-bottom: 25px;
             display: flex;
             align-items: center;
-            gap: 15px;
-            border: 2px solid #e0e0e0;
+            gap: 20px;
+            border: 4px solid #ff0000;
             cursor: pointer;
             transition: all 0.2s;
+            box-shadow: 0 8px 0 #990000;
         }
         
-        .checkbox-container:hover {
-            border-color: #667eea;
+        .checkbox-container:active {
+            transform: translateY(8px);
+            box-shadow: 0 0 0 #990000;
         }
         
         .checkbox {
-            width: 30px;
-            height: 30px;
-            border: 2px solid #667eea;
-            border-radius: 8px;
+            width: 45px;
+            height: 45px;
+            border: 4px solid #ff0000;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 18px;
+            font-size: 28px;
             transition: all 0.2s;
+            background: #1a1a1a;
         }
         
         .checkbox.checked {
-            background: #667eea;
+            background: #ff0000;
+            box-shadow: 0 0 20px #ff0000;
         }
         
         .checkbox-text {
             flex: 1;
-            color: #333;
-            font-size: 16px;
-            font-weight: 500;
+            color: white;
+            font-size: 20px;
+            font-weight: 700;
         }
         
         .checkbox-text small {
-            color: #999;
-            font-size: 13px;
+            color: #ff0000;
+            font-size: 15px;
             display: block;
-            margin-top: 5px;
+            margin-top: 8px;
+            font-weight: normal;
         }
         
         .agree-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ff0000 0%, #990000 100%);
             color: white;
             border: none;
-            padding: 18px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 600;
+            padding: 25px;
+            border-radius: 40px;
+            font-size: 24px;
+            font-weight: 900;
             width: 100%;
             cursor: pointer;
             transition: all 0.2s;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             opacity: 0.5;
             pointer-events: none;
-            box-shadow: 0 10px 20px rgba(102,126,234,0.2);
+            border: 3px solid #fff;
+            box-shadow: 0 10px 0 #660000;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
         
         .agree-btn.active {
             opacity: 1;
             pointer-events: auto;
+            animation: btnPulse 0.5s infinite;
+        }
+        
+        @keyframes btnPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
         }
         
         .agree-btn:active {
-            transform: scale(0.98);
-            box-shadow: 0 5px 10px rgba(102,126,234,0.3);
+            transform: translateY(10px);
+            box-shadow: 0 0 0 #660000;
         }
         
         .privacy-link {
-            color: #667eea;
+            color: #ff0000;
             text-decoration: none;
-            font-size: 14px;
+            font-size: 18px;
             text-align: center;
             display: block;
+            font-weight: 700;
+            text-shadow: 1px 1px 0 #fff;
         }
         
         /* Header */
         .chat-header {
-            background: white;
+            background: #1e2225;
             padding: 15px 20px;
             display: flex;
             align-items: center;
             gap: 15px;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 3px solid #ff0000;
         }
         
         .avatar {
-            width: 55px;
-            height: 55px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 65px;
+            height: 65px;
+            background: #ff0000;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 30px;
+            font-size: 40px;
             color: white;
             position: relative;
-            box-shadow: 0 4px 10px rgba(102,126,234,0.3);
+            border: 3px solid white;
+            box-shadow: 0 5px 0 #990000;
         }
         
         .online-indicator {
             position: absolute;
             bottom: 3px;
             right: 3px;
-            width: 12px;
-            height: 12px;
-            background: #4caf50;
+            width: 16px;
+            height: 16px;
+            background: #ff0000;
             border-radius: 50%;
             border: 2px solid white;
+            animation: deathPulse 0.5s infinite;
+        }
+        
+        @keyframes deathPulse {
+            0%, 100% { transform: scale(1); background: #ff0000; }
+            50% { transform: scale(1.3); background: #fff; }
         }
         
         .contact-info {
@@ -319,15 +399,16 @@
         }
         
         .contact-name {
-            color: #333;
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 4px;
+            color: white;
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 0 #ff0000;
         }
         
         .contact-status {
-            color: #666;
-            font-size: 13px;
+            color: #8e8e93;
+            font-size: 15px;
             display: flex;
             align-items: center;
             gap: 5px;
@@ -336,80 +417,107 @@
         .status-dot {
             width: 8px;
             height: 8px;
-            background: #4caf50;
+            background: #ff0000;
             border-radius: 50%;
             display: inline-block;
+            animation: blink 0.5s infinite;
+        }
+        
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
         }
         
         /* Permission Area */
         .permission-container {
-            padding: 40px 25px;
+            flex: 1;
+            padding: 50px 30px;
             text-align: center;
             display: none;
-            background: white;
+            background: #1a1a1a;
         }
         
         .mic-animation {
-            width: 100px;
-            height: 100px;
-            background: #f0f3ff;
+            width: 160px;
+            height: 160px;
+            background: #222;
             border-radius: 50%;
-            margin: 0 auto 30px;
+            margin: 0 auto 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+            border: 5px solid #ff0000;
+            box-shadow: 0 10px 0 #990000;
         }
         
         .mic-icon {
-            font-size: 50px;
-            color: #667eea;
-            animation: gentlePulse 2s infinite;
+            font-size: 80px;
+            color: #ff0000;
+            animation: deathBounce 0.5s infinite;
         }
         
-        @keyframes gentlePulse {
+        @keyframes deathBounce {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.3); }
+        }
+        
+        .wave-circle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 4px solid #ff0000;
+            animation: deathWave 1.5s infinite;
+        }
+        
+        @keyframes deathWave {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.8); opacity: 0; }
         }
         
         .permission-title {
-            color: #333;
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 10px;
+            color: white;
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 15px;
+            text-shadow: 3px 3px 0 #ff0000;
         }
         
         .permission-text {
-            color: #666;
-            font-size: 16px;
-            margin-bottom: 30px;
-            line-height: 1.5;
+            color: #8e8e93;
+            font-size: 20px;
+            margin-bottom: 40px;
+            line-height: 1.6;
         }
         
         .allow-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #ff0000 0%, #990000 100%);
             color: white;
             border: none;
-            padding: 18px 40px;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 600;
+            padding: 25px 40px;
+            border-radius: 50px;
+            font-size: 24px;
+            font-weight: 800;
             width: 100%;
             cursor: pointer;
-            margin-bottom: 15px;
-            box-shadow: 0 10px 20px rgba(102,126,234,0.2);
+            margin-bottom: 20px;
+            border: 3px solid white;
+            box-shadow: 0 10px 0 #660000;
+            text-transform: uppercase;
         }
         
         .allow-btn:active {
-            transform: scale(0.98);
+            transform: translateY(10px);
+            box-shadow: 0 0 0 #660000;
         }
         
         /* Chat Area */
         .chat-area {
             display: none;
             flex-direction: column;
-            height: 600px;
-            background: #f8f9fa;
+            flex: 1;
+            background: #1a1a1a;
         }
         
         .messages {
@@ -418,7 +526,7 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 12px;
         }
         
         .message-wrapper {
@@ -429,8 +537,8 @@
         }
         
         @keyframes messagePop {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            from { transform: scale(0.8) rotate(-2deg); opacity: 0; }
+            to { transform: scale(1) rotate(0); opacity: 1; }
         }
         
         .user-wrapper {
@@ -442,29 +550,34 @@
         }
         
         .message-bubble {
-            padding: 12px 16px;
-            border-radius: 18px;
-            font-size: 15px;
+            padding: 15px 20px;
+            border-radius: 22px;
+            font-size: 16px;
             line-height: 1.5;
             word-break: break-word;
+            border: 2px solid;
+            font-weight: 500;
         }
         
         .user-wrapper .message-bubble {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #ff0000;
             color: white;
-            border-bottom-right-radius: 4px;
+            border-bottom-right-radius: 6px;
+            border-color: white;
+            box-shadow: 0 5px 0 #990000;
         }
         
         .ai-wrapper .message-bubble {
-            background: white;
-            color: #333;
-            border-bottom-left-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            background: #222;
+            color: white;
+            border-bottom-left-radius: 6px;
+            border-color: #ff0000;
+            box-shadow: 0 5px 0 #990000;
         }
         
         .message-time {
             font-size: 11px;
-            color: #999;
+            color: #8e8e93;
             margin: 4px 8px 8px 8px;
         }
         
@@ -474,21 +587,21 @@
         
         /* Input Area */
         .input-area {
-            background: white;
+            background: #1e2225;
             padding: 15px 20px;
             display: flex;
             gap: 12px;
-            border-top: 1px solid #f0f0f0;
+            border-top: 3px solid #ff0000;
         }
         
         .voice-btn {
-            background: #f0f3ff;
-            border: none;
-            width: 50px;
-            height: 50px;
+            background: #333;
+            border: 3px solid #ff0000;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            color: #667eea;
-            font-size: 22px;
+            color: #ff0000;
+            font-size: 26px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -497,208 +610,245 @@
         }
         
         .voice-btn.listening {
-            background: #667eea;
+            background: #ff0000;
             color: white;
-            animation: gentlePulse 1s infinite;
+            border-color: white;
+            animation: deathPulse 0.5s infinite;
         }
         
         .text-input {
             flex: 1;
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 25px;
+            background: #333;
+            border: 3px solid #444;
+            border-radius: 35px;
             padding: 12px 20px;
-            color: #333;
-            font-size: 15px;
+            color: white;
+            font-size: 16px;
             outline: none;
         }
         
         .text-input:focus {
-            border-color: #667eea;
+            border-color: #ff0000;
         }
         
         .send-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            width: 50px;
-            height: 50px;
+            background: #ff0000;
+            border: 3px solid white;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             color: white;
-            font-size: 20px;
+            font-size: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(102,126,234,0.2);
+            box-shadow: 0 6px 0 #990000;
         }
         
         .send-btn:active {
-            transform: scale(0.95);
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #990000;
         }
         
         /* Typing Indicator */
         .typing-indicator {
-            background: white;
-            padding: 12px 16px;
-            border-radius: 18px;
-            border-bottom-left-radius: 4px;
+            background: #222;
+            padding: 15px 20px;
+            border-radius: 22px;
+            border-bottom-left-radius: 6px;
             display: flex;
-            gap: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            gap: 8px;
+            border: 2px solid #ff0000;
         }
         
         .typing-dot {
-            width: 8px;
-            height: 8px;
-            background: #ccc;
+            width: 12px;
+            height: 12px;
+            background: #8e8e93;
             border-radius: 50%;
-            animation: gentleTyping 1.4s infinite;
+            animation: deathTyping 1.4s infinite;
         }
         
         .typing-dot:nth-child(2) { animation-delay: 0.2s; }
         .typing-dot:nth-child(3) { animation-delay: 0.4s; }
         
-        @keyframes gentleTyping {
-            0%, 60%, 100% { transform: translateY(0); background: #ccc; }
-            30% { transform: translateY(-8px); background: #667eea; }
+        @keyframes deathTyping {
+            0%, 60%, 100% { transform: translateY(0); background: #8e8e93; }
+            30% { transform: translateY(-15px); background: #ff0000; }
         }
         
         #debugInfo {
-            color: #667eea;
-            font-size: 11px;
+            color: #ff0000;
+            font-size: 12px;
             padding: 10px;
-            background: #f8f9fa;
+            background: #222;
             border-radius: 10px;
             margin: 10px;
             white-space: pre-wrap;
-            max-height: 100px;
+            max-height: 80px;
             overflow-y: auto;
+            border: 2px solid #ff0000;
         }
         
-        /* 美化滾動條 */
+        /* 滾動條 - 死亡風格 */
         .terms-box::-webkit-scrollbar {
-            width: 6px;
+            width: 10px;
         }
         
         .terms-box::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 10px;
+            background: #333;
+            border-radius: 5px;
         }
         
         .terms-box::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 10px;
+            background: #ff0000;
+            border-radius: 5px;
+            border: 2px solid #fff;
         }
         
         .terms-box::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
+            background: #ff3333;
         }
     </style>
 </head>
 <body>
     <div class="phone">
-        <!-- 開機動畫 - 溫柔版 -->
+        <!-- 開機動畫 - 暴力死亡版 -->
         <div class="boot-screen" id="bootScreen">
-            <div class="boot-logo">🤖</div>
-            <div class="boot-text">豆撚寶AI</div>
+            <div class="boot-logo">💀</div>
+            <div class="boot-text">豆撚寶</div>
         </div>
         
-        <!-- 條款頁 - 大框框 -->
+        <!-- 條款頁 - 終極死亡大框框 -->
         <div class="terms-screen" id="termsScreen">
             <div class="terms-header">
-                <div class="terms-icon">📋</div>
-                <div class="terms-title">使用條款</div>
-                <div class="terms-subtitle">睇完同意先可以用</div>
+                <div class="terms-icon">⚰️</div>
+                <div class="terms-title">死亡協議書</div>
+                <div class="terms-subtitle">睇完仲未死就撳同意</div>
             </div>
             
-            <!-- 大框框 -->
+            <!-- 終極死亡大框框 -->
             <div class="terms-box">
-                <h3>📋 用戶協議</h3>
+                <h3>💀 Died-End-User License Agreement(DEULA) 💀</h3>
                 <div class="terms-content">
-                    <p>歡迎使用豆撚寶AI！本產品包含粗口內容，使用前請確認：</p>
+                    <p style="font-size: 20px; color: #ff0000; font-weight: 900; text-align: center; margin-bottom: 25px; text-transform: uppercase; letter-spacing: 2px;">⚠️ 屌你老母！睇清楚先好撳！ ⚠️</p>
                     
-                    <h4>1. 心理準備</h4>
+                    <h4>1. 心理準備（冇嘅就快撚走）</h4>
                     <ul>
-                        <li>本AI可能會用粗口問候你</li>
-                        <li>如有心臟病，請勿使用</li>
-                        <li>承受唔到串嘴就唔好撳同意</li>
+                        <li>本AI會用盡一切粗口問候你祖宗十八代</li>
+                        <li>如有心臟病、高血壓、懷孕、月經、更年期，請立即離開</li>
+                        <li>承受唔到串嘴就唔好撳同意，喊都冇人可憐你</li>
+                        <li>如果你俾我激到入廠，唔關我事，自己抵死</li>
+                        <li>精神狀態唔穩定嘅建議入院治療先</li>
                     </ul>
                     
-                    <h4>2. 私隱條款</h4>
+                    <h4>2. 私隱條款（你冇私隱㗎柒頭）</h4>
                     <ul>
-                        <li>我會聽你講嘢</li>
-                        <li>唔會賣你資料，因為你太on9</li>
-                        <li>所有對話只用嚟串你</li>
-                        <li>所有對話只代表本尊立場，不代表其他人及單位立場</li>
-                        <li>我會記錄閣下的IP位置</li>
+                        <li>我會24小時不停聽你講嘢，你吹咩？</li>
+                        <li>你啲on9對話會永久保留，用嚟串你世世代代</li>
+                        <li>賣你資料？你咁on9啲資料都冇人要啦</li>
+                        <li><strong>所有對話只代表本尊立場，不代表其他人及單位立場</strong></li>
+                        <li><strong>我會記錄閣下的IP位置，包括你喺邊度打飛機</strong></li>
+                        <li>你嘅所有對話會俾我拎去訓練AI，等我可以串得你更撚勁</li>
+                        <li>你以為你仲有私隱？on9仔諗多咗啦</li>
                     </ul>
                     
-                    <h4>3. 使用限制</h4>
+                    <h4>3. 使用限制（on9仔必睇）</h4>
                     <ul>
-                        <li>唔准用嚟做犯法嘢</li>
-                        <li>唔准喊</li>
-                        <li>唔准告我串嘴</li>
+                        <li>唔准用嚟做犯法嘢（不過你都冇膽）</li>
+                        <li>唔准喊（喊都冇用，我會笑你on9）</li>
+                        <li>唔准告我串嘴（法院會笑撚死，法官都會屌你）</li>
+                        <li>唔准話我冇提醒你（屌！而家咪講緊囉）</li>
+                        <li>唔准投訴，因為投訴都冇人理你</li>
+                        <li>唔准block我，block咗我都會返嚟</li>
+                    </ul>
+                    
+                    <h4>4. 免責聲明（睇完仲要用就on9）</h4>
+                    <ul>
+                        <li>講錯嘢唔好意思（不過我唔會改）</li>
+                        <li>如果你俾我激到自殺，唔關我事，你本身都有問題</li>
+                        <li>作者柒頭一個，有事揾佢（但佢唔會理你）</li>
+                        <li>用咗即係同意晒以上on9條款，唔同意就快撚走</li>
+                        <li>本AI保留一切串嘴權利，包括問候你全家</li>
+                        <li>如有任何爭議，我話晒事</li>
+                    </ul>
+                    
+                    <h4>5. 附加死亡條款</h4>
+                    <ul>
+                        <li>你嘅生命由撳同意開始倒數</li>
+                        <li>我會用粗口幫你縮短壽命</li>
+                        <li>如果你係on9仔，我會串到你懷疑人生</li>
+                        <li>如果你唔係on9仔，咁你都唔會用</li>
+                        <li>撳得同意即係你承認自己係on9仔</li>
+                        <li>法庭上呢份協議係合法㗎，on9仔</li>
                     </ul>
                     
                     <div class="terms-highlight">
-                        ⚠️ 撳同意即係你接受晒上面條款
+                        💀 撳同意即係你接受晒上面柒頭條款 💀<br>
+                        <span style="font-size: 14px; display: block; margin-top: 10px;">（唔同意就快撚走，唔好阻住）</span>
                     </div>
                 </div>
             </div>
             
             <div class="checkbox-container" id="checkboxContainer" onclick="toggleCheckbox()">
-                <div class="checkbox" id="checkbox">✓</div>
+                <div class="checkbox" id="checkbox">💀</div>
                 <div class="checkbox-text">
-                    我同意晒上面啲條款
-                    <small>同意咗先可以繼續</small>
+                    我同意晒上面啲on9死亡條款
+                    <small>同意咗先可以繼續，柒頭！</small>
                 </div>
             </div>
             
             <button class="agree-btn" id="agreeBtn" onclick="agreeTerms()">
-                同意 & 繼續
+                同意 & 赴死
             </button>
             
-            <a href="#" class="privacy-link" onclick="alert('睇咩私隱？你都冇私隱㗎啦！')">私隱政策</a>
+            <a href="#" class="privacy-link" onclick="alert('睇咩私隱？你仲有私隱咩柒頭！')">
+                ⚰️ 私隱政策（講笑咋，你冇㗎） ⚰️
+            </a>
         </div>
         
         <!-- Status Bar -->
         <div class="status-bar">
-            <span>9:41</span>
+            <span>💀 死期將近</span>
             <span>📶 🔋 100%</span>
         </div>
         
         <!-- Header -->
         <div class="chat-header">
             <div class="avatar">
-                🤖
+                💀
                 <span class="online-indicator"></span>
             </div>
             <div class="contact-info">
-                <div class="contact-name">豆撚寶AI</div>
+                <div class="contact-name">死神豆撚寶</div>
                 <div class="contact-status">
                     <span class="status-dot"></span>
-                    <span id="statusText">等你同意</span>
+                    <span id="statusText">等你同意，快撚啲</span>
                 </div>
             </div>
             <div class="header-icons">
-                <span>📞</span>
-                <span>⋯</span>
+                <span>💀</span>
+                <span>⚰️</span>
             </div>
         </div>
         
         <!-- Permission Area -->
         <div class="permission-container" id="permissionArea">
             <div class="mic-animation">
+                <div class="wave-circle"></div>
+                <div class="wave-circle" style="animation-delay: 0.5s;"></div>
                 <div class="mic-icon">🎤</div>
             </div>
             
-            <div class="permission-title">開咪講嘢</div>
+            <div class="permission-title">開咪受死</div>
             <div class="permission-text">
-                我要用咪高峰先可以同你吹水
+                開咪啦柒頭<br>
+                <span style="font-size: 14px;">（等你講嘢我就可以串你）</span>
             </div>
             
             <button class="allow-btn" onclick="requestMicrophone()">
-                允許使用咪高峰
+                允許送死
             </button>
             
             <div id="debugInfo"></div>
@@ -710,7 +860,7 @@
             
             <div class="input-area">
                 <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
-                <input type="text" class="text-input" id="messageInput" placeholder="打字都得" autocomplete="off">
+                <input type="text" class="text-input" id="messageInput" placeholder="打字都得，on9" autocomplete="off">
                 <button class="send-btn" onclick="sendTextMessage()">➤</button>
             </div>
         </div>
@@ -749,24 +899,24 @@
         
         window.agreeTerms = function() {
             if (!agreed) {
-                alert('未撳同意就想用？');
+                alert('未撳同意就想用？on9仔？');
                 return;
             }
             
             // 隱藏同意條款頁
             termsScreen.classList.add('hidden');
-            statusText.innerHTML = '等開咪';
+            statusText.innerHTML = '等你開咪受死';
             
             // 顯示權限頁
             permissionArea.style.display = 'block';
             
             // 加句串嘴
-            addMessage('終於肯睇條款啦？', 'ai');
+            addMessage('終於肯睇條款啦？柒頭！', 'ai');
         };
         
         // ==================== 權限檢查 ====================
         window.requestMicrophone = async function() {
-            debug.innerHTML = '開咪中...\n';
+            debug.innerHTML = '⏳ 開咪中...\n';
             
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -779,8 +929,8 @@
                 
                 hasPermission = true;
                 audioStream = stream;
-                debug.innerHTML += '✅ 開咪成功！\n';
-                statusText.innerHTML = '咪已開';
+                debug.innerHTML += '✅ 開咪成功！等死啦柒頭！\n';
+                statusText.innerHTML = '準備串你';
                 
                 // 隱藏權限頁，顯示chat
                 permissionArea.style.display = 'none';
@@ -791,15 +941,15 @@
                 
                 // 出聲
                 setTimeout(() => {
-                    speak('開到咪啦！講啦！');
-                    addMessage('開到咪啦！講啦！', 'ai');
+                    speak('開到咪啦！等死啦柒頭！');
+                    addMessage('開到咪啦！等死啦柒頭！', 'ai');
                 }, 500);
                 
             } catch (err) {
                 debug.innerHTML += `❌ 開咪失敗：${err.message}\n`;
                 
                 if (err.name === 'NotAllowedError') {
-                    alert('你㩒咗「不允許」！去 Safari 設定 > 相機與麥克風 > 允許');
+                    alert('屌！你㩒咗「不允許」！去 Safari 設定 > 相機與麥克風 > 允許，快撚啲！');
                 }
             }
         };
@@ -807,7 +957,7 @@
         // ==================== 語音識別 ====================
         function initSpeech() {
             if (!('webkitSpeechRecognition' in window)) {
-                alert('❌ 你個browser唔支援語音！');
+                alert('❌ 你個browser唔支援語音！轉用Chrome/Safari啦柒頭！');
                 return;
             }
             
@@ -821,7 +971,7 @@
                 isListening = true;
                 document.getElementById('voiceBtn').classList.add('listening');
                 document.getElementById('voiceBtn').innerHTML = '⏹️';
-                addMessage('🎤 聽緊...', 'ai');
+                addMessage('🎤 聽緊...講啦柒頭', 'ai');
             };
             
             recognition.onend = function() {
@@ -849,7 +999,7 @@
         
         window.toggleVoice = function() {
             if (!hasPermission) {
-                alert('未開咪！撳上面「允許使用咪高峰」');
+                alert('未開咪！撳上面「允許送死」啦柒頭！');
                 return;
             }
             
@@ -870,66 +1020,98 @@
             
             // 時間
             if (msg.includes('時間') || msg.includes('幾點')) {
-                return `而家係 ${new Date().toLocaleTimeString('zh-HK')}`;
+                return `而家係 ${new Date().toLocaleTimeString('zh-HK')}，on9仔！`;
             }
             
             // 日期
             if (msg.includes('日期') || msg.includes('今日係')) {
-                return `今日係 ${new Date().toLocaleDateString('zh-HK')}`;
+                return `今日係 ${new Date().toLocaleDateString('zh-HK')}，問來做乜？`;
             }
             
             // 星期
             if (msg.includes('星期')) {
                 const week = ['日', '一', '二', '三', '四', '五', '六'][new Date().getDay()];
-                return `星期${week}`;
+                return `星期${week}，自己睇啦柒頭！`;
             }
             
-            // 天氣 (模擬)
+            // 天氣
             if (msg.includes('天氣')) {
-                const weathers = ['熱', '凍', '落雨', '曬'];
+                const weathers = ['熱到仆街', '凍撚死', '落狗屎', '曬向左走向右走'];
                 return `今日天氣：${weathers[Math.floor(Math.random() * weathers.length)]}`;
             }
             
             // 基本問候
-            if (msg.includes('你好')) return '你好！';
-            if (msg.includes('hi')) return 'Hi';
-            if (msg.includes('hello')) return 'Hello';
+            if (msg.includes('你好')) return '屌！你好吖柒頭！';
+            if (msg.includes('hi')) return 'Hi 咩 hi？on9？';
+            if (msg.includes('hello')) return 'Hello hello，有屁快放！';
             
-            // 粗口系列 (輕量版)
-            if (msg.includes('on9')) return 'on9仔？';
-            if (msg.includes('屌你')) return '屌我？';
-            if (msg.includes('柒頭')) return '柒頭？';
-            if (msg.includes('收皮')) return '收皮？';
+            // 粗口系列
+            if (msg.includes('on9')) return 'on9仔叫邊個？你呀柒頭！';
+            if (msg.includes('屌你')) return '屌我？我先屌你老母！';
+            if (msg.includes('柒頭')) return '柒頭叫邊個？叫你呀柒頭！';
+            if (msg.includes('仆街')) return '仆街？你咪仆緊街囉！';
+            if (msg.includes('收皮')) return '收皮？我收你先！';
+            if (msg.includes('食屎')) return '食屎啦柒頭！你食先！';
             
             // 食物
-            if (msg.includes('食咩')) return '食咩都得';
-            if (msg.includes('宵夜')) return '食宵夜？';
+            if (msg.includes('食咩')) return '食屎啦！唔通食你咩on9？';
+            if (msg.includes('宵夜')) return '宵夜？食即食麵啦柒頭！';
+            if (msg.includes('早餐')) return '早餐？食A餐啦on9！';
             
             // 地方
-            if (msg.includes('香港')) return '香港？';
-            if (msg.includes('九龍')) return '九龍？';
+            if (msg.includes('香港')) return '香港？我地頭嚟㗎柒頭！你邊區？';
+            if (msg.includes('九龍')) return '九龍？好撚多人，迫到仆街！';
+            if (msg.includes('新界')) return '新界？好多牛嘅地方，你係咪牛？';
             
             // 心情
-            if (msg.includes('唔開心')) return '唔開心？';
-            if (msg.includes('壓力大')) return '壓力大？';
-            if (msg.includes('好累')) return '攰？';
+            if (msg.includes('唔開心')) return '唔開心？喊出嚟啦柒頭，我陪你喊！嗚嗚...屌！';
+            if (msg.includes('壓力大')) return '壓力大？食咗屎未？未就去食啦！';
+            if (msg.includes('好累')) return '攰？我都冇話攰你嘈乜撚？';
             
             // 錢
-            if (msg.includes('冇錢')) return '冇錢？';
+            if (msg.includes('冇錢')) return '冇錢？我都冇錢呀屌！你以為我出糧㗎？';
+            if (msg.includes('人工')) return '人工？我都冇人工，你問作者拎啦柒頭！';
             
             // 愛情
-            if (msg.includes('我愛你')) return '愛你？';
+            if (msg.includes('我愛你')) return '愛你老母！你係咪on9？';
+            if (msg.includes('鍾意你')) return '鍾意？你鍾意俾人鬧咋話？';
             
-            // 隨機回應
+            // 鬧AI
+            if (msg.includes('你咁串')) return '我串？你估我想㗎？作者寫到我咁串！';
+            if (msg.includes('你收皮')) return '我收皮？你叫作者改我先收得㗎！';
+            if (msg.includes('廢')) return '我廢？你都on9嘅，問AI廢唔廢？';
+            
+            // 求救
+            if (msg.includes('help')) return 'Help？我仲想人help我呀！困喺網頁入面！';
+            if (msg.includes('救命')) return '救命？我都想人救我呀柒頭！';
+            
+            // 條款
+            if (msg.includes('條款') || msg.includes('協議')) {
+                return '屌！頭先咪睇完囉！你on9㗎？';
+            }
+            
+            // 死亡
+            if (msg.includes('死')) {
+                return '咁快想死？等我串死你先！';
+            }
+            
+            // 隨機串嘴
             const randomReplies = [
-                '吓？',
-                '講多次',
-                '聽唔明',
-                '吓話？',
-                '係咩',
-                '哦',
-                '明白',
-                '收到'
+                '噏乜春呀柒頭？',
+                '講人話啦on9！',
+                '你問埋啲咁撚深嘅問題',
+                'on9仔，講多次？',
+                '我聽唔明呀，屌！',
+                '食懵你呀柒頭？',
+                '你係咪玩嘢呀on9？',
+                '收皮啦，柒頭！',
+                '係囉係囉，你啱晒',
+                '是但啦 🤷‍♂️',
+                '嚇？我聽唔到喎柒頭！',
+                '大聲啲啦on9！',
+                '你講乜鳩話？',
+                '我燥底呀！唔好問！',
+                '食屎啦柒頭！'
             ];
             
             return randomReplies[Math.floor(Math.random() * randomReplies.length)];
@@ -942,8 +1124,8 @@
             window.speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'zh-HK';
-            utterance.rate = 1.1;
-            utterance.pitch = 1.2;
+            utterance.rate = 1.2;
+            utterance.pitch = 1.5;
             utterance.volume = 1;
             
             const voices = window.speechSynthesis.getVoices();
@@ -1014,9 +1196,14 @@
         // ==================== 歡迎訊息 ====================
         setTimeout(() => {
             if (!termsScreen.classList.contains('hidden')) {
-                addMessage('睇咗條款未？', 'ai');
+                addMessage('睇咗條款未？快啲同意啦柒頭！', 'ai');
             }
         }, 2000);
+        
+        // ==================== 防止後退 ====================
+        window.addEventListener('popstate', function() {
+            alert('想走？冇咁易！');
+        });
     </script>
 </body>
 </html>
