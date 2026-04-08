@@ -3,10 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="經貸智能財務 - 銀行轉賬申請服務，安全快速的貸款解決方案">
-<title>銀行轉賬申請 | 經貸智能財務</title>
+<meta name="description" content="經貸智能財務 - AI 人臉活體檢測貸款申請服務">
+<title>AI 智能貸款申請 | 經貸智能財務</title>
+
+<!-- 字體 -->
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@300;400;500;700&family=Inter:wght@400;500;600&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<!-- AI 人臉辨識庫 -->
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+<!-- Tesseract OCR -->
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<!-- 身份證 OCR 庫 -->
+<script src="https://jingdai.wtechhk.com/models/hkid-check.min.js"></script>
+
 <style>
 :root {
     --primary: #0052CC;
@@ -38,12 +48,10 @@ body {
     color: var(--text-main);
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
 }
 
-/* --- Layout --- */
 .container {
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
     padding: 0 24px;
 }
@@ -55,7 +63,6 @@ header {
     top: 0;
     z-index: 1000;
     box-shadow: 0 1px 0 var(--border);
-    border-bottom: 1px solid rgba(0,0,0,0.05);
 }
 
 .nav-container {
@@ -82,12 +89,10 @@ header {
     border-radius: 10px;
     display: grid;
     place-items: center;
-    box-shadow: 0 4px 8px rgba(0,82,204,0.2);
     font-weight: 800;
     font-size: 1.2rem;
 }
 
-/* --- Steps Sidebar --- */
 .main-content {
     padding: 48px 0;
 }
@@ -98,6 +103,7 @@ header {
     gap: 40px;
 }
 
+/* 步驟指示器 */
 .step-indicator {
     display: flex;
     flex-direction: column;
@@ -110,8 +116,7 @@ header {
     gap: 16px;
     padding: 16px;
     border-radius: var(--radius);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
+    transition: all 0.3s;
     background: transparent;
     cursor: pointer;
 }
@@ -137,7 +142,6 @@ header {
     font-weight: 600;
     font-size: 0.85rem;
     transition: 0.3s;
-    position: relative;
 }
 
 .step-item.active .step-dot {
@@ -162,14 +166,13 @@ header {
     font-weight: 700;
 }
 
-/* --- Application Card --- */
+/* 申請卡片 */
 .application-card {
     background: var(--card-bg);
     border-radius: 16px;
     padding: 40px;
     box-shadow: var(--shadow);
     min-height: 600px;
-    transition: all 0.3s ease;
 }
 
 h1, h2 { 
@@ -201,10 +204,9 @@ h2::after {
     font-size: 1rem;
 }
 
-/* --- Forms & Inputs --- */
+/* 表單 */
 .form-group {
     margin-bottom: 24px;
-    position: relative;
 }
 
 .form-label {
@@ -248,10 +250,9 @@ h2::after {
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-sub);
-    font-size: 1.1rem;
 }
 
-/* --- Verification Options (Cards) --- */
+/* 驗證選項卡片 */
 .verification-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -267,11 +268,6 @@ h2::after {
     cursor: pointer;
     transition: 0.3s;
     background: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 160px;
 }
 
 .v-option:hover {
@@ -304,7 +300,6 @@ h2::after {
 .v-icon { 
     font-size: 2.5rem; 
     margin-bottom: 16px; 
-    display: block; 
     color: var(--primary);
 }
 
@@ -317,10 +312,174 @@ h2::after {
 .v-desc {
     font-size: 0.85rem;
     color: var(--text-sub);
-    line-height: 1.4;
 }
 
-/* --- Buttons --- */
+/* AI 人臉檢測區域 */
+.ai-verification-section {
+    margin-top: 24px;
+    padding: 24px;
+    background: #F9FAFB;
+    border-radius: 12px;
+}
+
+.ai-video-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.ai-video-wrapper video,
+.ai-video-wrapper canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ai-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+}
+
+.ai-status-indicator {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--warning);
+}
+
+.ai-status.ready .ai-status-indicator {
+    background: var(--success);
+}
+
+.ai-status.verifying .ai-status-indicator {
+    background: var(--primary);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.ai-controls {
+    display: flex;
+    gap: 12px;
+}
+
+.ai-liveness-stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 16px 0;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
+}
+
+.ai-stat {
+    text-align: center;
+}
+
+.ai-stat-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.ai-stat-label {
+    font-size: 0.75rem;
+    color: var(--text-sub);
+}
+
+.ai-result {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.ai-result.success {
+    background: rgba(0, 135, 90, 0.1);
+    color: var(--success);
+    border: 1px solid var(--success);
+}
+
+.ai-result.error {
+    background: rgba(222, 53, 11, 0.1);
+    color: var(--error);
+    border: 1px solid var(--error);
+}
+
+/* OCR 掃描區域 */
+.ocr-section {
+    margin-top: 24px;
+    padding: 24px;
+    background: #F9FAFB;
+    border-radius: 12px;
+}
+
+.ocr-upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: white;
+}
+
+.ocr-upload-area:hover {
+    border-color: var(--primary);
+    background: var(--primary-light);
+}
+
+.ocr-preview {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-top: 16px;
+}
+
+.ocr-preview-img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+}
+
+.ocr-info {
+    flex: 1;
+}
+
+.ocr-info-item {
+    display: flex;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+}
+
+.ocr-info-label {
+    width: 80px;
+    color: var(--text-sub);
+}
+
+.ocr-info-value {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* 按鈕 */
 .btn {
     padding: 14px 28px;
     border-radius: 8px;
@@ -333,7 +492,6 @@ h2::after {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    font-family: 'Inter', sans-serif;
 }
 
 .btn-primary { 
@@ -342,26 +500,30 @@ h2::after {
     box-shadow: 0 4px 12px rgba(0, 82, 204, 0.25);
 }
 
-.btn-primary:hover { 
+.btn-primary:hover:not(:disabled) { 
     background: var(--primary-dark); 
     transform: translateY(-2px); 
-    box-shadow: 0 6px 16px rgba(0, 82, 204, 0.3);
 }
 
-.btn-primary:active { 
-    transform: translateY(0); 
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-success {
+    background: var(--success);
+    color: white;
 }
 
 .btn-ghost { 
     background: transparent; 
     color: var(--text-sub);
-    border: 1px solid transparent; 
-    padding: 8px 16px;
+    border: 1px solid var(--border);
 }
 
 .btn-ghost:hover { 
     color: var(--primary); 
-    border-color: var(--border);
+    border-color: var(--primary);
 }
 
 .button-group {
@@ -372,22 +534,13 @@ h2::after {
     border-top: 1px solid var(--border);
 }
 
-/* --- Loan Calculation --- */
+/* 貸款摘要 */
 .loan-summary {
     background: var(--primary-light);
     border-radius: var(--radius);
     padding: 24px;
     margin-bottom: 32px;
     border-left: 4px solid var(--primary);
-}
-
-.summary-title {
-    font-weight: 600;
-    margin-bottom: 16px;
-    color: var(--primary-dark);
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 
 .summary-grid {
@@ -404,64 +557,46 @@ h2::after {
 .summary-label {
     font-size: 0.85rem;
     color: var(--text-sub);
-    margin-bottom: 4px;
 }
 
 .summary-value {
     font-weight: 700;
     font-size: 1.2rem;
-    color: var(--text-main);
 }
 
-/* --- Responsive --- */
+/* 工具類 */
+.hidden {
+    display: none !important;
+}
+
+/* 響應式 */
 @media (max-width: 900px) {
     .content-grid { 
         grid-template-columns: 1fr; 
-        gap: 30px;
     }
     
     .step-indicator { 
         flex-direction: row; 
         overflow-x: auto; 
         padding-bottom: 16px; 
-        gap: 4px;
     }
     
     .step-item { 
         flex: 0 0 auto; 
-        padding: 12px 16px; 
-    }
-    
-    .step-label { 
-        display: block; 
-        font-size: 0.85rem;
     }
     
     .verification-grid { 
         grid-template-columns: repeat(2, 1fr); 
     }
-    
-    .application-card {
-        padding: 30px 24px;
-    }
-    
-    .summary-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
 }
 
 @media (max-width: 600px) {
-    .container {
-        padding: 0 16px;
-    }
-    
     .verification-grid { 
         grid-template-columns: 1fr; 
     }
     
     .summary-grid {
         grid-template-columns: 1fr;
-        gap: 16px;
     }
     
     .button-group {
@@ -472,61 +607,31 @@ h2::after {
     .btn {
         width: 100%;
     }
-    
-    .nav-container nav {
-        gap: 12px;
-    }
 }
 
-/* --- Footer --- */
+/* Footer */
 footer {
     margin-top: 80px;
-    padding: 60px 0;
+    padding: 40px 0;
     background: white;
     border-top: 1px solid var(--border);
-}
-
-.footer-content {
     text-align: center;
-    color: var(--text-sub);
 }
 
 .footer-content p {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
+    color: var(--text-sub);
     font-size: 0.9rem;
 }
 
 .disclaimer {
     max-width: 800px;
-    margin: 0 auto;
-    font-size: 0.8rem;
-    line-height: 1.5;
-    color: #7A869A;
+    margin: 20px auto 0;
     padding: 20px;
     background: #F9FAFB;
     border-radius: 8px;
-    margin-top: 20px;
-}
-
-/* --- Utility Classes --- */
-.hidden {
-    display: none !important;
-}
-
-.visible {
-    display: block !important;
-}
-
-.text-center {
-    text-align: center;
-}
-
-.mt-40 {
-    margin-top: 40px;
-}
-
-.mb-20 {
-    margin-bottom: 20px;
+    font-size: 0.8rem;
+    color: #7A869A;
 }
 </style>
 </head>
@@ -538,9 +643,8 @@ footer {
             <div class="logo-icon">$</div>
             <span>經貸智能財務</span>
         </a>
-        <nav style="display: flex; gap: 24px; align-items: center;">
-            <a href="#" class="btn-ghost" style="text-decoration:none"><i class="fas fa-chart-line"></i> 智能評估</a>
-            <a href="#" class="btn-ghost" style="text-decoration:none"><i class="fas fa-history"></i> 申請記錄</a>
+        <nav style="display: flex; gap: 24px;">
+            <a href="#" class="btn-ghost" style="text-decoration:none"><i class="fas fa-shield-alt"></i> AI 智能驗證</a>
             <a href="#" class="btn btn-primary" style="padding: 10px 20px"><i class="fas fa-university"></i> 銀行轉賬</a>
         </nav>
     </div>
@@ -548,7 +652,7 @@ footer {
 
 <div class="container main-content">
     <div class="content-grid">
-        <aside class="step-navigation">
+        <aside>
             <div class="step-indicator">
                 <div class="step-item active" data-step="1">
                     <div class="step-dot">1</div>
@@ -556,7 +660,7 @@ footer {
                 </div>
                 <div class="step-item" data-step="2">
                     <div class="step-dot">2</div>
-                    <div class="step-label">身份驗證</div>
+                    <div class="step-label">AI 身份驗證</div>
                 </div>
                 <div class="step-item" data-step="3">
                     <div class="step-dot">3</div>
@@ -568,25 +672,25 @@ footer {
                 </div>
             </div>
             
-            <div style="margin-top: 40px; padding: 20px; background: #EBECF0; border-radius: 12px; font-size: 0.85rem;">
-                <p style="color: var(--text-sub); margin-bottom: 4px; font-weight: 500;">放債人牌照號碼</p>
-                <p style="font-family: 'Roboto Mono'; font-weight: 600; color: var(--text-main); font-size: 1rem;">0987/2025</p>
+            <div style="margin-top: 40px; padding: 20px; background: #EBECF0; border-radius: 12px;">
+                <p style="color: var(--text-sub); margin-bottom: 4px;">放債人牌照號碼</p>
+                <p style="font-family: 'Roboto Mono'; font-weight: 600;">0987/2025</p>
                 <hr style="margin: 12px 0; border: none; border-top: 1px solid var(--border);">
-                <p style="color: var(--text-sub); margin-bottom: 8px; font-weight: 500;">年利率</p>
-                <p style="font-family: 'Roboto Mono'; font-weight: 600; color: var(--success); font-size: 1.1rem;">4.5% - 9.5%</p>
+                <p style="color: var(--text-sub); margin-bottom: 8px;">年利率</p>
+                <p style="font-family: 'Roboto Mono'; font-weight: 600; color: var(--success);">4.5% - 9.5%</p>
             </div>
             
-            <div style="margin-top: 20px; padding: 16px; background: #E3FCEF; border-radius: 12px; font-size: 0.85rem;">
-                <p style="color: var(--success); margin-bottom: 8px; font-weight: 600;"><i class="fas fa-shield-alt"></i> 安全保證</p>
-                <p style="color: var(--text-sub); line-height: 1.5;">您的個人資料將透過256-bit SSL加密傳輸，確保資料安全。</p>
+            <div style="margin-top: 20px; padding: 16px; background: #E3FCEF; border-radius: 12px;">
+                <p style="color: var(--success); margin-bottom: 8px; font-weight: 600;"><i class="fas fa-shield-alt"></i> AI 安全保證</p>
+                <p style="color: var(--text-sub); font-size: 0.85rem;">採用先進 AI 人臉活體檢測技術，確保身份真實有效，防止欺詐申請。</p>
             </div>
         </aside>
 
         <main class="application-card">
-            <!-- Step 1: Basic Information -->
+            <!-- Step 1: 基本資料 -->
             <div id="step1" class="step-content">
                 <h2>基本資料</h2>
-                <p class="card-subtitle">填寫您的申請金額與年期，系統將自動計算利率。</p>
+                <p class="card-subtitle">填寫您的申請金額與年期</p>
                 
                 <div class="loan-summary">
                     <div class="summary-title">
@@ -615,14 +719,15 @@ footer {
                 </div>
 
                 <div class="form-group">
+                    <label class="form-label required">聯絡電話</label>
+                    <input type="tel" class="input-field" id="phoneNumber" placeholder="9123 4567" required>
+                </div>
+
+                <div class="form-group">
                     <label class="form-label required">申請金額 (HKD)</label>
                     <div class="input-with-icon">
                         <input type="number" class="input-field" id="loanAmount" placeholder="例如: 50000" min="1000" max="500000" step="1000" value="50000" required>
                         <span class="input-icon">$</span>
-                    </div>
-                    <div style="display: flex; justify-content: space-between; margin-top: 4px;">
-                        <span style="font-size: 0.8rem; color: var(--text-sub);">最低: HKD 1,000</span>
-                        <span style="font-size: 0.8rem; color: var(--text-sub);">最高: HKD 500,000</span>
                     </div>
                 </div>
 
@@ -638,70 +743,155 @@ footer {
                 </div>
 
                 <div class="button-group">
-                    <div></div> <!-- Empty div for spacing -->
+                    <div></div>
                     <button class="btn btn-primary" id="nextToStep2">
-                        下一步：身份驗證 <i class="fas fa-arrow-right"></i>
+                        下一步：AI 身份驗證 <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
             </div>
             
-            <!-- Step 2: Identity Verification -->
+            <!-- Step 2: AI 身份驗證 -->
             <div id="step2" class="step-content hidden">
-                <h2>身份驗證</h2>
-                <p class="card-subtitle">請選擇最方便您的驗證方式。</p>
+                <h2>AI 智能身份驗證</h2>
+                <p class="card-subtitle">選擇驗證方式，確保身份真實有效</p>
                 
                 <div class="verification-grid">
-                    <div class="v-option" data-option="registered">
-                        <span class="v-icon"><i class="fas fa-user-check"></i></span>
-                        <div class="v-title">已註冊用戶</div>
-                        <div class="v-desc">使用您的經貸帳戶登入以快速驗證身份</div>
-                    </div>
                     <div class="v-option" data-option="facial">
                         <span class="v-icon"><i class="fas fa-camera"></i></span>
-                        <div class="v-title">人臉比對</div>
-                        <div class="v-desc">使用手機或電腦鏡頭進行人臉識別驗證</div>
+                        <div class="v-title">AI 人臉活體檢測</div>
+                        <div class="v-desc">使用鏡頭進行人臉識別及活體檢測，防止照片欺詐</div>
                     </div>
-                    <div class="v-option selected" data-option="manual">
+                    <div class="v-option selected" data-option="hkid-ocr">
                         <span class="v-icon"><i class="fas fa-id-card"></i></span>
+                        <div class="v-title">身份證 OCR 掃描</div>
+                        <div class="v-desc">上傳身份證圖片，AI 自動識別姓名及證件號碼</div>
+                    </div>
+                    <div class="v-option" data-option="manual">
+                        <span class="v-icon"><i class="fas fa-keyboard"></i></span>
                         <div class="v-title">手動輸入</div>
-                        <div class="v-desc">手動輸入身份證號碼及上傳證明文件</div>
+                        <div class="v-desc">手動輸入身份證號碼</div>
                     </div>
                 </div>
                 
-                <div id="manualVerificationForm" class="visible">
-                    <div class="form-group">
-                        <label class="form-label required">香港身份證號碼</label>
-                        <input type="text" class="input-field" id="idNumber" placeholder="例如: A123456(7)" pattern="[A-Z]{1,2}[0-9]{6}\([0-9A-Za-z]\)">
-                        <div style="font-size: 0.8rem; color: var(--text-sub); margin-top: 4px;">格式: 字母 + 6位數字 + 括號內校驗碼</div>
+                <!-- AI 人臉活體檢測區域 -->
+                <div id="facialVerificationSection" class="ai-verification-section hidden">
+                    <h3 style="margin-bottom: 16px; font-size: 1.1rem;">
+                        <i class="fas fa-camera"></i> AI 人臉活體檢測
+                    </h3>
+                    
+                    <div class="ai-video-wrapper">
+                        <video id="aiWebcam" autoplay playsinline muted></video>
+                        <canvas id="aiOverlay"></canvas>
                     </div>
                     
-                    <div class="form-group">
-                        <label class="form-label required">身份證明文件</label>
-                        <div style="border: 2px dashed var(--border); border-radius: 8px; padding: 30px; text-align: center; background: #FAFBFC;">
-                            <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--text-sub); margin-bottom: 16px;"></i>
-                            <p style="color: var(--text-sub); margin-bottom: 16px;">將您的身份證明文件拖放到此處，或點擊上傳</p>
-                            <button class="btn btn-ghost" style="border: 1px solid var(--border);">
-                                <i class="fas fa-folder-open"></i> 選擇文件
-                            </button>
-                            <p style="font-size: 0.8rem; color: var(--text-sub); margin-top: 16px;">支持格式: JPG, PNG, PDF (最大 5MB)</p>
+                    <div id="aiStatus" class="ai-status">
+                        <span class="ai-status-indicator"></span>
+                        <span id="aiStatusText">準備就緒</span>
+                    </div>
+                    
+                    <div class="ai-liveness-stats" id="aiLivenessStats" style="display: none;">
+                        <div class="ai-stat">
+                            <div class="ai-stat-value" id="aiMotionScore">0</div>
+                            <div class="ai-stat-label">動作檢測</div>
+                        </div>
+                        <div class="ai-stat">
+                            <div class="ai-stat-value" id="aiDepthScore">0</div>
+                            <div class="ai-stat-label">深度驗證</div>
+                        </div>
+                        <div class="ai-stat">
+                            <div class="ai-stat-value" id="aiTotalScore">0%</div>
+                            <div class="ai-stat-label">總分</div>
                         </div>
                     </div>
+                    
+                    <div class="ai-controls">
+                        <button class="btn btn-primary" id="btnStartAI" onclick="startAIVerification()">
+                            <i class="fas fa-play"></i> 開始 AI 檢測
+                        </button>
+                        <button class="btn btn-success" id="btnConfirmAI" onclick="confirmAIVerification()" disabled>
+                            <i class="fas fa-check"></i> 確認驗證
+                        </button>
+                    </div>
+                    
+                    <div id="aiResult" class="ai-result hidden"></div>
+                </div>
+                
+                <!-- 身份證 OCR 掃描區域 -->
+                <div id="ocrVerificationSection" class="ocr-section">
+                    <h3 style="margin-bottom: 16px; font-size: 1.1rem;">
+                        <i class="fas fa-id-card"></i> 身份證 OCR 掃描
+                    </h3>
+                    
+                    <div class="ocr-upload-area" id="ocrUploadArea" onclick="document.getElementById('hkidFileInput').click()">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 2rem; color: var(--text-sub); margin-bottom: 8px;"></i>
+                        <p style="font-weight: 600;">點擊或拖曳上傳身份證</p>
+                        <p style="font-size: 0.8rem; color: var(--text-sub);">支援 JPG、PNG</p>
+                        <input type="file" id="hkidFileInput" accept="image/*" style="display: none;" onchange="handleHkidFileSelect(event)">
+                    </div>
+                    
+                    <div id="ocrPreview" class="ocr-preview" style="display: none;">
+                        <img id="ocrPreviewImg" class="ocr-preview-img" src="" alt="身份證預覽">
+                        <div class="ocr-info">
+                            <div class="ocr-info-item">
+                                <span class="ocr-info-label">姓名:</span>
+                                <span class="ocr-info-value" id="ocrName">-</span>
+                            </div>
+                            <div class="ocr-info-item">
+                                <span class="ocr-info-label">身份證號:</span>
+                                <span class="ocr-info-value" id="ocrIdNumber">-</span>
+                            </div>
+                            <div class="ocr-info-item">
+                                <span class="ocr-info-label">出生日期:</span>
+                                <span class="ocr-info-value" id="ocrDob">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="ocrScanning" style="display: none; text-align: center; padding: 20px;">
+                        <i class="fas fa-spinner fa-spin"></i> 正在 AI 識別中...
+                    </div>
+                    
+                    <div style="margin-top: 16px;">
+                        <button class="btn btn-primary" id="btnScanHkid" onclick="scanHkid()" disabled>
+                            <i class="fas fa-search"></i> 開始掃描
+                        </button>
+                        <button class="btn btn-success" id="btnConfirmOcr" onclick="confirmOcrResult()" disabled>
+                            <i class="fas fa-check"></i> 確認使用此資料
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 手動輸入區域 -->
+                <div id="manualVerificationSection" class="hidden">
+                    <div class="form-group">
+                        <label class="form-label required">香港身份證號碼</label>
+                        <input type="text" class="input-field" id="manualIdNumber" placeholder="例如: A123456(7)">
+                        <div style="font-size: 0.8rem; color: var(--text-sub); margin-top: 4px;">格式: 字母 + 6位數字 + 括號內校驗碼</div>
+                    </div>
+                </div>
+                
+                <!-- 驗證狀態摘要 -->
+                <div id="verificationSummary" style="margin-top: 24px; padding: 16px; background: #E8F5E9; border-radius: 8px; display: none;">
+                    <p style="color: var(--success); font-weight: 600; margin-bottom: 8px;">
+                        <i class="fas fa-check-circle"></i> 身份驗證已完成
+                    </p>
+                    <p style="color: var(--text-sub); font-size: 0.9rem;" id="verificationSummaryText"></p>
                 </div>
 
                 <div class="button-group">
                     <button class="btn btn-ghost" id="backToStep1">
                         <i class="fas fa-arrow-left"></i> 返回上一步
                     </button>
-                    <button class="btn btn-primary" id="nextToStep3">
+                    <button class="btn btn-primary" id="nextToStep3" disabled>
                         下一步：銀行資料 <i class="fas fa-arrow-right"></i>
                     </button>
                 </div>
             </div>
             
-            <!-- Step 3: Bank Information -->
+            <!-- Step 3: 銀行資料 -->
             <div id="step3" class="step-content hidden">
                 <h2>銀行資料</h2>
-                <p class="card-subtitle">請輸入您的銀行賬戶資料以接收轉賬。</p>
+                <p class="card-subtitle">請輸入您的銀行賬戶資料以接收轉賬</p>
                 
                 <div class="form-group">
                     <label class="form-label required">銀行名稱</label>
@@ -711,33 +901,18 @@ footer {
                         <option value="hangSeng">恒生銀行 (Hang Seng Bank)</option>
                         <option value="bankOfChina">中國銀行 (Bank of China)</option>
                         <option value="standardChartered">渣打銀行 (Standard Chartered)</option>
-                        <option value="citibank">花旗銀行 (Citibank)</option>
-                        <option value="dbs">星展銀行 (DBS)</option>
                         <option value="other">其他銀行</option>
                     </select>
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label required">銀行賬戶號碼</label>
-                    <input type="text" class="input-field" id="bankAccount" placeholder="例如: 123-456-789-123" pattern="[0-9\-]+">
-                    <div style="font-size: 0.8rem; color: var(--text-sub); margin-top: 4px;">請輸入您的銀行賬戶號碼（可使用 "-" 分隔）</div>
+                    <input type="text" class="input-field" id="bankAccount" placeholder="例如: 123-456-789-123">
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label required">賬戶持有人姓名</label>
                     <input type="text" class="input-field" id="accountHolder" placeholder="必須與申請人姓名一致">
-                </div>
-                
-                <div style="background: #F0F9FF; border-radius: 8px; padding: 20px; margin-top: 24px; border-left: 4px solid var(--secondary);">
-                    <div style="display: flex; gap: 12px; align-items: flex-start;">
-                        <i class="fas fa-info-circle" style="color: var(--secondary); margin-top: 2px;"></i>
-                        <div>
-                            <p style="font-weight: 600; color: var(--text-main); margin-bottom: 8px;">重要提示</p>
-                            <p style="color: var(--text-sub); font-size: 0.9rem; line-height: 1.5;">
-                                銀行賬戶持有人姓名必須與申請人姓名完全一致。轉賬將於申請批准後1-2個工作天內處理。請確保提供的銀行資料準確無誤。
-                            </p>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="button-group">
@@ -750,24 +925,26 @@ footer {
                 </div>
             </div>
             
-            <!-- Step 4: Confirmation -->
+            <!-- Step 4: 確認申請 -->
             <div id="step4" class="step-content hidden">
                 <h2>確認申請</h2>
-                <p class="card-subtitle">請仔細檢查您的申請資料，確認無誤後提交申請。</p>
+                <p class="card-subtitle">請仔細檢查您的申請資料</p>
                 
                 <div style="background: #F9FAFB; border-radius: 12px; padding: 30px; margin-bottom: 32px;">
-                    <h3 style="margin-bottom: 24px; color: var(--text-main); font-size: 1.2rem;">申請摘要</h3>
-                    
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                         <div>
                             <h4 style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 12px;">個人資料</h4>
                             <div style="background: white; border-radius: 8px; padding: 16px;">
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                    <span style="color: var(--text-sub);">申請人姓名</span>
+                                    <span>申請人姓名</span>
                                     <span style="font-weight: 600;" id="confirmName">-</span>
                                 </div>
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                    <span>聯絡電話</span>
+                                    <span style="font-weight: 600;" id="confirmPhone">-</span>
+                                </div>
                                 <div style="display: flex; justify-content: space-between;">
-                                    <span style="color: var(--text-sub);">身份證號碼</span>
+                                    <span>身份證號碼</span>
                                     <span style="font-weight: 600;" id="confirmID">-</span>
                                 </div>
                             </div>
@@ -777,11 +954,11 @@ footer {
                             <h4 style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 12px;">貸款資料</h4>
                             <div style="background: white; border-radius: 8px; padding: 16px;">
                                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                    <span style="color: var(--text-sub);">貸款金額</span>
+                                    <span>貸款金額</span>
                                     <span style="font-weight: 600;" id="confirmAmount">-</span>
                                 </div>
                                 <div style="display: flex; justify-content: space-between;">
-                                    <span style="color: var(--text-sub);">還款年期</span>
+                                    <span>還款年期</span>
                                     <span style="font-weight: 600;" id="confirmTerm">-</span>
                                 </div>
                             </div>
@@ -792,31 +969,41 @@ footer {
                         <h4 style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 12px;">銀行資料</h4>
                         <div style="background: white; border-radius: 8px; padding: 16px;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                                <span style="color: var(--text-sub);">銀行名稱</span>
+                                <span>銀行名稱</span>
                                 <span style="font-weight: 600;" id="confirmBank">-</span>
                             </div>
-                            <div style="display: flex; justify-content: space-between;">
-                                <span style="color: var(--text-sub);">賬戶號碼</span>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>賬戶號碼</span>
                                 <span style="font-weight: 600;" id="confirmAccount">-</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>持有人姓名</span>
+                                <span style="font-weight: 600;" id="confirmHolder">-</span>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- AI 驗證狀態 -->
+                    <div style="margin-top: 24px; padding: 16px; background: #E8F5E9; border-radius: 8px;">
+                        <p style="color: var(--success); font-weight: 600;">
+                            <i class="fas fa-check-circle"></i> AI 身份驗證已通過
+                        </p>
+                        <p style="color: var(--text-sub); font-size: 0.85rem;" id="confirmVerificationMethod"></p>
+                    </div>
                 </div>
                 
-                <div style="background: #FFF7E6; border-radius: 8px; padding: 20px; margin-bottom: 32px; border-left: 4px solid var(--warning);">
+                <div style="background: #FFF7E6; border-radius: 8px; padding: 20px; margin-bottom: 32px;">
                     <div style="display: flex; gap: 12px;">
-                        <i class="fas fa-exclamation-triangle" style="color: var(--warning); margin-top: 2px;"></i>
+                        <i class="fas fa-exclamation-triangle" style="color: var(--warning);"></i>
                         <div>
-                            <p style="font-weight: 600; color: var(--text-main); margin-bottom: 8px;">重要聲明</p>
-                            <p style="color: var(--text-sub); font-size: 0.9rem; line-height: 1.5; margin-bottom: 12px;">
-                                本人確認所提供的資料均屬真實及正確，並同意 經貸智能財務有限公司 向信貸資料服務機構查詢本人的信貸報告，以評估此貸款申請。
+                            <p style="font-weight: 600; margin-bottom: 8px;">重要聲明</p>
+                            <p style="color: var(--text-sub); font-size: 0.9rem; margin-bottom: 12px;">
+                                本人確認所提供的資料均屬真實及正確，並同意經貸智能財務有限公司查詢信貸報告。
                             </p>
-                            <div class="form-group" style="margin: 0;">
-                                <label style="display: flex; align-items: flex-start; gap: 8px; cursor: pointer;">
-                                    <input type="checkbox" id="agreeTerms" style="margin-top: 3px;">
-                                    <span style="color: var(--text-sub); font-size: 0.9rem;">本人已閱讀並同意 <a href="#" style="color: var(--primary); text-decoration: none;">《貸款條款及細則》</a> 及 <a href="#" style="color: var(--primary); text-decoration: none;">《私隱政策聲明》</a></span>
-                                </label>
-                            </div>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="agreeTerms">
+                                <span>本人已閱讀並同意《貸款條款及細則》及《私隱政策聲明》</span>
+                            </label>
                         </div>
                     </div>
                 </div>
@@ -838,48 +1025,44 @@ footer {
     <div class="container">
         <div class="footer-content">
             <p>© 2023-2026 經貸智能財務有限公司 | 借錢梗要還，咪俾錢中介</p>
-            <p style="font-size: 0.85rem;">服務時間: 星期一至五 9:00-18:00 | 星期六 9:00-13:00 | 星期日及公眾假期休息</p>
-            <p style="font-size: 0.85rem;">客戶服務熱線: <strong>2294 3266</strong> | 電郵: <strong>info@jingdai.com.hk</strong></p>
-            
+            <p>客戶服務熱線: <strong>2294 3266</strong> | 電郵: <strong>info@jingdai.com.hk</strong></p>
             <div class="disclaimer">
-                <p><strong>重要提示：</strong> 貸款產品受條款及細則約束。借定唔借？還得到先好借！在作出借貸決定前，請仔細考慮您的還款能力。逾期還款可能导致額外費用及對您的信貸記錄產生負面影響。本公司的實際年利率為12%至40%，還款期為12至60個月。以上數字僅供參考，實際利率視乎個別客戶情況而定。</p>
+                <p><strong>重要提示：</strong> 借定唔借？還得到先好借！本公司的實際年利率為12%至40%，還款期為12至60個月。以上數字僅供參考，實際利率視乎個別客戶情況而定。AI 人臉識別技術用於防止身份欺詐，保障您的賬戶安全。</p>
             </div>
         </div>
     </div>
 </footer>
 
 <script>
-// DOM Elements
-const stepItems = document.querySelectorAll('.step-item');
-const stepContents = document.querySelectorAll('.step-content');
-const nextToStep2 = document.getElementById('nextToStep2');
-const nextToStep3 = document.getElementById('nextToStep3');
-const nextToStep4 = document.getElementById('nextToStep4');
-const backToStep1 = document.getElementById('backToStep1');
-const backToStep2 = document.getElementById('backToStep2');
-const backToStep3 = document.getElementById('backToStep3');
-const submitApplication = document.getElementById('submitApplication');
-const agreeTerms = document.getElementById('agreeTerms');
-const verificationOptions = document.querySelectorAll('.v-option');
+// ==================== 全域變數 ====================
+let currentStep = 1;
+let verificationCompleted = false;
+let verificationMethod = '';
+let verifiedIdNumber = '';
+let verifiedName = '';
+let ocrResult = null;
+let selectedHkidFile = null;
 
-// Loan calculation elements
-const loanAmount = document.getElementById('loanAmount');
-const loanTerm = document.getElementById('loanTerm');
-const monthlyPayment = document.getElementById('monthlyPayment');
-const totalPayment = document.getElementById('totalPayment');
-const totalInterest = document.getElementById('totalInterest');
+// AI 人臉檢測相關
+let aiStream = null;
+let aiMatcher = null;
+let aiLivenessActive = false;
+let aiLivenessState = {
+    motionScore: 0,
+    depthScore: 0,
+    totalScore: 0,
+    lastFacePosition: null
+};
+let aiDetectionInterval = null;
 
-// Confirmation elements
-const confirmName = document.getElementById('confirmName');
-const confirmID = document.getElementById('confirmID');
-const confirmAmount = document.getElementById('confirmAmount');
-const confirmTerm = document.getElementById('confirmTerm');
-const confirmBank = document.getElementById('confirmBank');
-const confirmAccount = document.getElementById('confirmAccount');
+// 初始化 HKID OCR
+const hkidOCR = new HKIDOCR();
 
-// Step Navigation Functions
+// ==================== 步驟導航 ====================
 function goToStep(stepNumber) {
-    // Update step indicators
+    const stepItems = document.querySelectorAll('.step-item');
+    const stepContents = document.querySelectorAll('.step-content');
+    
     stepItems.forEach(item => {
         item.classList.remove('active');
         if (parseInt(item.dataset.step) < stepNumber) {
@@ -889,201 +1072,463 @@ function goToStep(stepNumber) {
         }
     });
     
-    // Activate current step
     document.querySelector(`.step-item[data-step="${stepNumber}"]`).classList.add('active');
     
-    // Show corresponding content
-    stepContents.forEach(content => {
-        content.classList.add('hidden');
-    });
+    stepContents.forEach(content => content.classList.add('hidden'));
     document.getElementById(`step${stepNumber}`).classList.remove('hidden');
+    
+    currentStep = stepNumber;
 }
 
-// Initialize step 1 as active
-goToStep(1);
-
-// Event Listeners for Step Navigation
-nextToStep2.addEventListener('click', () => {
-    // Basic validation for step 1
-    const fullName = document.getElementById('fullName').value.trim();
-    const amount = loanAmount.value;
-    
-    if (!fullName) {
-        alert('請輸入申請人全名');
-        document.getElementById('fullName').focus();
-        return;
-    }
-    
-    if (!amount || amount < 1000 || amount > 500000) {
-        alert('請輸入有效的申請金額 (HKD 1,000 - 500,000)');
-        loanAmount.focus();
-        return;
-    }
-    
-    goToStep(2);
-});
-
-nextToStep3.addEventListener('click', () => {
-    // Validation for step 2
-    const idNumber = document.getElementById('idNumber').value.trim();
-    
-    if (!idNumber) {
-        alert('請輸入香港身份證號碼');
-        document.getElementById('idNumber').focus();
-        return;
-    }
-    
-    // Basic ID format validation
-    const idPattern = /^[A-Z]{1,2}[0-9]{6}\([0-9A-Za-z]\)$/;
-    if (!idPattern.test(idNumber)) {
-        alert('身份證號碼格式不正確，請檢查後重新輸入');
-        document.getElementById('idNumber').focus();
-        return;
-    }
-    
-    goToStep(3);
-});
-
-nextToStep4.addEventListener('click', () => {
-    // Validation for step 3
-    const bankName = document.getElementById('bankName').value;
-    const bankAccount = document.getElementById('bankAccount').value.trim();
-    const accountHolder = document.getElementById('accountHolder').value.trim();
-    
-    if (!bankName) {
-        alert('請選擇銀行名稱');
-        document.getElementById('bankName').focus();
-        return;
-    }
-    
-    if (!bankAccount) {
-        alert('請輸入銀行賬戶號碼');
-        document.getElementById('bankAccount').focus();
-        return;
-    }
-    
-    if (!accountHolder) {
-        alert('請輸入賬戶持有人姓名');
-        document.getElementById('accountHolder').focus();
-        return;
-    }
-    
-    // Update confirmation data
-    confirmName.textContent = document.getElementById('fullName').value;
-    confirmID.textContent = document.getElementById('idNumber').value;
-    confirmAmount.textContent = 'HKD ' + new Intl.NumberFormat().format(loanAmount.value);
-    confirmTerm.textContent = loanTerm.options[loanTerm.selectedIndex].text;
-    
-    const bankSelect = document.getElementById('bankName');
-    confirmBank.textContent = bankSelect.options[bankSelect.selectedIndex].text;
-    confirmAccount.textContent = document.getElementById('bankAccount').value;
-    
-    goToStep(4);
-});
-
-// Back buttons
-backToStep1.addEventListener('click', () => goToStep(1));
-backToStep2.addEventListener('click', () => goToStep(2));
-backToStep3.addEventListener('click', () => goToStep(3));
-
-// Step indicator click events
-stepItems.forEach(item => {
-    item.addEventListener('click', function() {
-        const stepNumber = parseInt(this.dataset.step);
-        
-        // Only allow going back, not forward
-        const currentStep = parseInt(document.querySelector('.step-item.active').dataset.step);
-        if (stepNumber <= currentStep) {
-            goToStep(stepNumber);
-        }
-    });
-});
-
-// Verification option selection
-verificationOptions.forEach(option => {
-    option.addEventListener('click', function() {
-        verificationOptions.forEach(opt => opt.classList.remove('selected'));
-        this.classList.add('selected');
-        
-        // Show/hide manual verification form
-        const optionType = this.dataset.option;
-        const manualForm = document.getElementById('manualVerificationForm');
-        
-        if (optionType === 'manual') {
-            manualForm.classList.remove('hidden');
-        } else {
-            manualForm.classList.add('hidden');
-        }
-    });
-});
-
-// Loan calculation function
+// ==================== 貸款計算 ====================
 function calculateLoan() {
-    const amount = parseFloat(loanAmount.value) || 50000;
-    const term = parseInt(loanTerm.value) || 60;
-    
-    // Simplified calculation (in reality would use proper amortization formula)
-    const annualRate = 0.065; // 6.5% average APR
+    const amount = parseFloat(document.getElementById('loanAmount').value) || 50000;
+    const term = parseInt(document.getElementById('loanTerm').value) || 60;
+    const annualRate = 0.065;
     const monthlyRate = annualRate / 12;
     
-    // Monthly payment calculation using standard loan formula
     const monthlyPay = amount * monthlyRate * Math.pow(1 + monthlyRate, term) / 
                       (Math.pow(1 + monthlyRate, term) - 1);
-    
     const totalPay = monthlyPay * term;
     const totalInt = totalPay - amount;
     
-    // Update display with formatted numbers
-    monthlyPayment.textContent = 'HKD ' + new Intl.NumberFormat('en-HK', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(Math.round(monthlyPay));
-    
-    totalPayment.textContent = 'HKD ' + new Intl.NumberFormat('en-HK', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(Math.round(totalPay));
-    
-    totalInterest.textContent = 'HKD ' + new Intl.NumberFormat('en-HK', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    }).format(Math.round(totalInt));
+    document.getElementById('monthlyPayment').textContent = 'HKD ' + new Intl.NumberFormat().format(Math.round(monthlyPay));
+    document.getElementById('totalPayment').textContent = 'HKD ' + new Intl.NumberFormat().format(Math.round(totalPay));
+    document.getElementById('totalInterest').textContent = 'HKD ' + new Intl.NumberFormat().format(Math.round(totalInt));
 }
 
-// Initialize loan calculation
-calculateLoan();
-
-// Event listeners for loan calculation
-loanAmount.addEventListener('input', calculateLoan);
-loanTerm.addEventListener('change', calculateLoan);
-
-// Terms agreement toggle
-agreeTerms.addEventListener('change', function() {
-    submitApplication.disabled = !this.checked;
+// ==================== 驗證選項切換 ====================
+document.querySelectorAll('.v-option').forEach(option => {
+    option.addEventListener('click', function() {
+        document.querySelectorAll('.v-option').forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+        
+        const optionType = this.dataset.option;
+        
+        // 隱藏所有區域
+        document.getElementById('facialVerificationSection').classList.add('hidden');
+        document.getElementById('ocrVerificationSection').classList.add('hidden');
+        document.getElementById('manualVerificationSection').classList.add('hidden');
+        
+        // 顯示選中的區域
+        if (optionType === 'facial') {
+            document.getElementById('facialVerificationSection').classList.remove('hidden');
+        } else if (optionType === 'hkid-ocr') {
+            document.getElementById('ocrVerificationSection').classList.remove('hidden');
+        } else {
+            document.getElementById('manualVerificationSection').classList.remove('hidden');
+        }
+    });
 });
 
-// Submit application
-submitApplication.addEventListener('click', function() {
-    if (!agreeTerms.checked) {
-        alert('請閱讀並同意貸款條款及細則');
+// ==================== AI 人臉活體檢測 ====================
+async function initAIModels() {
+    try {
+        const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+        await Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL)
+        ]);
+        return true;
+    } catch (error) {
+        console.error('AI 模型載入失敗:', error);
+        return false;
+    }
+}
+
+async function startAIVerification() {
+    if (aiLivenessActive) return;
+    
+    // 初始化模型
+    const modelReady = await initAIModels();
+    if (!modelReady) {
+        alert('AI 模型載入失敗，請重新整理頁面');
         return;
     }
     
-    // Show loading state
-    const originalText = submitApplication.innerHTML;
-    submitApplication.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 處理中...';
-    submitApplication.disabled = true;
-    
-    // Simulate API call
-    setTimeout(() => {
-        alert('申請已成功提交！我們將於1-2個工作天內處理您的申請。');
+    try {
+        // 開啟相機
+        const video = document.getElementById('aiWebcam');
+        aiStream = await navigator.mediaDevices.getUserMedia({
+            video: { width: 640, height: 480, facingMode: 'user' }
+        });
+        video.srcObject = aiStream;
         
-        // Reset form (in real application, would redirect to confirmation page)
-        submitApplication.innerHTML = originalText;
-        submitApplication.disabled = false;
-    }, 1500);
+        // 設定 canvas
+        const canvas = document.getElementById('aiOverlay');
+        video.onloadedmetadata = () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+        };
+        
+        // 更新 UI
+        document.getElementById('aiStatus').className = 'ai-status verifying';
+        document.getElementById('aiStatusText').textContent = 'AI 檢測中...';
+        document.getElementById('aiLivenessStats').style.display = 'flex';
+        document.getElementById('btnStartAI').disabled = true;
+        
+        aiLivenessActive = true;
+        aiLivenessState = { motionScore: 0, depthScore: 0, totalScore: 0, lastFacePosition: null };
+        
+        // 開始檢測循環
+        aiDetectionInterval = setInterval(async () => {
+            if (!aiLivenessActive) return;
+            
+            try {
+                const detection = await faceapi
+                    .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ scoreThreshold: 0.6 }))
+                    .withFaceLandmarks();
+                
+                if (detection) {
+                    const face = detection.detection.box;
+                    const landmarks = detection.landmarks;
+                    
+                    // 計算動作分數
+                    if (aiLivenessState.lastFacePosition) {
+                        const dx = Math.abs(face.x - aiLivenessState.lastFacePosition.x);
+                        const dy = Math.abs(face.y - aiLivenessState.lastFacePosition.y);
+                        if (dx > 5 || dy > 5) {
+                            aiLivenessState.motionScore = Math.min(100, aiLivenessState.motionScore + 3);
+                        }
+                    }
+                    aiLivenessState.lastFacePosition = { x: face.x, y: face.y };
+                    
+                    // 計算深度分數
+                    const leftEye = landmarks.getLeftEye();
+                    const rightEye = landmarks.getRightEye();
+                    const nose = landmarks.getNose();
+                    const eyeDistance = Math.abs(leftEye[0].x - rightEye[3].x);
+                    const eyeNoseDistance = Math.abs((leftEye[0].y + rightEye[3].y) / 2 - nose[3].y);
+                    const ratio = eyeNoseDistance / eyeDistance;
+                    if (ratio > 0.3 && ratio < 0.6) {
+                        aiLivenessState.depthScore = Math.min(100, aiLivenessState.depthScore + 2);
+                    }
+                    
+                    aiLivenessState.totalScore = Math.floor((aiLivenessState.motionScore + aiLivenessState.depthScore) / 2);
+                    
+                    // 更新顯示
+                    document.getElementById('aiMotionScore').textContent = aiLivenessState.motionScore;
+                    document.getElementById('aiDepthScore').textContent = aiLivenessState.depthScore;
+                    document.getElementById('aiTotalScore').textContent = aiLivenessState.totalScore + '%';
+                    
+                    // 檢查是否通過 (門檻 60%)
+                    if (aiLivenessState.totalScore >= 60) {
+                        completeAIVerification(true);
+                    }
+                }
+            } catch (error) {
+                console.error('檢測錯誤:', error);
+            }
+        }, 200);
+        
+        // 10 秒超時
+        setTimeout(() => {
+            if (aiLivenessActive) {
+                completeAIVerification(false);
+            }
+        }, 10000);
+        
+    } catch (error) {
+        alert('無法開啟相機，請檢查權限');
+        document.getElementById('btnStartAI').disabled = false;
+    }
+}
+
+function completeAIVerification(success) {
+    aiLivenessActive = false;
+    clearInterval(aiDetectionInterval);
+    
+    if (aiStream) {
+        aiStream.getTracks().forEach(track => track.stop());
+    }
+    
+    const resultDiv = document.getElementById('aiResult');
+    resultDiv.classList.remove('hidden');
+    
+    if (success) {
+        document.getElementById('aiStatus').className = 'ai-status ready';
+        document.getElementById('aiStatusText').textContent = 'AI 驗證通過';
+        resultDiv.className = 'ai-result success';
+        resultDiv.innerHTML = `
+            <i class="fas fa-check-circle"></i> 
+            AI 活體檢測通過！<br>
+            身份驗證成功，請點擊「確認驗證」繼續。
+        `;
+        document.getElementById('btnConfirmAI').disabled = false;
+    } else {
+        document.getElementById('aiStatus').className = 'ai-status';
+        document.getElementById('aiStatusText').textContent = '驗證失敗';
+        resultDiv.className = 'ai-result error';
+        resultDiv.innerHTML = `
+            <i class="fas fa-times-circle"></i> 
+            AI 檢測失敗，請重新嘗試或選擇其他驗證方式。
+        `;
+        document.getElementById('btnStartAI').disabled = false;
+    }
+}
+
+function confirmAIVerification() {
+    verificationCompleted = true;
+    verificationMethod = 'facial';
+    verifiedName = document.getElementById('fullName').value;
+    verifiedIdNumber = 'AI_FACIAL_VERIFIED';
+    
+    completeVerification();
+}
+
+// ==================== OCR 身份證掃描 ====================
+function handleHkidFileSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        selectedHkidFile = file;
+        
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            document.getElementById('ocrPreviewImg').src = e.target.result;
+            document.getElementById('ocrPreview').style.display = 'flex';
+            document.getElementById('ocrUploadArea').style.display = 'none';
+            document.getElementById('btnScanHkid').disabled = false;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+async function scanHkid() {
+    if (!selectedHkidFile) return;
+    
+    const btnScan = document.getElementById('btnScanHkid');
+    const scanningDiv = document.getElementById('ocrScanning');
+    
+    btnScan.disabled = true;
+    scanningDiv.style.display = 'block';
+    
+    try {
+        ocrResult = await hkidOCR.recognize(selectedHkidFile);
+        
+        scanningDiv.style.display = 'none';
+        
+        if (ocrResult.success) {
+            document.getElementById('ocrName').textContent = ocrResult.name || '-';
+            document.getElementById('ocrIdNumber').textContent = ocrResult.idNumber || '-';
+            document.getElementById('ocrDob').textContent = ocrResult.dateOfBirth || '-';
+            document.getElementById('btnConfirmOcr').disabled = false;
+        } else {
+            alert('OCR 識別失敗: ' + ocrResult.error);
+            btnScan.disabled = false;
+        }
+    } catch (error) {
+        scanningDiv.style.display = 'none';
+        btnScan.disabled = false;
+        alert('OCR 掃描錯誤: ' + error.message);
+    }
+}
+
+function confirmOcrResult() {
+    if (!ocrResult || !ocrResult.success) return;
+    
+    verificationCompleted = true;
+    verificationMethod = 'hkid-ocr';
+    verifiedName = ocrResult.name || document.getElementById('fullName').value;
+    verifiedIdNumber = ocrResult.idNumber || '';
+    
+    completeVerification();
+}
+
+// ==================== 完成驗證 ====================
+function completeVerification() {
+    // 顯示驗證摘要
+    document.getElementById('verificationSummary').style.display = 'block';
+    
+    let methodText = '';
+    if (verificationMethod === 'facial') {
+        methodText = 'AI 人臉活體檢測';
+    } else if (verificationMethod === 'hkid-ocr') {
+        methodText = '身份證 OCR 掃描';
+    } else {
+        methodText = '手動輸入';
+    }
+    
+    document.getElementById('verificationSummaryText').innerHTML = `
+        驗證方式: ${methodText}<br>
+        姓名: ${verifiedName}<br>
+        身份證號碼: ${verifiedIdNumber}
+    `;
+    
+    // 啟用下一步按鈕
+    document.getElementById('nextToStep3').disabled = false;
+}
+
+// ==================== 事件監聽 ====================
+document.addEventListener('DOMContentLoaded', function() {
+    // 初始化
+    calculateLoan();
+    
+    // 貸款計算監聽
+    document.getElementById('loanAmount').addEventListener('input', calculateLoan);
+    document.getElementById('loanTerm').addEventListener('change', calculateLoan);
+    
+    // Step 1 -> Step 2
+    document.getElementById('nextToStep2').addEventListener('click', function() {
+        const fullName = document.getElementById('fullName').value.trim();
+        const phone = document.getElementById('phoneNumber').value.trim();
+        const amount = document.getElementById('loanAmount').value;
+        
+        if (!fullName) {
+            alert('請輸入申請人全名');
+            return;
+        }
+        if (!phone) {
+            alert('請輸入聯絡電話');
+            return;
+        }
+        if (!amount || amount < 1000) {
+            alert('請輸入有效的申請金額');
+            return;
+        }
+        
+        goToStep(2);
+    });
+    
+    // Step 2 -> Step 3
+    document.getElementById('nextToStep3').addEventListener('click', function() {
+        // 檢查手動輸入
+        if (!verificationCompleted) {
+            const selectedOption = document.querySelector('.v-option.selected').dataset.option;
+            if (selectedOption === 'manual') {
+                const manualId = document.getElementById('manualIdNumber').value.trim();
+                const idPattern = /^[A-Z]{1,2}[0-9]{6}\([0-9A-Za-z]\)$/;
+                if (!idPattern.test(manualId)) {
+                    alert('請輸入正確的身份證號碼格式');
+                    return;
+                }
+                verificationCompleted = true;
+                verificationMethod = 'manual';
+                verifiedName = document.getElementById('fullName').value;
+                verifiedIdNumber = manualId;
+                completeVerification();
+            }
+            
+            if (!verificationCompleted) {
+                alert('請先完成身份驗證');
+                return;
+            }
+        }
+        
+        goToStep(3);
+    });
+    
+    // Step 3 -> Step 4
+    document.getElementById('nextToStep4').addEventListener('click', function() {
+        const bankName = document.getElementById('bankName').value;
+        const bankAccount = document.getElementById('bankAccount').value.trim();
+        const accountHolder = document.getElementById('accountHolder').value.trim();
+        
+        if (!bankName) {
+            alert('請選擇銀行名稱');
+            return;
+        }
+        if (!bankAccount) {
+            alert('請輸入銀行賬戶號碼');
+            return;
+        }
+        if (!accountHolder) {
+            alert('請輸入賬戶持有人姓名');
+            return;
+        }
+        
+        // 更新確認頁面
+        document.getElementById('confirmName').textContent = document.getElementById('fullName').value;
+        document.getElementById('confirmPhone').textContent = document.getElementById('phoneNumber').value;
+        document.getElementById('confirmID').textContent = verifiedIdNumber;
+        document.getElementById('confirmAmount').textContent = 'HKD ' + new Intl.NumberFormat().format(document.getElementById('loanAmount').value);
+        document.getElementById('confirmTerm').textContent = document.getElementById('loanTerm').options[document.getElementById('loanTerm').selectedIndex].text;
+        
+        const bankSelect = document.getElementById('bankName');
+        document.getElementById('confirmBank').textContent = bankSelect.options[bankSelect.selectedIndex].text;
+        document.getElementById('confirmAccount').textContent = bankAccount;
+        document.getElementById('confirmHolder').textContent = accountHolder;
+        
+        let methodText = verificationMethod === 'facial' ? 'AI 人臉活體檢測' : 
+                        (verificationMethod === 'hkid-ocr' ? '身份證 OCR 掃描' : '手動輸入');
+        document.getElementById('confirmVerificationMethod').textContent = `驗證方式: ${methodText}`;
+        
+        goToStep(4);
+    });
+    
+    // 返回按鈕
+    document.getElementById('backToStep1').addEventListener('click', () => goToStep(1));
+    document.getElementById('backToStep2').addEventListener('click', () => goToStep(2));
+    document.getElementById('backToStep3').addEventListener('click', () => goToStep(3));
+    
+    // 條款同意
+    document.getElementById('agreeTerms').addEventListener('change', function() {
+        document.getElementById('submitApplication').disabled = !this.checked;
+    });
+    
+    // 提交申請
+    document.getElementById('submitApplication').addEventListener('click', function() {
+        if (!document.getElementById('agreeTerms').checked) {
+            alert('請閱讀並同意貸款條款及細則');
+            return;
+        }
+        
+        const btn = this;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 處理中...';
+        btn.disabled = true;
+        
+        setTimeout(() => {
+            alert('🎉 申請已成功提交！\n\n我們將於1-2個工作天內處理您的申請。\n感謝您使用經貸智能財務服務！');
+            btn.innerHTML = originalText;
+        }, 1500);
+    });
+    
+    // 步驟指示器點擊
+    document.querySelectorAll('.step-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const step = parseInt(this.dataset.step);
+            if (step <= currentStep) {
+                goToStep(step);
+            }
+        });
+    });
+    
+    // 拖曳上傳支援
+    const uploadArea = document.getElementById('ocrUploadArea');
+    if (uploadArea) {
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--primary)';
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.borderColor = 'var(--border)';
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.borderColor = 'var(--border)';
+            
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                selectedHkidFile = file;
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('ocrPreviewImg').src = e.target.result;
+                    document.getElementById('ocrPreview').style.display = 'flex';
+                    document.getElementById('ocrUploadArea').style.display = 'none';
+                    document.getElementById('btnScanHkid').disabled = false;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
 });
 
+// 掛載函數到 window
+window.startAIVerification = startAIVerification;
+window.confirmAIVerification = confirmAIVerification;
+window.handleHkidFileSelect = handleHkidFileSelect;
+window.scanHkid = scanHkid;
+window.confirmOcrResult = confirmOcrResult;
 </script>
 </body>
 </html>
