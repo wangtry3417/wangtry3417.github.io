@@ -1135,9 +1135,9 @@ const USERS = [
         term: 36,
         rate: 0.0385,
         creditScore: 720,
-        occupation: "軟件工程師",
-        monthlyIncome: 65000,
-        joinDate: "2023-06-15"
+        occupation: "技術總監",
+        monthlyIncome: 82000,
+        joinDate: "2023-08-15"
     },
     {
         id: "UID-7742",
@@ -1159,7 +1159,7 @@ let currentUser = null;
 let faceMatcher = null;
 let repaymentChart = null;
 let isAdminMode = false;
-const ADMIN_PASSWORD = "SYSTEM@2024";
+const ADMIN_PASSWORD = "SYSTEM@2026";
 let scanStream = null;
 let detectionInterval = null;
 let scanTimeout = null;
@@ -1167,12 +1167,12 @@ let isScanning = false;
 
 // 交易數據
 let transactions = [
-    { id: "TXN-001", date: "2024-03-15 14:30", description: "每月還款", amount: -21056, type: "repayment", status: "completed" },
-    { id: "TXN-002", date: "2024-03-10 09:15", description: "信用卡消費", amount: -18500, type: "payment", status: "completed" },
-    { id: "TXN-003", date: "2024-03-05 11:45", description: "網上購物", amount: -3200, type: "payment", status: "completed" },
-    { id: "TXN-004", date: "2024-02-28 08:30", description: "薪金存入", amount: 65000, type: "deposit", status: "completed" },
-    { id: "TXN-005", date: "2024-02-25 16:20", description: "額外還款", amount: -50000, type: "repayment", status: "completed" },
-    { id: "TXN-006", date: "2024-02-20 10:15", description: "保險費用", amount: -8500, type: "payment", status: "completed" }
+    { id: "TXN-001", date: "2026-03-15 14:30", description: "每月還款", amount: -21056, type: "repayment", status: "completed" },
+    { id: "TXN-002", date: "2026-02-10 09:15", description: "每月還款", amount: -21056, type: "payment", status: "completed" },
+    { id: "TXN-003", date: "2026-02-02 11:45", description: "網上購物", amount: -3200, type: "payment", status: "completed" },
+    { id: "TXN-004", date: "2026-02-28 08:30", description: "薪金存入", amount: 65000, type: "deposit", status: "completed" },
+    { id: "TXN-005", date: "2026-01-01 16:20", description: "每月還款", amount: -21056, type: "repayment", status: "completed" },
+    { id: "TXN-006", date: "2025-12-20 10:15", description: "保險費用", amount: -12500, type: "payment", status: "cancelled" }
 ];
 
 // ===================== 初始化用戶狀態 =====================
