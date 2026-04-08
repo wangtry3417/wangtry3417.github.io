@@ -15,7 +15,7 @@
 <!-- Tesseract OCR -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 <!-- 身份證 OCR 庫 -->
-<script src="https://jingdai.wtechhk.com/models/hkid-check.min.js"></script>
+<script src="./models/hkid-check.min.js"></script>
 
 <style>
 :root {
@@ -1211,8 +1211,8 @@ async function startAIVerification() {
                     document.getElementById('aiDepthScore').textContent = aiLivenessState.depthScore;
                     document.getElementById('aiTotalScore').textContent = aiLivenessState.totalScore + '%';
                     
-                    // 檢查是否通過 (門檻 60%)
-                    if (aiLivenessState.totalScore >= 60) {
+                    // 檢查是否通過 (門檻 40%)
+                    if (aiLivenessState.totalScore >= 40) {
                         completeAIVerification(true);
                     }
                 }
