@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>動態銀行存摺簿 · 翻頁效果</title>
+  <!-- 使用 Google Material Icons 與字型 -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: linear-gradient(145deg, #2b3e4f 0%, #1b2a36 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 12px;
+    }
+
+    /* 存摺主體：立體翻頁書本感 */
+    .passbook {
+      width: 100%;
+      max-width: 520px;
+      background: #faf7f0;
+      border-radius: 16px 16px 16px 16px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 0 2px #b9a68b inset, 0 0 0 4px #7c6b56 inset;
+      padding: 12px 10px 20px 10px;
+      position: relative;
+      transition: transform 0.3s;
+      /* 模擬紙張紋理 */
+      background-image: repeating-linear-gradient(45deg, rgba(200, 180, 140, 0.05) 0px, rgba(200, 180, 140, 0.05) 4px, transparent 4px, transparent 12px);
+    }
+
+    /* 翻頁動畫的過渡效果，加在內容區 */
+    .book-content {
+      position: relative;
+      perspective: 1800px;
+      transform-style: preserve-3d;
+    }
+
+    /* 封面風格 */
+    .bank-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      background: #e8ddcf;
+      padding: 8px 14px;
+      border-radius: 30px 30px 12px 12px;
+      box-shadow: inset 0 -3px 0 #b9a68b, 0 6px 10px rgba(0, 0, 0, 0.15);
+      border: 1px solid #cbb99e;
+      margin-bottom: 4px;
+    }
+
+    .bank-selector {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #fff7eb;
+      border-radius: 40px;
+      padding: 4px 8px 4px 12px;
+      border: 1px solid #b9a68b;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .bank-selector i {
+      color: #6b4f2e;
+      font-size: 20px;
+    }
+
+    .bank-selector select {
+      background: transparent;
+      border: none;
+      font-weight: 600;
+      font-size: 1rem;
+      color: #3e2e1c;
+      outline: none;
+      padding: 6px 0;
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .bank-selector select option {
+      background: #faf7f0;
+      color: #2e241a;
+    }
+
+    /* 存摺簿內頁 */
+    .page {
+      background: #fffcf5;
+      border-radius: 8px 8px 16px 16px;
+      padding: 16px 14px 14px 14px;
+      box-shadow: inset 0 0 0 1px #e2d7c8, inset 0 0 20px #f2eadc, 0 6px 12px rgba(0, 0, 0, 0.2);
+      border-left: 4px solid #dac29c;
+      border-right: 4px solid #dac29c;
+      position: relative;
+      transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1), box-shadow 0.3s;
+      transform-origin: left center;
+      backface-visibility: hidden;
+      background: linear-gradient(to bottom, #fffcf5 0%, #f8f2e7 100%);
+    }
+
+    /* 翻頁動態：加上這個class會產生翻頁效果，模擬翻到下一頁 */
+    .page.flip-next {
+      animation: flipNext 0.5s ease-in-out forwards;
+    }
+
+    .page.flip-prev {
+      animation: flipPrev 0.5s ease-in-out forwards;
+    }
+
+    @keyframes flipNext {
+      0% { transform: rotateY(0deg) scale(1); opacity: 1; }
+      40% { transform: rotateY(-15deg) scale(0.98); opacity: 0.9; box-shadow: -20px 10px 30px rgba(0,0,0,0.5); }
+      100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+    }
+
+    @keyframes flipPrev {
+      0% { transform: rotateY(0deg) scale(1); opacity: 1; }
+      40% { transform: rotateY(15deg) scale(0.98); opacity: 0.9; box-shadow: 20px 10px 30px rgba(0,0,0,0.5); }
+      100% { transform: rotateY(0deg) scale(1); opacity: 1; }
+    }
+
+    /* 帳戶資訊區 */
+    .account-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+      border-bottom: 1px dashed #b9a68b;
+      padding-bottom: 8px;
+    }
+
+    .account-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.9rem;
+      color: #4e3f2e;
+    }
+
+    .account-item i {
+      font-size: 18px;
+      color: #8b7a60;
+    }
+
+    .account-item input {
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #dac29c;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: #2b1f12;
+      padding: 2px 4px;
+      width: 140px;
+      outline: none;
+      transition: border 0.2s;
+    }
+
+    .account-item input:focus {
+      border-bottom: 2px solid #b98f4b;
+    }
+
+    /* 交易紀錄標題 */
+    .ledger-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #7a684e;
+      padding: 6px 4px 4px 4px;
+      border-bottom: 2px solid #dac29c;
+      letter-spacing: 0.5px;
+    }
+
+    /* 紀錄列表容器 */
+    .records-container {
+      min-height: 260px;
+      max-height: 380px;
+      overflow-y: auto;
+      margin: 6px 0 4px 0;
+      padding-right: 2px;
+      scrollbar-width: thin;
+      scrollbar-color: #b9a68b #efe6da;
+    }
+
+    .records-container::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .records-container::-webkit-scrollbar-track {
+      background: #efe6da;
+      border-radius: 10px;
+    }
+
+    .records-container::-webkit-scrollbar-thumb {
+      background: #b9a68b;
+      border-radius: 10px;
+    }
+
+    /* 單筆交易 */
+    .record-item {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 8px 2px;
+      border-bottom: 1px solid #e6d9c8;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+      gap: 4px;
+      position: relative;
+    }
+
+    .record-item:hover {
+      background: #f8f0e2;
+    }
+
+    .record-date {
+      flex: 0 0 72px;
+      color: #5e4e38;
+      font-weight: 500;
+      font-size: 0.8rem;
+    }
+
+    .record-desc {
+      flex: 1 1 100px;
+      color: #2e241a;
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    .record-amount {
+      flex: 0 0 95px;
+      text-align: right;
+      font-weight: 700;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9rem;
+      color: #1b4a2e;
+      letter-spacing: 0.3px;
+    }
+
+    .record-amount.expense {
+      color: #b13e3e;
+    }
+
+    /* 刪除按鈕（手機易按） */
+    .delete-btn {
+      background: none;
+      border: none;
+      color: #b09b84;
+      cursor: pointer;
+      font-size: 20px;
+      padding: 0 4px;
+      line-height: 1;
+      transition: color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      min-height: 32px;
+      border-radius: 50%;
+    }
+
+    .delete-btn:hover {
+      color: #b13e3e;
+      background: rgba(180, 80, 80, 0.1);
+    }
+
+    /* 控制區 */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      gap: 10px;
+    }
+
+    .add-section {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      background: #f3ede3;
+      padding: 8px 12px;
+      border-radius: 40px;
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.05);
+      border: 1px solid #dac29c;
+      flex: 1 1 260px;
+    }
+
+    .add-section input {
+      background: white;
+      border: 1px solid #dac29c;
+      border-radius: 30px;
+      padding: 8px 10px;
+      font-size: 0.85rem;
+      outline: none;
+      transition: 0.2s;
+    }
+
+    .add-section input:focus {
+      border-color: #b98f4b;
+      box-shadow: 0 0 0 2px rgba(185, 143, 75, 0.2);
+    }
+
+    .add-section input#newDesc {
+      flex: 2 1 100px;
+    }
+
+    .add-section input#newAmount {
+      flex: 1 1 80px;
+      min-width: 80px;
+    }
+
+    .btn {
+      background: #b9a68b;
+      border: none;
+      border-radius: 40px;
+      padding: 8px 16px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #2e241a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      border: 1px solid #a08e76;
+      min-height: 40px;
+    }
+
+    .btn:active {
+      transform: scale(0.96);
+    }
+
+    .btn-primary {
+      background: #7c6b56;
+      color: #fff8ed;
+      border-color: #5e4e38;
+    }
+
+    .btn-primary:hover {
+      background: #6b5a46;
+    }
+
+    .btn i {
+      font-size: 18px;
+    }
+
+    .flip-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .flip-btn {
+      background: #e8ddcf;
+      border: 1px solid #b9a68b;
+      border-radius: 50%;
+      width: 46px;
+      height: 46px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #4e3f2e;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+    }
+
+    .flip-btn:active {
+      background: #dac29c;
+      transform: scale(0.92);
+    }
+
+    /* 餘額顯示 */
+    .balance-box {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: #2e241a;
+      padding: 8px 10px 0 0;
+      font-size: 1rem;
+      border-top: 2px solid #dac29c;
+      margin-top: 4px;
+    }
+
+    .balance-box span {
+      font-family: 'Courier New', monospace;
+      background: #e8ddcf;
+      padding: 4px 14px;
+      border-radius: 40px;
+      color: #1b4a2e;
+      font-size: 1.2rem;
+      letter-spacing: 0.5px;
+      border: 1px solid #b9a68b;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* 手機優化 */
+    @media (max-width: 420px) {
+      .passbook {
+        padding: 8px 6px 14px 6px;
+      }
+      .account-item input {
+        width: 110px;
+        font-size: 0.85rem;
+      }
+      .record-date {
+        flex: 0 0 60px;
+        font-size: 0.7rem;
+      }
+      .record-amount {
+        flex: 0 0 75px;
+        font-size: 0.8rem;
+      }
+      .add-section input {
+        padding: 6px 8px;
+        font-size: 0.8rem;
+      }
+      .btn {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+      }
+      .flip-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+      }
+    }
+
+    /* 初始頁面顯示翻頁 hint */
+    .flip-hint {
+      position: absolute;
+      bottom: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.7rem;
+      color: #b9a68b;
+      opacity: 0.8;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="passbook" id="passbook">
+    <div class="book-content" id="bookContent">
+      <!-- 銀行選擇 + 帳戶資料 -->
+      <div class="bank-header">
+        <div class="bank-selector">
+          <i class="material-icons">account_balance</i>
+          <select id="bankSelect">
+            <option value="滙豐銀行">滙豐銀行</option>
+            <option value="恒生銀行">恒生銀行</option>
+            <option value="中國銀行">中國銀行</option>
+            <option value="渣打銀行">渣打銀行</option>
+            <option value="東亞銀行">東亞銀行</option>
+            <option value="花旗銀行">花旗銀行</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 4px;">
+          <i class="material-icons" style="color:#7c6b56;">menu_book</i>
+        </div>
+      </div>
+
+      <!-- 存摺內頁 (翻動載體) -->
+      <div class="page" id="page">
+        <!-- 帳戶名稱 & 號碼 -->
+        <div class="account-row">
+          <div class="account-item">
+            <i class="material-icons">person</i>
+            <input type="text" id="accountName" value="陳大文" placeholder="帳戶名稱">
+          </div>
+          <div class="account-item">
+            <i class="material-icons">pin</i>
+            <input type="text" id="accountNumber" value="123-456-789" placeholder="帳號">
+          </div>
+        </div>
+
+        <!-- 交易標題 -->
+        <div class="ledger-header">
+          <span>日期</span>
+          <span>摘要</span>
+          <span style="text-align:right;">金額(HKD)</span>
+          <span style="width:32px;"></span>
+        </div>
+
+        <!-- 交易列表 -->
+        <div class="records-container" id="recordsContainer">
+          <!-- 由JS動態生成 -->
+        </div>
+
+        <!-- 餘額 -->
+        <div class="balance-box">
+          <i class="material-icons" style="color:#7c6b56; font-size:20px;">account_balance_wallet</i>
+          <span id="balanceDisplay">0.00</span>
+        </div>
+
+        <!-- 翻頁提示 (裝飾) -->
+        <div class="flip-hint">← 翻動效果 →</div>
+      </div>
+    </div>
+
+    <!-- 控制區：加減紀錄 & 翻頁按鈕 -->
+    <div class="controls">
+      <div class="add-section">
+        <input type="text" id="newDesc" placeholder="摘要 (例：購物)" value="薪資存入">
+        <input type="text" id="newAmount" placeholder="金額" value="5000">
+        <button class="btn btn-primary" id="addRecordBtn">
+          <i class="material-icons">add</i> 添加
+        </button>
+      </div>
+      <div class="flip-controls">
+        <button class="flip-btn" id="prevPageBtn" title="上一頁(翻動效果)">
+          <i class="material-icons">chevron_left</i>
+        </button>
+        <button class="flip-btn" id="nextPageBtn" title="下一頁(翻動效果)">
+          <i class="material-icons">chevron_right</i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ---------- 數據狀態 ----------
+      // 初始交易紀錄 (預設幾筆真實感)
+      let records = [
+        { id: '1', date: '2025-02-01', desc: '薪資存入', amount: 28500 },
+        { id: '2', date: '2025-02-03', desc: '超市購物', amount: -345.5 },
+        { id: '3', date: '2025-02-05', desc: '轉賬至陳小明', amount: -1200 },
+        { id: '4', date: '2025-02-07', desc: '利息收入', amount: 12.8 },
+        { id: '5', date: '2025-02-09', desc: '網購 (HKTVmall)', amount: -678.9 }
+      ];
+
+      // 帳戶資料
+      let accountName = '陳大文';
+      let accountNumber = '123-456-789';
+      let currentBank = '滙豐銀行';
+
+      // DOM 元素
+      const bankSelect = document.getElementById('bankSelect');
+      const accountNameInput = document.getElementById('accountName');
+      const accountNumberInput = document.getElementById('accountNumber');
+      const recordsContainer = document.getElementById('recordsContainer');
+      const balanceDisplay = document.getElementById('balanceDisplay');
+      const newDescInput = document.getElementById('newDesc');
+      const newAmountInput = document.getElementById('newAmount');
+      const addRecordBtn = document.getElementById('addRecordBtn');
+      const page = document.getElementById('page');
+      const prevPageBtn = document.getElementById('prevPageBtn');
+      const nextPageBtn = document.getElementById('nextPageBtn');
+
+      // ---------- 輔助: 格式化金額 ----------
+      function formatAmount(amount) {
+        return amount.toLocaleString('zh-HK', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      }
+
+      // ---------- 更新餘額顯示 ----------
+      function updateBalance() {
+        const total = records.reduce((sum, r) => sum + r.amount, 0);
+        balanceDisplay.textContent = formatAmount(total);
+      }
+
+      // ---------- 渲染交易列表 ----------
+      function renderRecords() {
+        if (!recordsContainer) return;
+        if (records.length === 0) {
+          recordsContainer.innerHTML = `<div style="text-align:center; padding:30px 10px; color:#b9a68b; font-style:italic;">暫無交易紀錄</div>`;
+          updateBalance();
+          return;
+        }
+
+        // 按日期排序？保持添加順序，但可以稍微排序（此處保持用戶所見即所得，不自動排序）
+        // 但讓顯示比較真實：可依日期新到舊？但為簡洁，使用當前數组順序（最後添加在最後）
+        // 為了直覺，可反向顯示最新在上？但銀行存摺通常最新在上或下，我們就照數组順序，但添加時默認push到最後，可接受。
+        // 為了更像存摺，可以反轉顯示（最新的在最上面）？決定不反轉，保留添加順序，且用戶可自行添加看到效果。
+        // 但範例中預設是舊的在上，新的在下。此處保持順序。
+
+        let html = '';
+        records.forEach((record, index) => {
+          const amountClass = record.amount < 0 ? 'expense' : '';
+          const sign = record.amount < 0 ? '' : '+'; // 正數顯示+？但銀行存摺通常正數不顯示+，但為了清楚可加，但真實存摺正數沒有+，我們不加。
+          // 真實存摺：支出用負號，收入直接數字。此處保留原樣，但顯示負號。
+          const displayAmount = record.amount < 0 ? `-${formatAmount(Math.abs(record.amount))}` : `${formatAmount(record.amount)}`;
+          // 加上 class 區分顏色
+          html += `
+            <div class="record-item" data-id="${record.id}">
+              <span class="record-date">${record.date}</span>
+              <span class="record-desc">${record.desc}</span>
+              <span class="record-amount ${amountClass}">${displayAmount}</span>
+              <button class="delete-btn" data-id="${record.id}" title="刪除紀錄"><i class="material-icons">delete_outline</i></button>
+            </div>
+          `;
+        });
+
+        recordsContainer.innerHTML = html;
+        updateBalance();
+
+        // 綁定刪除事件 (事件委託)
+        recordsContainer.querySelectorAll('.delete-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = btn.getAttribute('data-id');
+            deleteRecordById(id);
+          });
+        });
+      }
+
+      // ---------- 刪除紀錄 ----------
+      function deleteRecordById(id) {
+        records = records.filter(r => r.id !== id);
+        renderRecords();
+        // 觸發翻頁動畫（小效果）
+        triggerFlip('next');
+      }
+
+      // ---------- 添加紀錄 ----------
+      function addRecord() {
+        const desc = newDescInput.value.trim();
+        const amountStr = newAmountInput.value.trim();
+        if (!desc) {
+          alert('請輸入摘要');
+          return;
+        }
+        if (!amountStr) {
+          alert('請輸入金額');
+          return;
+        }
+        // 嘗試解析金額，允許負數
+        const amount = parseFloat(amountStr);
+        if (isNaN(amount)) {
+          alert('金額必須是數字');
+          return;
+        }
+
+        // 產生當前日期 (YYYY-MM-DD)
+        const today = new Date();
+        const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+        const newRecord = {
+          id: Date.now() + Math.random().toString(36).substr(2, 6),
+          date: dateStr,
+          desc: desc,
+          amount: amount
+        };
+
+        records.push(newRecord);
+        renderRecords();
+
+        // 清空輸入 (保留摘要方便重複添加，但金額清空？保留上次輸入？但可留空)
+        // 但可保留摘要，但金額建議清空？用於方便連續添加，但我們保留摘要，金額清空
+        newAmountInput.value = '';
+        // 聚焦到金額
+        newAmountInput.focus();
+
+        // 觸發翻頁動畫（增添動感）
+        triggerFlip('next');
+      }
+
+      // ---------- 觸發翻頁動畫（透過class）----------
+      function triggerFlip(direction = 'next') {
+        if (!page) return;
+        // 移除現有動畫class
+        page.classList.remove('flip-next', 'flip-prev');
+        // 強制重繪
+        void page.offsetWidth;
+        // 添加對應class
+        if (direction === 'next') {
+          page.classList.add('flip-next');
+        } else {
+          page.classList.add('flip-prev');
+        }
+        // 動畫結束後移除class
+        setTimeout(() => {
+          page.classList.remove('flip-next', 'flip-prev');
+        }, 500);
+      }
+
+      // ---------- 更新銀行顯示（不影響邏輯，但可變更樣式? 但存摺銀行選擇不影響資料）----------
+      function updateBankUI() {
+        currentBank = bankSelect.value;
+        // 可選：改變標題顏色？但保持簡單，不變更。
+        // 可當作存摺封面變更，不加額外效果。
+      }
+
+      // ---------- 初始化事件綁定 ----------
+      function init() {
+        // 渲染初始紀錄
+        renderRecords();
+
+        // 帳戶名稱綁定
+        accountNameInput.value = accountName;
+        accountNameInput.addEventListener('input', (e) => {
+          accountName = e.target.value;
+        });
+
+        // 帳號綁定
+        accountNumberInput.value = accountNumber;
+        accountNumberInput.addEventListener('input', (e) => {
+          accountNumber = e.target.value;
+        });
+
+        // 銀行選擇
+        bankSelect.value = currentBank;
+        bankSelect.addEventListener('change', (e) => {
+          currentBank = e.target.value;
+          // 可加上翻頁動畫
+          triggerFlip('next');
+        });
+
+        // 添加按鈕
+        addRecordBtn.addEventListener('click', addRecord);
+
+        // Enter 快捷鍵 (在金額輸入框按 Enter 添加)
+        newAmountInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addRecord();
+          }
+        });
+        newDescInput.addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            newAmountInput.focus();
+          }
+        });
+
+        // 翻頁按鈕 (純粹視覺效果，不影響資料，但可給用戶回饋)
+        prevPageBtn.addEventListener('click', () => {
+          triggerFlip('prev');
+          // 可稍微捲動列表？
+          // 加點效果：列表滾動到頂部
+          recordsContainer.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        nextPageBtn.addEventListener('click', () => {
+          triggerFlip('next');
+          // 列表滾動到底部
+          recordsContainer.scrollTo({ top: recordsContainer.scrollHeight, behavior: 'smooth' });
+        });
+
+        // 點擊存摺內頁也可能觸發翻頁？但避免干擾輸入，不綁定。
+        // 可點擊空白處翻頁？但可能誤觸，不做了。
+      }
+
+      // 啟動
+      init();
+    })();
+  </script>
+</body>
+</html>
