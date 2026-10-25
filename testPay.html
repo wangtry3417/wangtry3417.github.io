@@ -1,781 +1,739 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh-Hant">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <title>✨ 星級支付 · 模擬試用</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>星級商店 · 付款</title>
+<style>
+  :root {
+    --ink: #1c1c1e;
+    --muted: #6b6b70;
+    --line: #e5e5ea;
+    --bg: #f2f2f7;
+    --accent: #4a5bd4;
+    --ok: #2e7d4f;
+    --err: #d93025;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
+  body {
+    background: var(--bg); min-height: 100vh; display: flex; align-items: center;
+    justify-content: center; padding: 24px 16px; color: var(--ink); -webkit-font-smoothing: antialiased;
+  }
+  .payment-card {
+    max-width: 460px; width: 100%; background: #fff; border-radius: 16px;
+    border: 1px solid var(--line);
+    box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06); overflow: hidden;
+  }
+  .payment-header { padding: 22px 24px; border-bottom: 1px solid var(--line); }
+  .merchant-info { display: flex; align-items: center; gap: 14px; }
+  .merchant-logo {
+    width: 44px; height: 44px; border-radius: 10px; background: var(--bg);
+    display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
+  }
+  .merchant-details { flex: 1; min-width: 0; }
+  .merchant-name { font-size: 14px; color: var(--muted); margin-bottom: 2px; }
+  .amount { font-size: 24px; font-weight: 600; letter-spacing: -.3px; }
+  .amount small { font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 4px; }
+  .payment-body { padding: 20px 24px 24px; }
 
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
+  .payment-methods { display: flex; gap: 6px; margin-bottom: 22px; }
+  .method-tab {
+    flex: 1; padding: 9px 4px; background: #fff; border: 1px solid var(--line);
+    border-radius: 10px; text-align: center; cursor: pointer;
+    transition: border-color .15s, background .15s; user-select: none;
+  }
+  .method-tab:hover { border-color: #c7c7cc; }
+  .method-tab.active { border-color: var(--accent); background: rgba(74,91,212,.04); }
+  .method-tab i { font-style: normal; font-size: 17px; display: block; margin-bottom: 3px; line-height: 1; }
+  .method-tab span { font-size: 11px; color: var(--muted); }
+  .method-tab.active span { color: var(--accent); }
 
-        .payment-card {
-            max-width: 480px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 32px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-            animation: slideUp 0.5s ease;
-        }
+  .section { display: none; }
+  .section.active { display: block; }
 
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+  /* 卡片預覽 */
+  .card-preview {
+    background: #1c1c1e; border-radius: 12px; padding: 18px; margin-bottom: 22px;
+    color: #fff; height: 172px; display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+  .card-chip { width: 36px; height: 26px; background: #b9a35a; border-radius: 5px; }
+  .card-brand { font-size: 14px; font-weight: 700; letter-spacing: .5px; opacity: .9; }
+  .card-number {
+    font-size: 18px; letter-spacing: 2px;
+    font-family: 'SF Mono', Menlo, Consolas, monospace; color: rgba(255,255,255,.92);
+  }
+  .card-footer { display: flex; justify-content: space-between; align-items: flex-end; }
+  .card-holder, .card-expiry {
+    font-size: 12px; text-transform: uppercase; color: rgba(255,255,255,.65); letter-spacing: .5px;
+  }
 
-        .payment-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 30px;
-            color: white;
-            position: relative;
-        }
+  .form-group { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
+  .form-input {
+    width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px;
+    font-size: 15px; background: #fff; color: var(--ink);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .form-input::placeholder { color: #b0b0b5; }
+  .form-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(74,91,212,.12); }
+  .form-input.invalid { border-color: var(--err); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .field-error { color: var(--err); font-size: 12px; margin-top: 4px; min-height: 0; }
 
-        .payment-header::after {
-            content: '';
-            position: absolute;
-            bottom: -20px;
-            left: 0;
-            right: 0;
-            height: 40px;
-            background: white;
-            border-radius: 40px 40px 0 0;
-        }
+  /* QR */
+  .qr-wrap {
+    width: 200px; height: 200px; margin: 0 auto 16px; background: #fff;
+    padding: 8px; border: 1px solid var(--line); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qr-wrap canvas { width: 100%; height: 100%; display: block; }
 
-        .merchant-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+  .info-box {
+    background: #f6f8f6; padding: 12px 14px; border-radius: 10px;
+    font-size: 13px; line-height: 1.8;
+  }
+  .info-box strong { font-weight: 600; }
+  .info-box code {
+    font-family: 'SF Mono', Menlo, Consolas, monospace;
+    background: #fff; padding: 2px 6px; border-radius: 4px; font-size: 12px;
+    word-break: break-all;
+  }
+  .mini-btn {
+    margin-left: 6px; padding: 2px 8px; font-size: 11px; border: 1px solid var(--line);
+    background: #fff; border-radius: 6px; cursor: pointer; color: var(--muted);
+  }
+  .mini-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-        .merchant-logo {
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 30px;
-            backdrop-filter: blur(5px);
-        }
+  .hint { color: var(--muted); font-size: 12px; margin-top: 10px; text-align: center; line-height: 1.5; }
 
-        .merchant-details {
-            flex: 1;
-        }
+  /* Apple Pay */
+  .apple-pay-button {
+    -webkit-appearance: -apple-pay-button;
+    -apple-pay-button-type: buy;
+    -apple-pay-button-style: black;
+    width: 100%; height: 48px; border: none; border-radius: 10px; cursor: pointer; display: block;
+  }
+  .mock-apple-pay {
+    background: #000; color: #fff; padding: 14px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity .15s;
+  }
+  .mock-apple-pay:hover { opacity: .85; }
 
-        .merchant-name {
-            font-size: 18px;
-            font-weight: 600;
-            opacity: 0.9;
-        }
+  /* Crypto */
+  .crypto-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .crypto-tab {
+    flex: 1; padding: 8px; font-size: 12px; font-weight: 500; background: #fff;
+    border: 1px solid var(--line); border-radius: 8px; cursor: pointer; color: var(--muted);
+  }
+  .crypto-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(74,91,212,.04); }
+  .crypto-amount { font-size: 16px; font-weight: 600; margin-bottom: 8px; text-align: center; }
+  .wallet-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .network-tag { margin-top: 6px; font-size: 11px; color: var(--muted); text-align: center; }
+  .wallet-connect-btn {
+    width: 100%; padding: 12px; margin-top: 12px; background: #111; color: #fff;
+    border: none; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .wallet-connect-btn:hover:not(:disabled) { opacity: .88; }
+  .wallet-connect-btn:disabled { opacity: .5; cursor: not-allowed; }
 
-        .amount {
-            font-size: 36px;
-            font-weight: 700;
-            margin-top: 5px;
-        }
+  /* 付款按鈕 */
+  .pay-button {
+    width: 100%; padding: 14px; background: var(--accent); color: #fff; border: none;
+    border-radius: 10px; font-size: 15px; font-weight: 600; margin-top: 22px;
+    cursor: pointer; transition: opacity .15s;
+  }
+  .pay-button:hover:not(:disabled) { opacity: .9; }
+  .pay-button:active:not(:disabled) { opacity: .8; }
+  .pay-button:disabled { opacity: .5; cursor: not-allowed; }
 
-        .amount small {
-            font-size: 16px;
-            font-weight: 400;
-            opacity: 0.8;
-        }
+  /* 成功彈窗 */
+  .success-modal {
+    position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none;
+    align-items: center; justify-content: center; padding: 20px; z-index: 1000;
+  }
+  .success-content {
+    background: #fff; padding: 28px 24px 24px; border-radius: 16px;
+    text-align: center; max-width: 300px; width: 100%;
+  }
+  .success-icon {
+    width: 56px; height: 56px; background: var(--ok); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px; font-size: 26px; color: #fff;
+  }
+  .success-title { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
+  .success-message { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
+  .transaction-id {
+    background: var(--bg); padding: 10px; border-radius: 8px;
+    font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 12px;
+    margin-bottom: 18px; word-break: break-all;
+  }
+  .close-button {
+    padding: 10px 24px; background: var(--accent); color: #fff; border: none;
+    border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer;
+  }
 
-        .payment-body {
-            padding: 40px 30px 30px;
-        }
+  .loading {
+    display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3);
+    border-radius: 50%; border-top-color: #fff; animation: spin .8s linear infinite;
+    vertical-align: -2px; margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-        .payment-methods {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 30px;
-        }
-
-        .method-tab {
-            flex: 1;
-            padding: 15px;
-            background: #f5f5f5;
-            border-radius: 16px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .method-tab.active {
-            background: white;
-            border-color: #667eea;
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.1);
-        }
-
-        .method-tab i {
-            font-size: 24px;
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        .method-tab span {
-            font-size: 14px;
-            font-weight: 500;
-            color: #666;
-        }
-
-        .method-tab.active span {
-            color: #667eea;
-        }
-
-        /* 信用卡表單 */
-        .card-form {
-            display: none;
-            animation: fadeIn 0.3s ease;
-        }
-
-        .card-form.active {
-            display: block;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 8px;
-        }
-
-        .form-input {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid #e0e0e0;
-            border-radius: 14px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: white;
-        }
-
-        .form-input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-
-        /* 信用卡模擬 */
-        .card-preview {
-            background: linear-gradient(135deg, #1a1f3a 0%, #2a2f4f 100%);
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 30px;
-            color: white;
-            position: relative;
-            height: 180px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-        }
-
-        .card-chip {
-            width: 45px;
-            height: 35px;
-            background: linear-gradient(135deg, #d4af37 0%, #f1c40f 100%);
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-
-        .card-number {
-            font-size: 22px;
-            letter-spacing: 3px;
-            margin-bottom: 20px;
-            font-family: 'Courier New', monospace;
-        }
-
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .card-holder {
-            text-transform: uppercase;
-            font-size: 14px;
-            opacity: 0.8;
-        }
-
-        .card-expiry {
-            font-size: 14px;
-            opacity: 0.8;
-        }
-
-        /* Apple Pay 按鈕 */
-        .apple-pay-section {
-            display: none;
-            text-align: center;
-            padding: 20px 0;
-        }
-
-        .apple-pay-section.active {
-            display: block;
-        }
-
-        .apple-pay-button {
-            -webkit-appearance: -apple-pay-button;
-            apple-pay-button-type: buy;
-            apple-pay-button-style: black;
-            width: 100%;
-            height: 50px;
-            border-radius: 12px;
-            margin: 20px 0;
-        }
-
-        .mock-apple-pay {
-            background: #000;
-            color: white;
-            padding: 16px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .mock-apple-pay:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .mock-apple-pay i {
-            font-size: 24px;
-        }
-
-        /* 轉數快 */
-        .fps-section {
-            display: none;
-            text-align: center;
-            padding: 20px 0;
-        }
-
-        .fps-section.active {
-            display: block;
-        }
-
-        .qr-code {
-            width: 200px;
-            height: 200px;
-            margin: 20px auto;
-            background: #f5f5f5;
-            padding: 15px;
-            border-radius: 20px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .qr-code svg {
-            width: 100%;
-            height: 100%;
-        }
-
-        .fps-info {
-            background: #e8f5e9;
-            padding: 15px;
-            border-radius: 12px;
-            color: #2e7d32;
-            margin-top: 20px;
-        }
-
-        /* 支付按鈕 */
-        .pay-button {
-            width: 100%;
-            padding: 18px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 16px;
-            font-size: 18px;
-            font-weight: 600;
-            margin-top: 30px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .pay-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
-        }
-
-        .pay-button:active {
-            transform: translateY(0);
-        }
-
-        .pay-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        /* 支付成功彈窗 */
-        .success-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(5px);
-            z-index: 1000;
-        }
-
-        .success-content {
-            background: white;
-            padding: 40px;
-            border-radius: 30px;
-            text-align: center;
-            animation: scaleIn 0.3s ease;
-            max-width: 320px;
-        }
-
-        @keyframes scaleIn {
-            from {
-                opacity: 0;
-                transform: scale(0.9);
-            }
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
-
-        .success-icon {
-            width: 80px;
-            height: 80px;
-            background: #4caf50;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 40px;
-            color: white;
-            animation: bounce 0.5s ease;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.2); }
-        }
-
-        .success-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: #333;
-        }
-
-        .success-message {
-            color: #666;
-            margin-bottom: 20px;
-        }
-
-        .transaction-id {
-            background: #f5f5f5;
-            padding: 12px;
-            border-radius: 10px;
-            font-family: monospace;
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 20px;
-        }
-
-        .close-button {
-            padding: 12px 30px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        /* 加載動畫 */
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* 響應式 */
-        @media (max-width: 480px) {
-            .payment-card {
-                border-radius: 24px;
-            }
-            
-            .payment-header {
-                padding: 20px;
-            }
-            
-            .payment-body {
-                padding: 30px 20px 20px;
-            }
-            
-            .amount {
-                font-size: 28px;
-            }
-        }
-    </style>
+  @media (max-width: 420px) {
+    .payment-header { padding: 18px 20px; }
+    .payment-body { padding: 18px 20px 20px; }
+    .amount { font-size: 22px; }
+  }
+</style>
 </head>
 <body>
-    <div class="payment-card">
-        <div class="payment-header">
-            <div class="merchant-info">
-                <div class="merchant-logo">
-                    🛍️
-                </div>
-                <div class="merchant-details">
-                    <div class="merchant-name">星級商店</div>
-                    <div class="amount">
-                        HK$ 128.00
-                        <small>HKD</small>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="payment-body">
-            <!-- 支付方式切換 -->
-            <div class="payment-methods">
-                <div class="method-tab active" onclick="switchMethod('card')">
-                    <i>💳</i>
-                    <span>信用卡</span>
-                </div>
-                <div class="method-tab" onclick="switchMethod('apple')">
-                    <i>🍎</i>
-                    <span>Apple Pay</span>
-                </div>
-                <div class="method-tab" onclick="switchMethod('fps')">
-                    <i>📱</i>
-                    <span>轉數快</span>
-                </div>
-            </div>
+<div class="payment-card">
+  <div class="payment-header">
+    <div class="merchant-info">
+      <div class="merchant-logo">🛍️</div>
+      <div class="merchant-details">
+        <div class="merchant-name">星級商店</div>
+        <div class="amount">HK$ 128.00 <small>HKD</small></div>
+      </div>
+    </div>
+  </div>
 
-            <!-- 信用卡區域 -->
-            <div id="card-section" class="card-form active">
-                <!-- 信用卡預覽 -->
-                <div class="card-preview" id="cardPreview">
-                    <div class="card-chip"></div>
-                    <div class="card-number" id="previewNumber">**** **** **** ****</div>
-                    <div class="card-footer">
-                        <div class="card-holder" id="previewName">卡片持有人</div>
-                        <div class="card-expiry" id="previewExpiry">**/**</div>
-                    </div>
-                </div>
-
-                <!-- 信用卡表單 -->
-                <div class="form-group">
-                    <label class="form-label">卡號</label>
-                    <input type="text" class="form-input" id="cardNumber" 
-                           placeholder="1234 5678 9012 3456" maxlength="19"
-                           oninput="formatCardNumber(this); updateCardPreview()">
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">持有人姓名</label>
-                    <input type="text" class="form-input" id="cardName" 
-                           placeholder="CHAN TAI MAN" 
-                           oninput="updateCardPreview()">
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label">到期日</label>
-                        <input type="text" class="form-input" id="cardExpiry" 
-                               placeholder="MM/YY" maxlength="5"
-                               oninput="formatExpiry(this); updateCardPreview()">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">CVV</label>
-                        <input type="password" class="form-input" id="cardCvv" 
-                               placeholder="***" maxlength="3">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Apple Pay 區域 -->
-            <div id="apple-section" class="apple-pay-section">
-                <div style="margin: 20px 0;">
-                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 24 24'%3E%3Cpath fill='%23000000' d='M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11'/%3E%3C/svg%3E" 
-                         style="width: 50px; height: 50px; margin-bottom: 10px;">
-                </div>
-                <div class="mock-apple-pay" onclick="mockApplePay()">
-                    <i>🍎</i>
-                    <span>使用 Apple Pay 付款</span>
-                </div>
-                <p style="color: #999; font-size: 12px; margin-top: 10px;">
-                    雙擊側邊按鈕以付款
-                </p>
-            </div>
-
-            <!-- 轉數快區域 -->
-            <div id="fps-section" class="fps-section">
-                <div class="qr-code" id="qrcode"></div>
-                <div class="fps-info">
-                    <strong>FPS 轉數快</strong><br>
-                    收款人: 經財支付服務有限公司<br>
-                    FPS ID: 091341567
-                </div>
-                <p style="color: #999; font-size: 12px; margin-top: 15px;">
-                    打開轉數快 App 掃描二維碼
-                </p>
-            </div>
-
-            <!-- 支付按鈕 -->
-            <button class="pay-button" id="payBtn" onclick="processPayment()">
-                立即付款 HK$ 128.00
-            </button>
-        </div>
+  <div class="payment-body">
+    <div class="payment-methods">
+      <div class="method-tab active" data-method="card"><i>💳</i><span>信用卡</span></div>
+      <div class="method-tab" data-method="fps"><i>📱</i><span>轉數快</span></div>
+      <div class="method-tab" data-method="apple"><i>🍎</i><span>Apple Pay</span></div>
+      <div class="method-tab" data-method="crypto"><i>₿</i><span>Crypto</span></div>
     </div>
 
-    <!-- 成功彈窗 -->
-    <div class="success-modal" id="successModal">
-        <div class="success-content">
-            <div class="success-icon">✓</div>
-            <div class="success-title">付款成功！</div>
-            <div class="success-message">多謝你嘅訂單</div>
-            <div class="transaction-id" id="transactionId">TXN_20240215_001</div>
-            <button class="close-button" onclick="closeModal()">完成</button>
+    <!-- 信用卡 -->
+    <div id="card-section" class="section active">
+      <div class="card-preview">
+        <div class="card-top">
+          <div class="card-chip"></div>
+          <div class="card-brand" id="cardBrand"></div>
         </div>
+        <div class="card-number" id="previewNumber">•••• •••• •••• ••••</div>
+        <div class="card-footer">
+          <div class="card-holder" id="previewName">持卡人姓名</div>
+          <div class="card-expiry" id="previewExpiry">MM/YY</div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="cardNumber">卡號</label>
+        <input type="text" class="form-input" id="cardNumber"
+               placeholder="1234 5678 9012 3456" maxlength="23"
+               inputmode="numeric" autocomplete="cc-number">
+        <div class="field-error" id="cardNumberError"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="cardName">持卡人姓名</label>
+        <input type="text" class="form-input" id="cardName"
+               placeholder="CHAN TAI MAN" autocomplete="cc-name">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="cardExpiry">到期日</label>
+          <input type="text" class="form-input" id="cardExpiry"
+                 placeholder="MM/YY" maxlength="5" inputmode="numeric"
+                 autocomplete="cc-exp">
+          <div class="field-error" id="cardExpiryError"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="cardCvv">CVV</label>
+          <input type="password" class="form-input" id="cardCvv"
+                 placeholder="•••" maxlength="4" inputmode="numeric"
+                 autocomplete="cc-csc">
+          <div class="field-error" id="cardCvvError"></div>
+        </div>
+      </div>
     </div>
 
-    <script>
-        // 切換支付方式
-        function switchMethod(method) {
-            // 更新 tabs
-            document.querySelectorAll('.method-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.currentTarget.classList.add('active');
+    <!-- 轉數快 -->
+    <div id="fps-section" class="section">
+      <div class="qr-wrap"><canvas id="fpsQr"></canvas></div>
+      <div class="info-box">
+        <strong>FPS 轉數快</strong><br>
+        收款人：經財支付服務有限公司<br>
+        FPS ID：<code id="fpsId">091341567</code>
+        <button class="mini-btn" id="copyFpsBtn">複製</button>
+      </div>
+      <p class="hint">開啟銀行 App 掃描上方二維碼完成付款</p>
+    </div>
 
-            // 隱藏所有 section
-            document.getElementById('card-section').classList.remove('active');
-            document.getElementById('apple-section').classList.remove('active');
-            document.getElementById('fps-section').classList.remove('active');
+    <!-- Apple Pay -->
+    <div id="apple-section" class="section">
+      <div id="applePayButtonWrap" style="display:none;">
+        <button class="apple-pay-button" id="applePayBtn" lang="zh-HK" aria-label="使用 Apple Pay 付款"></button>
+      </div>
+      <div id="applePayFallback" class="mock-apple-pay" style="display:none;">
+        <span>🍎</span><span>使用 Apple Pay 付款</span>
+      </div>
+      <p class="hint" id="applePayHint">於支援裝置上雙擊側邊按鈕確認付款</p>
+    </div>
 
-            // 顯示對應 section
-            document.getElementById(method + '-section').classList.add('active');
+    <!-- Crypto -->
+    <div id="crypto-section" class="section">
+      <div class="crypto-tabs">
+        <button class="crypto-tab active" data-coin="USDC">USDC</button>
+        <button class="crypto-tab" data-coin="ETH">ETH</button>
+        <button class="crypto-tab" data-coin="USDT">USDT</button>
+      </div>
 
-            // 更新按鈕文字
-            const payBtn = document.getElementById('payBtn');
-            if (method === 'card') {
-                payBtn.textContent = '使用信用卡付款 HK$ 128.00';
-            } else if (method === 'apple') {
-                payBtn.textContent = '使用 Apple Pay 付款 HK$ 128.00';
-            } else {
-                payBtn.textContent = '使用轉數快付款 HK$ 128.00';
-            }
-        }
+      <div class="qr-wrap"><canvas id="cryptoQr"></canvas></div>
 
-        // 格式化卡號
-        function formatCardNumber(input) {
-            let value = input.value.replace(/\s/g, '').replace(/\D/g, '');
-            let formatted = '';
-            
-            for (let i = 0; i < value.length; i++) {
-                if (i > 0 && i % 4 === 0) {
-                    formatted += ' ';
-                }
-                formatted += value[i];
-            }
-            
-            input.value = formatted.substring(0, 19);
-        }
+      <div class="info-box">
+        <div class="crypto-amount" id="cryptoAmount">≈ 16.40 USDC</div>
+        <div class="wallet-row">
+          <code id="walletAddress">0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb</code>
+          <button class="mini-btn" id="copyWalletBtn">複製</button>
+        </div>
+        <div class="network-tag" id="networkTag">Base · 手續費 &lt; $0.01</div>
+      </div>
 
-        // 格式化到期日
-        function formatExpiry(input) {
-            let value = input.value.replace(/\D/g, '');
-            
-            if (value.length >= 2) {
-                value = value.substring(0, 2) + '/' + value.substring(2, 4);
-            }
-            
-            input.value = value;
-        }
+      <button class="wallet-connect-btn" id="connectWalletBtn">
+        <span>🔗</span> 連接錢包付款
+      </button>
+      <p class="hint">掃碼轉帳或連接錢包一鍵付款，鏈上真實收款</p>
+    </div>
 
-        // 更新卡片預覽
-        function updateCardPreview() {
-            const number = document.getElementById('cardNumber').value;
-            const name = document.getElementById('cardName').value;
-            const expiry = document.getElementById('cardExpiry').value;
-            
-            // 卡號預覽
-            if (number) {
-                const last4 = number.replace(/\s/g, '').slice(-4);
-                document.getElementById('previewNumber').textContent = 
-                    '**** **** **** ' + last4.padStart(4, '*');
-            }
-            
-            // 姓名預覽
-            document.getElementById('previewName').textContent = 
-                name || '卡片持有人';
-            
-            // 到期日預覽
-            document.getElementById('previewExpiry').textContent = 
-                expiry || '**/**';
-        }
+    <button class="pay-button" id="payBtn">付款 HK$ 128.00</button>
+  </div>
+</div>
 
-        // 模擬 Apple Pay
-        function mockApplePay() {
-            const payBtn = document.getElementById('payBtn');
-            payBtn.disabled = true;
-            payBtn.innerHTML = '<span class="loading"></span> 處理中...';
-            
-            setTimeout(() => {
-                showSuccess('APPLE_PAY_' + Date.now());
-                payBtn.disabled = false;
-                payBtn.innerHTML = '使用 Apple Pay 付款 HK$ 128.00';
-            }, 1500);
-        }
+<!-- 成功彈窗 -->
+<div class="success-modal" id="successModal">
+  <div class="success-content">
+    <div class="success-icon">✓</div>
+    <div class="success-title" id="successTitle">付款成功</div>
+    <div class="success-message" id="successMessage">感謝你的訂單</div>
+    <div class="transaction-id" id="transactionId">TXN_000000</div>
+    <button class="close-button" id="closeModalBtn">完成</button>
+  </div>
+</div>
 
-        // 處理支付
-        function processPayment() {
-            const payBtn = document.getElementById('payBtn');
-            payBtn.disabled = true;
-            payBtn.innerHTML = '<span class="loading"></span> 處理中...';
-            
-            // 檢查邊個支付方式 active
-            let method = 'card';
-            if (document.getElementById('apple-section').classList.contains('active')) {
-                method = 'apple';
-            } else if (document.getElementById('fps-section').classList.contains('active')) {
-                method = 'fps';
-            }
-            
-            // 模擬支付處理
-            setTimeout(() => {
-                let transactionId = '';
-                if (method === 'card') {
-                    const last4 = document.getElementById('cardNumber').value.replace(/\s/g, '').slice(-4) || '0000';
-                    transactionId = 'CARD_' + last4 + '_' + Date.now();
-                } else if (method === 'apple') {
-                    transactionId = 'APPLE_PAY_' + Date.now();
-                } else {
-                    transactionId = 'FPS_' + Date.now();
-                }
-                
-                showSuccess(transactionId);
-                
-                payBtn.disabled = false;
-                payBtn.innerHTML = '立即付款 HK$ 128.00';
-            }, 2000);
-        }
+<!-- CDN -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
 
-        // 顯示成功彈窗
-        function showSuccess(transactionId) {
-            document.getElementById('transactionId').textContent = transactionId;
-            document.getElementById('successModal').style.display = 'flex';
-            
-            // 震動效果（如果有）
-            if (navigator.vibrate) {
-                navigator.vibrate([50, 50, 50]);
-            }
-        }
+<script>
+/* ============================================================
+   設定
+   ============================================================ */
+const CONFIG = {
+  hkdAmount: 128,
+  // 匯率（示範用，真實請接 API）
+  rates: { USDC: 7.8, USDT: 7.8, ETH: 24000 },
+  // 收款錢包（換成你自己的）
+  wallets: {
+    USDC: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+    USDT: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
+    ETH:  '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb'
+  },
+  networks: {
+    USDC: { name: 'Base', chainId: 8453, decimals: 6,  token: '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913' },
+    USDT: { name: 'Base', chainId: 8453, decimals: 6,  token: '0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2' },
+    ETH:  { name: 'Base', chainId: 8453, decimals: 18, token: null }
+  },
+  fpsId: '091341567',
+  fpsName: '經財支付服務有限公司'
+};
 
-        // 關閉彈窗
-        function closeModal() {
-            document.getElementById('successModal').style.display = 'none';
-        }
+/* ============================================================
+   狀態
+   ============================================================ */
+let currentMethod = 'card';
+let currentCoin = 'USDC';
+let provider = null;
+let signer = null;
+let userAddress = null;
 
-        // 生成 QR Code（簡單版）
-        function generateSimpleQR() {
-            const qrContainer = document.getElementById('qrcode');
-            const size = 200;
-            const cellSize = 10;
-            const cols = size / cellSize;
-            
-            let svg = '<svg width="200" height="200" viewBox="0 0 200 200">';
-            
-            // 生成簡單嘅 QR 圖案（只係裝飾用）
-            for (let i = 0; i < cols; i++) {
-                for (let j = 0; j < cols; j++) {
-                    if ((i * j) % 7 === 0 || (i + j) % 5 === 0) {
-                        svg += `<rect x="${i * cellSize}" y="${j * cellSize}" 
-                                   width="${cellSize}" height="${cellSize}" fill="#000" />`;
-                    }
-                }
-            }
-            
-            // 加入三個定位標記
-            svg += '<rect x="10" y="10" width="40" height="40" fill="#000" />';
-            svg += '<rect x="150" y="10" width="40" height="40" fill="#000" />';
-            svg += '<rect x="10" y="150" width="40" height="40" fill="#000" />';
-            
-            svg += '</svg>';
-            
-            qrContainer.innerHTML = svg;
-        }
+/* ============================================================
+   Tab 切換
+   ============================================================ */
+document.querySelectorAll('.method-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchMethod(tab.dataset.method, tab));
+});
 
-        // 初始化
-        document.addEventListener('DOMContentLoaded', () => {
-            generateSimpleQR();
-            
-            // 信用卡輸入效果
-            const cardInputs = document.querySelectorAll('.form-input');
-            cardInputs.forEach(input => {
-                input.addEventListener('focus', () => {
-                    input.style.transform = 'scale(1.02)';
-                });
-                
-                input.addEventListener('blur', () => {
-                    input.style.transform = 'scale(1)';
-                });
-            });
-            
-            // 自動跳轉下一個 input（可以加）
+function switchMethod(method, el) {
+  currentMethod = method;
+  document.querySelectorAll('.method-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  ['card','fps','apple','crypto'].forEach(m => {
+    document.getElementById(m + '-section').classList.remove('active');
+  });
+  document.getElementById(method + '-section').classList.add('active');
+  const labels = {
+    card:   '付款 HK$ 128.00',
+    fps:    '使用轉數快付款',
+    apple:  '使用 Apple Pay 付款',
+    crypto: '使用 Crypto 付款'
+  };
+  document.getElementById('payBtn').textContent = labels[method];
+}
+
+/* ============================================================
+   信用卡：格式化 + Luhn + 卡別
+   ============================================================ */
+const cardNumber = document.getElementById('cardNumber');
+const cardName   = document.getElementById('cardName');
+const cardExpiry = document.getElementById('cardExpiry');
+const cardCvv    = document.getElementById('cardCvv');
+
+cardNumber.addEventListener('input', e => {
+  const digits = e.target.value.replace(/\D/g, '').slice(0, 19);
+  e.target.value = digits.match(/.{1,4}/g)?.join(' ') || '';
+  updateCardPreview();
+  detectBrand(digits);
+  clearError('cardNumber');
+});
+
+cardName.addEventListener('input', updateCardPreview);
+
+cardExpiry.addEventListener('input', e => {
+  let v = e.target.value.replace(/\D/g, '').slice(0, 4);
+  if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+  e.target.value = v;
+  updateCardPreview();
+  clearError('cardExpiry');
+});
+
+cardCvv.addEventListener('input', e => {
+  e.target.value = e.target.value.replace(/\D/g, '');
+  clearError('cardCvv');
+});
+
+function updateCardPreview() {
+  const num = cardNumber.value.replace(/\s/g, '');
+  const last4 = num.slice(-4);
+  document.getElementById('previewNumber').textContent =
+    '•••• •••• •••• ' + (last4 ? last4.padStart(4, '•') : '••••');
+  document.getElementById('previewName').textContent =
+    cardName.value.trim() || '持卡人姓名';
+  document.getElementById('previewExpiry').textContent =
+    cardExpiry.value || 'MM/YY';
+}
+
+function detectBrand(digits) {
+  let brand = '';
+  if (/^4/.test(digits)) brand = 'VISA';
+  else if (/^5[1-5]/.test(digits) || /^2[2-7]/.test(digits)) brand = 'MASTERCARD';
+  else if (/^3[47]/.test(digits)) brand = 'AMEX';
+  else if (/^62/.test(digits)) brand = 'UNIONPAY';
+  else if (/^35/.test(digits)) brand = 'JCB';
+  document.getElementById('cardBrand').textContent = brand;
+  // Amex CVV 4 位
+  cardCvv.maxLength = brand === 'AMEX' ? 4 : 3;
+  cardCvv.placeholder = brand === 'AMEX' ? '••••' : '•••';
+}
+
+function luhnCheck(num) {
+  let sum = 0, alt = false;
+  for (let i = num.length - 1; i >= 0; i--) {
+    let n = parseInt(num[i], 10);
+    if (alt) { n *= 2; if (n > 9) n -= 9; }
+    sum += n; alt = !alt;
+  }
+  return sum % 10 === 0;
+}
+
+function validateExpiry(v) {
+  if (!/^\d{2}\/\d{2}$/.test(v)) return false;
+  const [m, y] = v.split('/').map(Number);
+  if (m < 1 || m > 12) return false;
+  const now = new Date();
+  const exp = new Date(2000 + y, m);
+  return exp > now;
+}
+
+function showError(id, msg) {
+  document.getElementById(id + 'Error').textContent = msg;
+  document.getElementById(id).classList.add('invalid');
+}
+function clearError(id) {
+  document.getElementById(id + 'Error').textContent = '';
+  document.getElementById(id).classList.remove('invalid');
+}
+
+/* ============================================================
+   轉數快 QR
+   ============================================================ */
+function renderFpsQr() {
+  const payload = JSON.stringify({
+    type: 'FPS',
+    fpsId: CONFIG.fpsId,
+    name: CONFIG.fpsName,
+    amount: CONFIG.hkdAmount,
+    currency: 'HKD'
+  });
+  QRCode.toCanvas(document.getElementById('fpsQr'), payload, {
+    width: 184, margin: 1, color: { dark: '#1c1c1e', light: '#ffffff' }
+  });
+}
+
+document.getElementById('copyFpsBtn').addEventListener('click', () => {
+  navigator.clipboard.writeText(CONFIG.fpsId).then(() => {
+    const btn = document.getElementById('copyFpsBtn');
+    btn.textContent = '已複製';
+    setTimeout(() => btn.textContent = '複製', 1200);
+  });
+});
+
+/* ============================================================
+   Crypto
+   ============================================================ */
+document.querySelectorAll('.crypto-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.crypto-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentCoin = tab.dataset.coin;
+    renderCrypto();
+  });
+});
+
+function cryptoAmount() {
+  const amt = CONFIG.hkdAmount / CONFIG.rates[currentCoin];
+  return currentCoin === 'ETH' ? amt.toFixed(6) : amt.toFixed(2);
+}
+
+function renderCrypto() {
+  const addr = CONFIG.wallets[currentCoin];
+  const net = CONFIG.networks[currentCoin];
+  const amt = cryptoAmount();
+
+  document.getElementById('walletAddress').textContent = addr;
+  document.getElementById('cryptoAmount').textContent = `≈ ${amt} ${currentCoin}`;
+  document.getElementById('networkTag').textContent =
+    net.name + (currentCoin === 'ETH' ? ' · 手續費約 $0.01' : ' · 手續費 < $0.01');
+
+  // EIP-681 URI
+  let uri;
+  if (currentCoin === 'ETH') {
+    uri = `ethereum:${addr}@${net.chainId}?value=${Math.floor(parseFloat(amt) * 1e18)}`;
+  } else {
+    // ERC-20 transfer(address,uint256)
+    const amountUnits = Math.floor(parseFloat(amt) * Math.pow(10, net.decimals));
+    const data = '0xa9059cbb'
+      + addr.slice(2).padStart(64, '0')
+      + amountUnits.toString(16).padStart(64, '0');
+    uri = `ethereum:${net.token}@${net.chainId}/transfer?address=${addr}&uint256=${amountUnits}`;
+  }
+
+  QRCode.toCanvas(document.getElementById('cryptoQr'), uri, {
+    width: 184, margin: 1, color: { dark: '#1c1c1e', light: '#ffffff' }
+  });
+}
+
+document.getElementById('copyWalletBtn').addEventListener('click', () => {
+  navigator.clipboard.writeText(CONFIG.wallets[currentCoin]).then(() => {
+    const btn = document.getElementById('copyWalletBtn');
+    btn.textContent = '已複製';
+    setTimeout(() => btn.textContent = '複製', 1200);
+  });
+});
+
+/* ============================================================
+   連接錢包（ethers.js v6）
+   ============================================================ */
+document.getElementById('connectWalletBtn').addEventListener('click', connectAndPay);
+
+async function connectAndPay() {
+  const btn = document.getElementById('connectWalletBtn');
+
+  if (!window.ethereum) {
+    alert('未偵測到錢包。\n\n請安裝 MetaMask、Rainbow 或 Trust Wallet，或使用手機錢包掃描 QR code 轉帳。');
+    return;
+  }
+
+  try {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading"></span>連接中…';
+
+    provider = new ethers.BrowserProvider(window.ethereum);
+    await provider.send('eth_requestAccounts', []);
+    signer = await provider.getSigner();
+    userAddress = await signer.getAddress();
+
+    const net = CONFIG.networks[currentCoin];
+    const chainIdHex = '0x' + net.chainId.toString(16);
+    const currentChain = await window.ethereum.request({ method: 'eth_chainId' });
+
+    if (currentChain !== chainIdHex) {
+      btn.innerHTML = '<span class="loading"></span>切換網路…';
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: chainIdHex }]
         });
+      } catch (switchErr) {
+        if (switchErr.code === 4902) {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: chainIdHex,
+              chainName: 'Base',
+              nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+              rpcUrls: ['https://mainnet.base.org'],
+              blockExplorerUrls: ['https://basescan.org']
+            }]
+          });
+        } else {
+          throw switchErr;
+        }
+      }
+    }
 
-        // 點擊其他地方關閉 modal
-        document.getElementById('successModal').addEventListener('click', (e) => {
-            if (e.target === document.getElementById('successModal')) {
-                closeModal();
-            }
-        });
-    </script>
+    btn.innerHTML = '<span class="loading"></span>等待簽名…';
+
+    const to = CONFIG.wallets[currentCoin];
+    const amt = cryptoAmount();
+    let tx;
+
+    if (currentCoin === 'ETH') {
+      tx = await signer.sendTransaction({
+        to,
+        value: ethers.parseEther(amt)
+      });
+    } else {
+      const tokenContract = new ethers.Contract(
+        net.token,
+        ['function transfer(address to, uint256 amount) returns (bool)'],
+        signer
+      );
+      const units = ethers.parseUnits(amt, net.decimals);
+      tx = await tokenContract.transfer(to, units);
+    }
+
+    btn.innerHTML = '<span class="loading"></span>等待確認…';
+    await tx.wait();
+
+    showSuccess('TX_' + tx.hash.slice(0, 10), `交易已上鏈：${tx.hash.slice(0, 20)}…`);
+    btn.disabled = false;
+    btn.innerHTML = '<span>🔗</span> 連接錢包付款';
+
+  } catch (err) {
+    console.error(err);
+    btn.disabled = false;
+    btn.innerHTML = '<span>🔗</span> 連接錢包付款';
+    if (err.code === 4001) {
+      alert('你已取消交易');
+    } else {
+      alert('付款失敗：' + (err.shortMessage || err.message || '未知錯誤'));
+    }
+  }
+}
+
+/* ============================================================
+   Apple Pay
+   ============================================================ */
+function setupApplePay() {
+  const wrap = document.getElementById('applePayButtonWrap');
+  const fallback = document.getElementById('applePayFallback');
+  const hint = document.getElementById('applePayHint');
+  const hasAPI = !!window.ApplePaySession;
+  const canPay = hasAPI && ApplePaySession.canMakePayments();
+
+  if (!canPay) {
+    wrap.style.display = 'none';
+    fallback.style.display = 'flex';
+    hint.textContent = hasAPI
+      ? '此裝置未加入可用的卡片，將以模擬方式示範'
+      : '此瀏覽器不支援 Apple Pay，將以模擬方式示範';
+    return;
+  }
+  wrap.style.display = 'block';
+  fallback.style.display = 'none';
+  hint.textContent = '於支援裝置上雙擊側邊按鈕確認付款';
+  document.getElementById('applePayBtn').addEventListener('click', mockApplePay);
+}
+
+function mockApplePay() {
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span>處理中…';
+  setTimeout(() => {
+    showSuccess('AP_' + Date.now());
+    btn.disabled = false;
+    btn.textContent = '使用 Apple Pay 付款';
+  }, 1400);
+}
+
+document.getElementById('applePayFallback').addEventListener('click', mockApplePay);
+
+/* ============================================================
+   主付款按鈕
+   ============================================================ */
+document.getElementById('payBtn').addEventListener('click', () => {
+  if (currentMethod === 'card') {
+    let ok = true;
+    const num = cardNumber.value.replace(/\s/g, '');
+    if (num.length < 13 || !luhnCheck(num)) {
+      showError('cardNumber', '卡號無效'); ok = false;
+    }
+    if (!validateExpiry(cardExpiry.value)) {
+      showError('cardExpiry', '到期日無效'); ok = false;
+    }
+    const cvvLen = document.getElementById('cardBrand').textContent === 'AMEX' ? 4 : 3;
+    if (cardCvv.value.length !== cvvLen) {
+      showError('cardCvv', `CVV 需 ${cvvLen} 位`); ok = false;
+    }
+    if (!ok) return;
+    simulatePay('CARD_' + num.slice(-4) + '_' + Date.now());
+  } else if (currentMethod === 'fps') {
+    simulatePay('FPS_' + Date.now());
+  } else if (currentMethod === 'apple') {
+    mockApplePay();
+  } else if (currentMethod === 'crypto') {
+    connectAndPay();
+  }
+});
+
+function simulatePay(id) {
+  const btn = document.getElementById('payBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading"></span>處理中…';
+  setTimeout(() => {
+    showSuccess(id);
+    btn.disabled = false;
+    btn.textContent = '付款 HK$ 128.00';
+  }, 1800);
+}
+
+/* ============================================================
+   成功彈窗
+   ============================================================ */
+function showSuccess(id, msg) {
+  document.getElementById('transactionId').textContent = id;
+  if (msg) document.getElementById('successMessage').textContent = msg;
+  document.getElementById('successModal').style.display = 'flex';
+  if (navigator.vibrate) navigator.vibrate(40);
+}
+
+document.getElementById('closeModalBtn').addEventListener('click', () => {
+  document.getElementById('successModal').style.display = 'none';
+});
+document.getElementById('successModal').addEventListener('click', e => {
+  if (e.target.id === 'successModal') {
+    document.getElementById('successModal').style.display = 'none';
+  }
+});
+
+/* ============================================================
+   初始化
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+  renderFpsQr();
+  renderCrypto();
+  setupApplePay();
+});
+</script>
 </body>
 </html>
