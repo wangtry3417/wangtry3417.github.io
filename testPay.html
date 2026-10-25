@@ -3,161 +3,203 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>星級商店 · 付款</title>
+<title>星級商店 · 結帳</title>
 <style>
   :root {
-    --ink: #1c1c1e;
-    --muted: #6b6b70;
-    --line: #e5e5ea;
-    --bg: #f2f2f7;
-    --accent: #4a5bd4;
-    --ok: #2e7d4f;
-    --err: #d93025;
+    --ink: #1c1c1e; --muted: #6b6b70; --line: #e5e5ea; --bg: #f2f2f7;
+    --accent: #4a5bd4; --ok: #2e7d4f; --err: #d93025; --warn: #b26a00;
   }
   * { margin: 0; padding: 0; box-sizing: border-box;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }
-  body {
-    background: var(--bg); min-height: 100vh; display: flex; align-items: center;
-    justify-content: center; padding: 24px 16px; color: var(--ink); -webkit-font-smoothing: antialiased;
-  }
-  .payment-card {
-    max-width: 460px; width: 100%; background: #fff; border-radius: 16px;
-    border: 1px solid var(--line);
-    box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06); overflow: hidden;
-  }
+  body { background: var(--bg); min-height: 100vh; display: flex; align-items: center;
+         justify-content: center; padding: 24px 16px; color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+  .payment-card { max-width: 460px; width: 100%; background: #fff; border-radius: 16px;
+    border: 1px solid var(--line); box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.06); overflow: hidden; }
+
   .payment-header { padding: 22px 24px; border-bottom: 1px solid var(--line); }
   .merchant-info { display: flex; align-items: center; gap: 14px; }
-  .merchant-logo {
-    width: 44px; height: 44px; border-radius: 10px; background: var(--bg);
-    display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
-  }
-  .merchant-details { flex: 1; min-width: 0; }
+  .merchant-logo { width: 44px; height: 44px; border-radius: 10px; background: var(--bg);
+    display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
   .merchant-name { font-size: 14px; color: var(--muted); margin-bottom: 2px; }
-  .amount { font-size: 24px; font-weight: 600; letter-spacing: -.3px; }
-  .amount small { font-size: 13px; font-weight: 400; color: var(--muted); margin-left: 4px; }
   .payment-body { padding: 20px 24px 24px; }
 
-  .payment-methods { display: flex; gap: 6px; margin-bottom: 22px; }
-  .method-tab {
-    flex: 1; padding: 9px 4px; background: #fff; border: 1px solid var(--line);
-    border-radius: 10px; text-align: center; cursor: pointer;
-    transition: border-color .15s, background .15s; user-select: none;
+  /* 金額輸入 */
+  .amount-block { text-align: center; padding: 6px 0 18px; }
+  .amount-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .amount-input-row { display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .currency-symbol { font-size: 24px; font-weight: 500; color: var(--muted); }
+  .amount-input {
+    border: none; border-bottom: 2px solid var(--line); background: transparent;
+    font-size: 40px; font-weight: 700; text-align: center; width: 200px;
+    color: var(--ink); outline: none; transition: border-color .15s; letter-spacing: -.5px;
   }
-  .method-tab:hover { border-color: #c7c7cc; }
-  .method-tab.active { border-color: var(--accent); background: rgba(74,91,212,.04); }
-  .method-tab i { font-style: normal; font-size: 17px; display: block; margin-bottom: 3px; line-height: 1; }
-  .method-tab span { font-size: 11px; color: var(--muted); }
-  .method-tab.active span { color: var(--accent); }
-
-  .section { display: none; }
-  .section.active { display: block; }
-
-  /* 卡片預覽 */
-  .card-preview {
-    background: #1c1c1e; border-radius: 12px; padding: 18px; margin-bottom: 22px;
-    color: #fff; height: 172px; display: flex; flex-direction: column; justify-content: space-between;
+  .amount-input:focus { border-color: var(--accent); }
+  .amount-input::placeholder { color: #c7c7cc; }
+  .quick-amounts { display: flex; gap: 8px; justify-content: center; margin-top: 14px; flex-wrap: wrap; }
+  .quick-amounts button {
+    padding: 6px 14px; font-size: 13px; border: 1px solid var(--line); background: #fff;
+    border-radius: 20px; cursor: pointer; color: var(--muted); transition: all .15s;
   }
-  .card-top { display: flex; justify-content: space-between; align-items: flex-start; }
-  .card-chip { width: 36px; height: 26px; background: #b9a35a; border-radius: 5px; }
-  .card-brand { font-size: 14px; font-weight: 700; letter-spacing: .5px; opacity: .9; }
-  .card-number {
-    font-size: 18px; letter-spacing: 2px;
-    font-family: 'SF Mono', Menlo, Consolas, monospace; color: rgba(255,255,255,.92);
-  }
-  .card-footer { display: flex; justify-content: space-between; align-items: flex-end; }
-  .card-holder, .card-expiry {
-    font-size: 12px; text-transform: uppercase; color: rgba(255,255,255,.65); letter-spacing: .5px;
-  }
-
-  .form-group { margin-bottom: 16px; }
-  .form-label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 6px; }
-  .form-input {
-    width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px;
-    font-size: 15px; background: #fff; color: var(--ink);
-    transition: border-color .15s, box-shadow .15s;
-  }
-  .form-input::placeholder { color: #b0b0b5; }
-  .form-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(74,91,212,.12); }
-  .form-input.invalid { border-color: var(--err); }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  .field-error { color: var(--err); font-size: 12px; margin-top: 4px; min-height: 0; }
-
-  /* QR */
-  .qr-wrap {
-    width: 200px; height: 200px; margin: 0 auto 16px; background: #fff;
-    padding: 8px; border: 1px solid var(--line); border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .qr-wrap canvas { width: 100%; height: 100%; display: block; }
-
-  .info-box {
-    background: #f6f8f6; padding: 12px 14px; border-radius: 10px;
-    font-size: 13px; line-height: 1.8;
-  }
-  .info-box strong { font-weight: 600; }
-  .info-box code {
-    font-family: 'SF Mono', Menlo, Consolas, monospace;
-    background: #fff; padding: 2px 6px; border-radius: 4px; font-size: 12px;
-    word-break: break-all;
-  }
-  .mini-btn {
-    margin-left: 6px; padding: 2px 8px; font-size: 11px; border: 1px solid var(--line);
-    background: #fff; border-radius: 6px; cursor: pointer; color: var(--muted);
-  }
-  .mini-btn:hover { border-color: var(--accent); color: var(--accent); }
-
-  .hint { color: var(--muted); font-size: 12px; margin-top: 10px; text-align: center; line-height: 1.5; }
-
-  /* Apple Pay */
-  .apple-pay-button {
-    -webkit-appearance: -apple-pay-button;
-    -apple-pay-button-type: buy;
-    -apple-pay-button-style: black;
-    width: 100%; height: 48px; border: none; border-radius: 10px; cursor: pointer; display: block;
-  }
-  .mock-apple-pay {
-    background: #000; color: #fff; padding: 14px; border-radius: 10px;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity .15s;
-  }
-  .mock-apple-pay:hover { opacity: .85; }
-
-  /* Crypto */
-  .crypto-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
-  .crypto-tab {
-    flex: 1; padding: 8px; font-size: 12px; font-weight: 500; background: #fff;
-    border: 1px solid var(--line); border-radius: 8px; cursor: pointer; color: var(--muted);
-  }
-  .crypto-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(74,91,212,.04); }
-  .crypto-amount { font-size: 16px; font-weight: 600; margin-bottom: 8px; text-align: center; }
-  .wallet-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .network-tag { margin-top: 6px; font-size: 11px; color: var(--muted); text-align: center; }
-  .wallet-connect-btn {
-    width: 100%; padding: 12px; margin-top: 12px; background: #111; color: #fff;
-    border: none; border-radius: 10px; font-size: 14px; font-weight: 500; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-  }
-  .wallet-connect-btn:hover:not(:disabled) { opacity: .88; }
-  .wallet-connect-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .quick-amounts button:hover { border-color: var(--accent); color: var(--accent); }
 
   /* 付款按鈕 */
   .pay-button {
-    width: 100%; padding: 14px; background: var(--accent); color: #fff; border: none;
-    border-radius: 10px; font-size: 15px; font-weight: 600; margin-top: 22px;
+    width: 100%; padding: 15px; background: var(--accent); color: #fff; border: none;
+    border-radius: 10px; font-size: 16px; font-weight: 600; margin-top: 8px;
     cursor: pointer; transition: opacity .15s;
   }
   .pay-button:hover:not(:disabled) { opacity: .9; }
   .pay-button:active:not(:disabled) { opacity: .8; }
   .pay-button:disabled { opacity: .5; cursor: not-allowed; }
 
+  /* 付款選單 */
+  .sheet-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none;
+    align-items: flex-end; justify-content: center; z-index: 900; padding: 0;
+  }
+  .sheet-overlay.open { display: flex; }
+  .sheet {
+    background: #fff; width: 100%; max-width: 460px; border-radius: 20px 20px 0 0;
+    padding: 8px 0 24px; animation: sheetUp .25s ease;
+  }
+  @keyframes sheetUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  .sheet-handle { width: 36px; height: 4px; background: #d1d1d6; border-radius: 2px; margin: 8px auto 12px; }
+  .sheet-title { font-size: 15px; font-weight: 600; text-align: center; padding: 0 20px 4px; }
+  .sheet-amount { font-size: 13px; color: var(--muted); text-align: center; padding-bottom: 14px; }
+  .sheet-list { display: flex; flex-direction: column; gap: 2px; padding: 0 12px; }
+  .sheet-item {
+    display: flex; align-items: center; gap: 14px; padding: 14px 16px;
+    border-radius: 12px; cursor: pointer; transition: background .12s;
+  }
+  .sheet-item:hover { background: var(--bg); }
+  .sheet-item-icon { font-size: 22px; width: 32px; text-align: center; }
+  .sheet-item-text { flex: 1; }
+  .sheet-item-title { font-size: 15px; font-weight: 500; }
+  .sheet-item-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .sheet-cancel {
+    margin: 10px 20px 0; padding: 13px; width: calc(100% - 40px);
+    background: var(--bg); border: none; border-radius: 12px;
+    font-size: 15px; font-weight: 500; cursor: pointer; color: var(--ink);
+  }
+
+  /* 各付款面板（全螢幕 overlay） */
+  .panel-overlay {
+    position: fixed; inset: 0; background: #fff; display: none;
+    flex-direction: column; z-index: 950; overflow-y: auto;
+  }
+  .panel-overlay.open { display: flex; }
+  .panel-header {
+    display: flex; align-items: center; gap: 12px; padding: 16px 20px;
+    border-bottom: 1px solid var(--line); position: sticky; top: 0; background: #fff; z-index: 2;
+  }
+  .panel-back {
+    width: 36px; height: 36px; border-radius: 50%; border: none; background: var(--bg);
+    font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+  .panel-title { font-size: 16px; font-weight: 600; flex: 1; }
+  .panel-amount-badge {
+    font-size: 13px; color: var(--muted); background: var(--bg);
+    padding: 4px 10px; border-radius: 20px;
+  }
+  .panel-body { padding: 24px 20px; max-width: 460px; width: 100%; margin: 0 auto; flex: 1; }
+
+  /* Cash 面板 */
+  .cash-input-label { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .cash-input-row { display: flex; align-items: center; gap: 6px; margin-bottom: 16px; }
+  .cash-input {
+    flex: 1; padding: 14px 16px; font-size: 24px; font-weight: 600; text-align: right;
+    border: 1px solid var(--line); border-radius: 10px; outline: none;
+  }
+  .cash-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(74,91,212,.12); }
+  .cash-quick { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .cash-quick button {
+    padding: 10px 16px; font-size: 15px; font-weight: 500; border: 1px solid var(--line);
+    background: #fff; border-radius: 10px; cursor: pointer; min-width: 70px;
+  }
+  .cash-quick button:hover { border-color: var(--accent); color: var(--accent); }
+  .cash-summary {
+    background: var(--bg); padding: 18px; border-radius: 12px; margin-bottom: 20px;
+  }
+  .cash-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 15px; }
+  .cash-row.total { font-size: 18px; font-weight: 700; border-top: 1px solid var(--line); margin-top: 6px; padding-top: 12px; }
+  .cash-row.change .val { color: var(--ok); font-weight: 700; }
+  .cash-row.short .val { color: var(--err); font-weight: 700; }
+  .cash-warning { color: var(--err); font-size: 13px; text-align: center; margin-top: 8px; min-height: 18px; }
+
+  .action-btn {
+    width: 100%; padding: 15px; background: var(--accent); color: #fff; border: none;
+    border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: opacity .15s;
+  }
+  .action-btn:hover:not(:disabled) { opacity: .9; }
+  .action-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+  /* Octopus */
+  .octopus-visual {
+    text-align: center; padding: 24px 0;
+  }
+  .octopus-card-visual {
+    width: 220px; height: 140px; margin: 0 auto 20px;
+    background: linear-gradient(135deg, #f4511e 0%, #e64a19 100%);
+    border-radius: 16px; position: relative; padding: 16px; color: #fff;
+    box-shadow: 0 10px 30px rgba(244,81,30,.3);
+  }
+  .octopus-logo { font-size: 14px; font-weight: 700; letter-spacing: 1px; }
+  .octopus-card-num {
+    position: absolute; bottom: 16px; left: 16px; right: 16px;
+    font-family: 'SF Mono', Menlo, monospace; font-size: 14px; letter-spacing: 2px;
+  }
+  .octopus-instruction { font-size: 14px; color: var(--muted); text-align: center; line-height: 1.7; margin-bottom: 20px; }
+
+  /* QR / Crypto QR */
+  .qr-wrap {
+    width: 220px; height: 220px; margin: 0 auto 20px; background: #fff;
+    padding: 10px; border: 1px solid var(--line); border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .qr-wrap canvas { width: 100%; height: 100%; display: block; }
+  .info-box {
+    background: var(--bg); padding: 14px 16px; border-radius: 10px;
+    font-size: 13px; line-height: 1.8; margin-bottom: 16px;
+  }
+  .info-box code {
+    font-family: 'SF Mono', Menlo, monospace; background: #fff; padding: 2px 6px;
+    border-radius: 4px; font-size: 12px; word-break: break-all;
+  }
+  .mini-btn {
+    margin-left: 6px; padding: 2px 8px; font-size: 11px; border: 1px solid var(--line);
+    background: #fff; border-radius: 6px; cursor: pointer; color: var(--muted);
+  }
+  .mini-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .hint { color: var(--muted); font-size: 12px; text-align: center; line-height: 1.5; }
+
+  /* Crypto tabs */
+  .crypto-tabs { display: flex; gap: 8px; margin-bottom: 18px; }
+  .crypto-tab {
+    flex: 1; padding: 10px; font-size: 13px; font-weight: 500; background: #fff;
+    border: 1px solid var(--line); border-radius: 10px; cursor: pointer; color: var(--muted);
+  }
+  .crypto-tab.active { border-color: var(--accent); color: var(--accent); background: rgba(74,91,212,.04); }
+  .crypto-amount { font-size: 18px; font-weight: 600; text-align: center; margin-bottom: 10px; }
+  .wallet-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .network-tag { margin-top: 6px; font-size: 11px; color: var(--muted); text-align: center; }
+  .wallet-connect-btn {
+    width: 100%; padding: 14px; margin-top: 14px; background: #111; color: #fff;
+    border: none; border-radius: 10px; font-size: 15px; font-weight: 500; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .wallet-connect-btn:hover:not(:disabled) { opacity: .88; }
+  .wallet-connect-btn:disabled { opacity: .5; cursor: not-allowed; }
+
   /* 成功彈窗 */
   .success-modal {
     position: fixed; inset: 0; background: rgba(0,0,0,.4); display: none;
     align-items: center; justify-content: center; padding: 20px; z-index: 1000;
   }
+  .success-modal.open { display: flex; }
   .success-content {
     background: #fff; padding: 28px 24px 24px; border-radius: 16px;
-    text-align: center; max-width: 300px; width: 100%;
+    text-align: center; max-width: 320px; width: 100%;
   }
   .success-icon {
     width: 56px; height: 56px; background: var(--ok); border-radius: 50%;
@@ -165,14 +207,17 @@
     margin: 0 auto 16px; font-size: 26px; color: #fff;
   }
   .success-title { font-size: 18px; font-weight: 600; margin-bottom: 6px; }
-  .success-message { color: var(--muted); font-size: 14px; margin-bottom: 16px; }
-  .transaction-id {
-    background: var(--bg); padding: 10px; border-radius: 8px;
-    font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 12px;
-    margin-bottom: 18px; word-break: break-all;
+  .success-message { color: var(--muted); font-size: 14px; margin-bottom: 14px; }
+  .success-breakdown {
+    background: var(--bg); padding: 14px; border-radius: 10px; margin-bottom: 16px; text-align: left;
   }
+  .success-breakdown .row {
+    display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px;
+  }
+  .success-breakdown .row.big { font-size: 16px; font-weight: 700; }
+  .success-breakdown .row .val.ok { color: var(--ok); }
   .close-button {
-    padding: 10px 24px; background: var(--accent); color: #fff; border: none;
+    padding: 11px 28px; background: var(--accent); color: #fff; border: none;
     border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer;
   }
 
@@ -186,7 +231,7 @@
   @media (max-width: 420px) {
     .payment-header { padding: 18px 20px; }
     .payment-body { padding: 18px 20px 20px; }
-    .amount { font-size: 22px; }
+    .amount-input { font-size: 36px; width: 160px; }
   }
 </style>
 </head>
@@ -196,116 +241,168 @@
   <div class="payment-header">
     <div class="merchant-info">
       <div class="merchant-logo">🛍️</div>
-      <div class="merchant-details">
-        <div class="merchant-name">星級商店</div>
-        <div class="amount">HK$ 128.00 <small>HKD</small></div>
-      </div>
+      <div class="merchant-name">星級商店</div>
     </div>
   </div>
 
   <div class="payment-body">
-    <div class="payment-methods">
-      <div class="method-tab active" data-method="card"><i>💳</i><span>信用卡</span></div>
-      <div class="method-tab" data-method="fps"><i>📱</i><span>轉數快</span></div>
-      <div class="method-tab" data-method="apple"><i>🍎</i><span>Apple Pay</span></div>
-      <div class="method-tab" data-method="crypto"><i>₿</i><span>Crypto</span></div>
-    </div>
-
-    <!-- 信用卡 -->
-    <div id="card-section" class="section active">
-      <div class="card-preview">
-        <div class="card-top">
-          <div class="card-chip"></div>
-          <div class="card-brand" id="cardBrand"></div>
-        </div>
-        <div class="card-number" id="previewNumber">•••• •••• •••• ••••</div>
-        <div class="card-footer">
-          <div class="card-holder" id="previewName">持卡人姓名</div>
-          <div class="card-expiry" id="previewExpiry">MM/YY</div>
-        </div>
+    <div class="amount-block">
+      <div class="amount-label">請輸入收款金額</div>
+      <div class="amount-input-row">
+        <span class="currency-symbol">HK$</span>
+        <input type="text" class="amount-input" id="amountInput"
+               placeholder="0.00" inputmode="decimal" autocomplete="off">
       </div>
-
-      <div class="form-group">
-        <label class="form-label" for="cardNumber">卡號</label>
-        <input type="text" class="form-input" id="cardNumber"
-               placeholder="1234 5678 9012 3456" maxlength="23"
-               inputmode="numeric" autocomplete="cc-number">
-        <div class="field-error" id="cardNumberError"></div>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="cardName">持卡人姓名</label>
-        <input type="text" class="form-input" id="cardName"
-               placeholder="CHAN TAI MAN" autocomplete="cc-name">
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label" for="cardExpiry">到期日</label>
-          <input type="text" class="form-input" id="cardExpiry"
-                 placeholder="MM/YY" maxlength="5" inputmode="numeric"
-                 autocomplete="cc-exp">
-          <div class="field-error" id="cardExpiryError"></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="cardCvv">CVV</label>
-          <input type="password" class="form-input" id="cardCvv"
-                 placeholder="•••" maxlength="4" inputmode="numeric"
-                 autocomplete="cc-csc">
-          <div class="field-error" id="cardCvvError"></div>
-        </div>
+      <div class="quick-amounts">
+        <button data-amt="20">$20</button>
+        <button data-amt="50">$50</button>
+        <button data-amt="100">$100</button>
+        <button data-amt="128">$128</button>
+        <button data-amt="500">$500</button>
       </div>
     </div>
 
-    <!-- 轉數快 -->
-    <div id="fps-section" class="section">
-      <div class="qr-wrap"><canvas id="fpsQr"></canvas></div>
-      <div class="info-box">
-        <strong>FPS 轉數快</strong><br>
-        收款人：經財支付服務有限公司<br>
-        FPS ID：<code id="fpsId">091341567</code>
-        <button class="mini-btn" id="copyFpsBtn">複製</button>
-      </div>
-      <p class="hint">開啟銀行 App 掃描上方二維碼完成付款</p>
-    </div>
+    <button class="pay-button" id="payBtn" disabled>付款</button>
+  </div>
+</div>
 
-    <!-- Apple Pay -->
-    <div id="apple-section" class="section">
-      <div id="applePayButtonWrap" style="display:none;">
-        <button class="apple-pay-button" id="applePayBtn" lang="zh-HK" aria-label="使用 Apple Pay 付款"></button>
-      </div>
-      <div id="applePayFallback" class="mock-apple-pay" style="display:none;">
-        <span>🍎</span><span>使用 Apple Pay 付款</span>
-      </div>
-      <p class="hint" id="applePayHint">於支援裝置上雙擊側邊按鈕確認付款</p>
-    </div>
-
-    <!-- Crypto -->
-    <div id="crypto-section" class="section">
-      <div class="crypto-tabs">
-        <button class="crypto-tab active" data-coin="USDC">USDC</button>
-        <button class="crypto-tab" data-coin="ETH">ETH</button>
-        <button class="crypto-tab" data-coin="USDT">USDT</button>
-      </div>
-
-      <div class="qr-wrap"><canvas id="cryptoQr"></canvas></div>
-
-      <div class="info-box">
-        <div class="crypto-amount" id="cryptoAmount">≈ 16.40 USDC</div>
-        <div class="wallet-row">
-          <code id="walletAddress">0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb</code>
-          <button class="mini-btn" id="copyWalletBtn">複製</button>
+<!-- 付款方式選單 -->
+<div class="sheet-overlay" id="sheetOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">選擇付款方式</div>
+    <div class="sheet-amount" id="sheetAmount">HK$ 0.00</div>
+    <div class="sheet-list">
+      <div class="sheet-item" data-method="cash">
+        <div class="sheet-item-icon">💵</div>
+        <div class="sheet-item-text">
+          <div class="sheet-item-title">現金</div>
+          <div class="sheet-item-sub">輸入客人付款金額，自動計算找續</div>
         </div>
-        <div class="network-tag" id="networkTag">Base · 手續費 &lt; $0.01</div>
       </div>
-
-      <button class="wallet-connect-btn" id="connectWalletBtn">
-        <span>🔗</span> 連接錢包付款
-      </button>
-      <p class="hint">掃碼轉帳或連接錢包一鍵付款，鏈上真實收款</p>
+      <div class="sheet-item" data-method="crypto">
+        <div class="sheet-item-icon">₿</div>
+        <div class="sheet-item-text">
+          <div class="sheet-item-title">Crypto</div>
+          <div class="sheet-item-sub">USDC / USDT / ETH 鏈上收款</div>
+        </div>
+      </div>
+      <div class="sheet-item" data-method="octopus">
+        <div class="sheet-item-icon">🐙</div>
+        <div class="sheet-item-text">
+          <div class="sheet-item-title">八達通</div>
+          <div class="sheet-item-sub">拍卡付款</div>
+        </div>
+      </div>
+      <div class="sheet-item" data-method="qr">
+        <div class="sheet-item-icon">📱</div>
+        <div class="sheet-item-text">
+          <div class="sheet-item-title">QR 掃碼</div>
+          <div class="sheet-item-sub">轉數快 / PayMe / AlipayHK</div>
+        </div>
+      </div>
     </div>
+    <button class="sheet-cancel" id="sheetCancel">取消</button>
+  </div>
+</div>
 
-    <button class="pay-button" id="payBtn">付款 HK$ 128.00</button>
+<!-- Cash 面板 -->
+<div class="panel-overlay" id="cashPanel">
+  <div class="panel-header">
+    <button class="panel-back" data-close="cash">←</button>
+    <div class="panel-title">現金付款</div>
+    <div class="panel-amount-badge" id="cashAmountBadge">HK$ 0.00</div>
+  </div>
+  <div class="panel-body">
+    <div class="cash-input-label">客人付款金額</div>
+    <div class="cash-input-row">
+      <span class="currency-symbol" style="font-size:20px;">HK$</span>
+      <input type="text" class="cash-input" id="cashPaidInput" placeholder="0.00" inputmode="decimal">
+    </div>
+    <div class="cash-quick" id="cashQuick"></div>
+
+    <div class="cash-summary">
+      <div class="cash-row"><span>應付</span><span class="val" id="sumDue">HK$ 0.00</span></div>
+      <div class="cash-row"><span>已付</span><span class="val" id="sumPaid">HK$ 0.00</span></div>
+      <div class="cash-row" id="sumChangeRow">
+        <span id="sumChangeLabel">找續</span>
+        <span class="val" id="sumChange">HK$ 0.00</span>
+      </div>
+      <div class="cash-row total"><span>總計</span><span id="sumTotal">HK$ 0.00</span></div>
+    </div>
+    <div class="cash-warning" id="cashWarning"></div>
+
+    <button class="action-btn" id="cashConfirmBtn" disabled>確認收款</button>
+  </div>
+</div>
+
+<!-- Crypto 面板 -->
+<div class="panel-overlay" id="cryptoPanel">
+  <div class="panel-header">
+    <button class="panel-back" data-close="crypto">←</button>
+    <div class="panel-title">Crypto 付款</div>
+    <div class="panel-amount-badge" id="cryptoAmountBadge">HK$ 0.00</div>
+  </div>
+  <div class="panel-body">
+    <div class="crypto-tabs">
+      <button class="crypto-tab active" data-coin="USDC">USDC</button>
+      <button class="crypto-tab" data-coin="ETH">ETH</button>
+      <button class="crypto-tab" data-coin="USDT">USDT</button>
+    </div>
+    <div class="qr-wrap"><canvas id="cryptoQr"></canvas></div>
+    <div class="info-box">
+      <div class="crypto-amount" id="cryptoAmount">≈ 0.00 USDC</div>
+      <div class="wallet-row">
+        <code id="walletAddress">0x0000...0000</code>
+        <button class="mini-btn" id="copyWalletBtn">複製</button>
+      </div>
+      <div class="network-tag" id="networkTag">Base</div>
+    </div>
+    <button class="wallet-connect-btn" id="connectWalletBtn">
+      <span>🔗</span> 連接錢包付款
+    </button>
+    <p class="hint">掃碼轉帳或連接錢包一鍵付款</p>
+  </div>
+</div>
+
+<!-- Octopus 面板 -->
+<div class="panel-overlay" id="octopusPanel">
+  <div class="panel-header">
+    <button class="panel-back" data-close="octopus">←</button>
+    <div class="panel-title">八達通付款</div>
+    <div class="panel-amount-badge" id="octopusAmountBadge">HK$ 0.00</div>
+  </div>
+  <div class="panel-body">
+    <div class="octopus-visual">
+      <div class="octopus-card-visual">
+        <div class="octopus-logo">OCTOPUS 八達通</div>
+        <div class="octopus-card-num">•••• •••• 8866</div>
+      </div>
+    </div>
+    <div class="octopus-instruction">
+      請將八達通卡或手機八達通<br>拍向讀卡器完成付款
+    </div>
+    <button class="action-btn" id="octopusConfirmBtn">我已完成拍卡</button>
+  </div>
+</div>
+
+<!-- QR 面板 -->
+<div class="panel-overlay" id="qrPanel">
+  <div class="panel-header">
+    <button class="panel-back" data-close="qr">←</button>
+    <div class="panel-title">QR 掃碼付款</div>
+    <div class="panel-amount-badge" id="qrAmountBadge">HK$ 0.00</div>
+  </div>
+  <div class="panel-body">
+    <div class="qr-wrap"><canvas id="payQr"></canvas></div>
+    <div class="info-box">
+      <strong>轉數快 FPS</strong><br>
+      收款人：經財支付服務有限公司<br>
+      FPS ID：<code id="fpsIdDisplay">091341567</code>
+      <button class="mini-btn" id="copyFpsBtn">複製</button>
+    </div>
+    <p class="hint">打開銀行 App 或 PayMe / AlipayHK 掃描上方二維碼</p>
+    <button class="action-btn" id="qrConfirmBtn" style="margin-top:20px;">我已完成付款</button>
   </div>
 </div>
 
@@ -313,14 +410,13 @@
 <div class="success-modal" id="successModal">
   <div class="success-content">
     <div class="success-icon">✓</div>
-    <div class="success-title" id="successTitle">付款成功</div>
-    <div class="success-message" id="successMessage">感謝你的訂單</div>
-    <div class="transaction-id" id="transactionId">TXN_000000</div>
+    <div class="success-title" id="successTitle">收款成功</div>
+    <div class="success-message" id="successMessage">已記錄此交易</div>
+    <div class="success-breakdown" id="successBreakdown"></div>
     <button class="close-button" id="closeModalBtn">完成</button>
   </div>
 </div>
 
-<!-- CDN -->
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
 
@@ -329,10 +425,7 @@
    設定
    ============================================================ */
 const CONFIG = {
-  hkdAmount: 128,
-  // 匯率（示範用，真實請接 API）
   rates: { USDC: 7.8, USDT: 7.8, ETH: 24000 },
-  // 收款錢包（換成你自己的）
   wallets: {
     USDC: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
     USDT: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb',
@@ -350,145 +443,178 @@ const CONFIG = {
 /* ============================================================
    狀態
    ============================================================ */
-let currentMethod = 'card';
+let amount = 0;
+let currentMethod = null;
 let currentCoin = 'USDC';
-let provider = null;
 let signer = null;
-let userAddress = null;
+
+const $ = id => document.getElementById(id);
+const fmt = n => 'HK$ ' + Number(n).toFixed(2);
 
 /* ============================================================
-   Tab 切換
+   金額輸入
    ============================================================ */
-document.querySelectorAll('.method-tab').forEach(tab => {
-  tab.addEventListener('click', () => switchMethod(tab.dataset.method, tab));
-});
+const amountInput = $('amountInput');
 
-function switchMethod(method, el) {
-  currentMethod = method;
-  document.querySelectorAll('.method-tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-  ['card','fps','apple','crypto'].forEach(m => {
-    document.getElementById(m + '-section').classList.remove('active');
-  });
-  document.getElementById(method + '-section').classList.add('active');
-  const labels = {
-    card:   '付款 HK$ 128.00',
-    fps:    '使用轉數快付款',
-    apple:  '使用 Apple Pay 付款',
-    crypto: '使用 Crypto 付款'
-  };
-  document.getElementById('payBtn').textContent = labels[method];
-}
-
-/* ============================================================
-   信用卡：格式化 + Luhn + 卡別
-   ============================================================ */
-const cardNumber = document.getElementById('cardNumber');
-const cardName   = document.getElementById('cardName');
-const cardExpiry = document.getElementById('cardExpiry');
-const cardCvv    = document.getElementById('cardCvv');
-
-cardNumber.addEventListener('input', e => {
-  const digits = e.target.value.replace(/\D/g, '').slice(0, 19);
-  e.target.value = digits.match(/.{1,4}/g)?.join(' ') || '';
-  updateCardPreview();
-  detectBrand(digits);
-  clearError('cardNumber');
-});
-
-cardName.addEventListener('input', updateCardPreview);
-
-cardExpiry.addEventListener('input', e => {
-  let v = e.target.value.replace(/\D/g, '').slice(0, 4);
-  if (v.length >= 3) v = v.slice(0,2) + '/' + v.slice(2);
+amountInput.addEventListener('input', e => {
+  let v = e.target.value.replace(/[^\d.]/g, '');
+  const parts = v.split('.');
+  if (parts.length > 2) v = parts[0] + '.' + parts.slice(1).join('');
+  if (parts[1] && parts[1].length > 2) v = parts[0] + '.' + parts[1].slice(0,2);
   e.target.value = v;
-  updateCardPreview();
-  clearError('cardExpiry');
+  updateAmountState();
 });
 
-cardCvv.addEventListener('input', e => {
-  e.target.value = e.target.value.replace(/\D/g, '');
-  clearError('cardCvv');
-});
-
-function updateCardPreview() {
-  const num = cardNumber.value.replace(/\s/g, '');
-  const last4 = num.slice(-4);
-  document.getElementById('previewNumber').textContent =
-    '•••• •••• •••• ' + (last4 ? last4.padStart(4, '•') : '••••');
-  document.getElementById('previewName').textContent =
-    cardName.value.trim() || '持卡人姓名';
-  document.getElementById('previewExpiry').textContent =
-    cardExpiry.value || 'MM/YY';
-}
-
-function detectBrand(digits) {
-  let brand = '';
-  if (/^4/.test(digits)) brand = 'VISA';
-  else if (/^5[1-5]/.test(digits) || /^2[2-7]/.test(digits)) brand = 'MASTERCARD';
-  else if (/^3[47]/.test(digits)) brand = 'AMEX';
-  else if (/^62/.test(digits)) brand = 'UNIONPAY';
-  else if (/^35/.test(digits)) brand = 'JCB';
-  document.getElementById('cardBrand').textContent = brand;
-  // Amex CVV 4 位
-  cardCvv.maxLength = brand === 'AMEX' ? 4 : 3;
-  cardCvv.placeholder = brand === 'AMEX' ? '••••' : '•••';
-}
-
-function luhnCheck(num) {
-  let sum = 0, alt = false;
-  for (let i = num.length - 1; i >= 0; i--) {
-    let n = parseInt(num[i], 10);
-    if (alt) { n *= 2; if (n > 9) n -= 9; }
-    sum += n; alt = !alt;
+amountInput.addEventListener('blur', () => {
+  if (amountInput.value && !amountInput.value.includes('.')) {
+    amountInput.value = Number(amountInput.value).toFixed(2);
+    updateAmountState();
   }
-  return sum % 10 === 0;
-}
+});
 
-function validateExpiry(v) {
-  if (!/^\d{2}\/\d{2}$/.test(v)) return false;
-  const [m, y] = v.split('/').map(Number);
-  if (m < 1 || m > 12) return false;
-  const now = new Date();
-  const exp = new Date(2000 + y, m);
-  return exp > now;
-}
+document.querySelectorAll('.quick-amounts button').forEach(b => {
+  b.addEventListener('click', () => {
+    amountInput.value = Number(b.dataset.amt).toFixed(2);
+    updateAmountState();
+  });
+});
 
-function showError(id, msg) {
-  document.getElementById(id + 'Error').textContent = msg;
-  document.getElementById(id).classList.add('invalid');
-}
-function clearError(id) {
-  document.getElementById(id + 'Error').textContent = '';
-  document.getElementById(id).classList.remove('invalid');
+function updateAmountState() {
+  const v = parseFloat(amountInput.value);
+  amount = isNaN(v) || v <= 0 ? 0 : v;
+  $('payBtn').disabled = amount <= 0;
 }
 
 /* ============================================================
-   轉數快 QR
+   付款按鈕 → 開啟選單
    ============================================================ */
-function renderFpsQr() {
-  const payload = JSON.stringify({
-    type: 'FPS',
-    fpsId: CONFIG.fpsId,
-    name: CONFIG.fpsName,
-    amount: CONFIG.hkdAmount,
-    currency: 'HKD'
+$('payBtn').addEventListener('click', () => {
+  if (amount <= 0) return;
+  $('sheetAmount').textContent = fmt(amount);
+  $('sheetOverlay').classList.add('open');
+});
+
+$('sheetCancel').addEventListener('click', () => {
+  $('sheetOverlay').classList.remove('open');
+});
+
+$('sheetOverlay').addEventListener('click', e => {
+  if (e.target.id === 'sheetOverlay') $('sheetOverlay').classList.remove('open');
+});
+
+document.querySelectorAll('.sheet-item').forEach(item => {
+  item.addEventListener('click', () => {
+    const method = item.dataset.method;
+    $('sheetOverlay').classList.remove('open');
+    openPanel(method);
   });
-  QRCode.toCanvas(document.getElementById('fpsQr'), payload, {
-    width: 184, margin: 1, color: { dark: '#1c1c1e', light: '#ffffff' }
-  });
+});
+
+function openPanel(method) {
+  currentMethod = method;
+  if (method === 'cash') openCash();
+  else if (method === 'crypto') openCrypto();
+  else if (method === 'octopus') openOctopus();
+  else if (method === 'qr') openQr();
 }
 
-document.getElementById('copyFpsBtn').addEventListener('click', () => {
-  navigator.clipboard.writeText(CONFIG.fpsId).then(() => {
-    const btn = document.getElementById('copyFpsBtn');
-    btn.textContent = '已複製';
-    setTimeout(() => btn.textContent = '複製', 1200);
+document.querySelectorAll('.panel-back').forEach(b => {
+  b.addEventListener('click', () => {
+    $(b.dataset.close + 'Panel').classList.remove('open');
   });
 });
 
 /* ============================================================
-   Crypto
+   Cash 面板
+   ============================================================ */
+function openCash() {
+  $('cashAmountBadge').textContent = fmt(amount);
+  $('sumDue').textContent = fmt(amount);
+  $('sumPaid').textContent = fmt(0);
+  $('sumChangeLabel').textContent = '找續';
+  $('sumChange').textContent = fmt(0);
+  $('sumChangeRow').className = 'cash-row';
+  $('sumTotal').textContent = fmt(amount);
+  $('cashPaidInput').value = '';
+  $('cashWarning').textContent = '';
+  $('cashConfirmBtn').disabled = true;
+
+  // 快捷金額
+  const quick = $('cashQuick');
+  quick.innerHTML = '';
+  const suggestions = new Set([
+    amount,
+    Math.ceil(amount / 10) * 10,
+    Math.ceil(amount / 50) * 50,
+    Math.ceil(amount / 100) * 100
+  ]);
+  [...suggestions].filter(v => v >= amount).sort((a,b) => a-b).forEach(v => {
+    const b = document.createElement('button');
+    b.textContent = '$' + (Number.isInteger(v) ? v : v.toFixed(2));
+    b.addEventListener('click', () => {
+      $('cashPaidInput').value = v.toFixed(2);
+      updateCashSummary();
+    });
+    quick.appendChild(b);
+  });
+
+  $('cashPanel').classList.add('open');
+  setTimeout(() => $('cashPaidInput').focus(), 300);
+}
+
+$('cashPaidInput').addEventListener('input', e => {
+  let v = e.target.value.replace(/[^\d.]/g, '');
+  const parts = v.split('.');
+  if (parts.length > 2) v = parts[0] + '.' + parts.slice(1).join('');
+  if (parts[1] && parts[1].length > 2) v = parts[0] + '.' + parts[1].slice(0,2);
+  e.target.value = v;
+  updateCashSummary();
+});
+
+function updateCashSummary() {
+  const paid = parseFloat($('cashPaidInput').value) || 0;
+  const diff = paid - amount;
+  const changeRow = $('sumChangeRow');
+  const changeVal = $('sumChange');
+  const label = $('sumChangeLabel');
+
+  $('sumPaid').textContent = fmt(paid);
+
+  if (paid === 0) {
+    label.textContent = '找續';
+    changeVal.textContent = fmt(0);
+    changeRow.className = 'cash-row';
+    $('cashWarning').textContent = '';
+    $('cashConfirmBtn').disabled = true;
+  } else if (diff >= 0) {
+    label.textContent = '找續';
+    changeVal.textContent = fmt(diff);
+    changeRow.className = 'cash-row change';
+    $('cashWarning').textContent = '';
+    $('cashConfirmBtn').disabled = false;
+  } else {
+    label.textContent = '尚欠';
+    changeVal.textContent = fmt(-diff);
+    changeRow.className = 'cash-row short';
+    $('cashWarning').textContent = '客人付款金額不足';
+    $('cashConfirmBtn').disabled = true;
+  }
+}
+
+$('cashConfirmBtn').addEventListener('click', () => {
+  const paid = parseFloat($('cashPaidInput').value) || 0;
+  const change = paid - amount;
+  showSuccess('收款成功', '現金收款已記錄', [
+    ['付款方式', '現金'],
+    ['應付', fmt(amount)],
+    ['已付', fmt(paid)],
+    ['找續', fmt(change)]
+  ]);
+  $('cashPanel').classList.remove('open');
+});
+
+/* ============================================================
+   Crypto 面板
    ============================================================ */
 document.querySelectorAll('.crypto-tab').forEach(tab => {
   tab.addEventListener('click', () => {
@@ -500,53 +626,50 @@ document.querySelectorAll('.crypto-tab').forEach(tab => {
 });
 
 function cryptoAmount() {
-  const amt = CONFIG.hkdAmount / CONFIG.rates[currentCoin];
-  return currentCoin === 'ETH' ? amt.toFixed(6) : amt.toFixed(2);
+  return amount / CONFIG.rates[currentCoin];
 }
 
 function renderCrypto() {
+  $('cryptoAmountBadge').textContent = fmt(amount);
   const addr = CONFIG.wallets[currentCoin];
   const net = CONFIG.networks[currentCoin];
   const amt = cryptoAmount();
+  const amtStr = currentCoin === 'ETH' ? amt.toFixed(6) : amt.toFixed(2);
 
-  document.getElementById('walletAddress').textContent = addr;
-  document.getElementById('cryptoAmount').textContent = `≈ ${amt} ${currentCoin}`;
-  document.getElementById('networkTag').textContent =
-    net.name + (currentCoin === 'ETH' ? ' · 手續費約 $0.01' : ' · 手續費 < $0.01');
+  $('walletAddress').textContent = addr;
+  $('cryptoAmount').textContent = `≈ ${amtStr} ${currentCoin}`;
+  $('networkTag').textContent = net.name + (currentCoin === 'ETH' ? ' · 手續費約 $0.01' : ' · 手續費 < $0.01');
 
-  // EIP-681 URI
   let uri;
   if (currentCoin === 'ETH') {
-    uri = `ethereum:${addr}@${net.chainId}?value=${Math.floor(parseFloat(amt) * 1e18)}`;
+    uri = `ethereum:${addr}@${net.chainId}?value=${Math.floor(parseFloat(amtStr) * 1e18)}`;
   } else {
-    // ERC-20 transfer(address,uint256)
-    const amountUnits = Math.floor(parseFloat(amt) * Math.pow(10, net.decimals));
-    const data = '0xa9059cbb'
-      + addr.slice(2).padStart(64, '0')
-      + amountUnits.toString(16).padStart(64, '0');
-    uri = `ethereum:${net.token}@${net.chainId}/transfer?address=${addr}&uint256=${amountUnits}`;
+    const units = Math.floor(parseFloat(amtStr) * Math.pow(10, net.decimals));
+    uri = `ethereum:${net.token}@${net.chainId}/transfer?address=${addr}&uint256=${units}`;
   }
 
-  QRCode.toCanvas(document.getElementById('cryptoQr'), uri, {
-    width: 184, margin: 1, color: { dark: '#1c1c1e', light: '#ffffff' }
+  QRCode.toCanvas($('cryptoQr'), uri, {
+    width: 200, margin: 1, color: { dark: '#1c1c1e', light: '#ffffff' }
   });
 }
 
-document.getElementById('copyWalletBtn').addEventListener('click', () => {
+function openCrypto() {
+  renderCrypto();
+  $('cryptoPanel').classList.add('open');
+}
+
+$('copyWalletBtn').addEventListener('click', () => {
   navigator.clipboard.writeText(CONFIG.wallets[currentCoin]).then(() => {
-    const btn = document.getElementById('copyWalletBtn');
-    btn.textContent = '已複製';
-    setTimeout(() => btn.textContent = '複製', 1200);
+    const b = $('copyWalletBtn');
+    b.textContent = '已複製';
+    setTimeout(() => b.textContent = '複製', 1200);
   });
 });
 
-/* ============================================================
-   連接錢包（ethers.js v6）
-   ============================================================ */
-document.getElementById('connectWalletBtn').addEventListener('click', connectAndPay);
+$('connectWalletBtn').addEventListener('click', connectAndPay);
 
 async function connectAndPay() {
-  const btn = document.getElementById('connectWalletBtn');
+  const btn = $('connectWalletBtn');
 
   if (!window.ethereum) {
     alert('未偵測到錢包。\n\n請安裝 MetaMask、Rainbow 或 Trust Wallet，或使用手機錢包掃描 QR code 轉帳。');
@@ -557,10 +680,9 @@ async function connectAndPay() {
     btn.disabled = true;
     btn.innerHTML = '<span class="loading"></span>連接中…';
 
-    provider = new ethers.BrowserProvider(window.ethereum);
+    const provider = new ethers.BrowserProvider(window.ethereum);
     await provider.send('eth_requestAccounts', []);
     signer = await provider.getSigner();
-    userAddress = await signer.getAddress();
 
     const net = CONFIG.networks[currentCoin];
     const chainIdHex = '0x' + net.chainId.toString(16);
@@ -585,37 +707,34 @@ async function connectAndPay() {
               blockExplorerUrls: ['https://basescan.org']
             }]
           });
-        } else {
-          throw switchErr;
-        }
+        } else throw switchErr;
       }
     }
 
     btn.innerHTML = '<span class="loading"></span>等待簽名…';
 
     const to = CONFIG.wallets[currentCoin];
-    const amt = cryptoAmount();
+    const amtStr = currentCoin === 'ETH' ? cryptoAmount().toFixed(6) : cryptoAmount().toFixed(2);
     let tx;
 
     if (currentCoin === 'ETH') {
-      tx = await signer.sendTransaction({
-        to,
-        value: ethers.parseEther(amt)
-      });
+      tx = await signer.sendTransaction({ to, value: ethers.parseEther(amtStr) });
     } else {
-      const tokenContract = new ethers.Contract(
-        net.token,
-        ['function transfer(address to, uint256 amount) returns (bool)'],
-        signer
+      const contract = new ethers.Contract(
+        net.token, ['function transfer(address,uint256) returns (bool)'], signer
       );
-      const units = ethers.parseUnits(amt, net.decimals);
-      tx = await tokenContract.transfer(to, units);
+      tx = await contract.transfer(to, ethers.parseUnits(amtStr, net.decimals));
     }
 
     btn.innerHTML = '<span class="loading"></span>等待確認…';
     await tx.wait();
 
-    showSuccess('TX_' + tx.hash.slice(0, 10), `交易已上鏈：${tx.hash.slice(0, 20)}…`);
+    showSuccess('付款成功', '鏈上交易已確認', [
+      ['付款方式', 'Crypto · ' + currentCoin],
+      ['金額', fmt(amount)],
+      ['交易', tx.hash.slice(0, 18) + '…']
+    ]);
+    $('cryptoPanel').classList.remove('open');
     btn.disabled = false;
     btn.innerHTML = '<span>🔗</span> 連接錢包付款';
 
@@ -623,116 +742,89 @@ async function connectAndPay() {
     console.error(err);
     btn.disabled = false;
     btn.innerHTML = '<span>🔗</span> 連接錢包付款';
-    if (err.code === 4001) {
-      alert('你已取消交易');
-    } else {
-      alert('付款失敗：' + (err.shortMessage || err.message || '未知錯誤'));
-    }
+    if (err.code === 4001) alert('你已取消交易');
+    else alert('付款失敗：' + (err.shortMessage || err.message || '未知錯誤'));
   }
 }
 
 /* ============================================================
-   Apple Pay
+   Octopus 面板
    ============================================================ */
-function setupApplePay() {
-  const wrap = document.getElementById('applePayButtonWrap');
-  const fallback = document.getElementById('applePayFallback');
-  const hint = document.getElementById('applePayHint');
-  const hasAPI = !!window.ApplePaySession;
-  const canPay = hasAPI && ApplePaySession.canMakePayments();
-
-  if (!canPay) {
-    wrap.style.display = 'none';
-    fallback.style.display = 'flex';
-    hint.textContent = hasAPI
-      ? '此裝置未加入可用的卡片，將以模擬方式示範'
-      : '此瀏覽器不支援 Apple Pay，將以模擬方式示範';
-    return;
-  }
-  wrap.style.display = 'block';
-  fallback.style.display = 'none';
-  hint.textContent = '於支援裝置上雙擊側邊按鈕確認付款';
-  document.getElementById('applePayBtn').addEventListener('click', mockApplePay);
+function openOctopus() {
+  $('octopusAmountBadge').textContent = fmt(amount);
+  $('octopusPanel').classList.add('open');
 }
 
-function mockApplePay() {
-  const btn = document.getElementById('payBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="loading"></span>處理中…';
-  setTimeout(() => {
-    showSuccess('AP_' + Date.now());
-    btn.disabled = false;
-    btn.textContent = '使用 Apple Pay 付款';
-  }, 1400);
-}
-
-document.getElementById('applePayFallback').addEventListener('click', mockApplePay);
-
-/* ============================================================
-   主付款按鈕
-   ============================================================ */
-document.getElementById('payBtn').addEventListener('click', () => {
-  if (currentMethod === 'card') {
-    let ok = true;
-    const num = cardNumber.value.replace(/\s/g, '');
-    if (num.length < 13 || !luhnCheck(num)) {
-      showError('cardNumber', '卡號無效'); ok = false;
-    }
-    if (!validateExpiry(cardExpiry.value)) {
-      showError('cardExpiry', '到期日無效'); ok = false;
-    }
-    const cvvLen = document.getElementById('cardBrand').textContent === 'AMEX' ? 4 : 3;
-    if (cardCvv.value.length !== cvvLen) {
-      showError('cardCvv', `CVV 需 ${cvvLen} 位`); ok = false;
-    }
-    if (!ok) return;
-    simulatePay('CARD_' + num.slice(-4) + '_' + Date.now());
-  } else if (currentMethod === 'fps') {
-    simulatePay('FPS_' + Date.now());
-  } else if (currentMethod === 'apple') {
-    mockApplePay();
-  } else if (currentMethod === 'crypto') {
-    connectAndPay();
-  }
+$('octopusConfirmBtn').addEventListener('click', () => {
+  showSuccess('收款成功', '八達通付款已記錄', [
+    ['付款方式', '八達通'],
+    ['金額', fmt(amount)]
+  ]);
+  $('octopusPanel').classList.remove('open');
 });
 
-function simulatePay(id) {
-  const btn = document.getElementById('payBtn');
-  btn.disabled = true;
-  btn.innerHTML = '<span class="loading"></span>處理中…';
-  setTimeout(() => {
-    showSuccess(id);
-    btn.disabled = false;
-    btn.textContent = '付款 HK$ 128.00';
-  }, 1800);
+/* ============================================================
+   QR 面板
+   ============================================================ */
+function openQr() {
+  $('qrAmountBadge').textContent = fmt(amount);
+  const payload = JSON.stringify({
+    type: 'FPS',
+    fpsId: CONFIG.fpsId,
+    name: CONFIG.fpsName,
+    amount: amount,
+    currency: 'HKD'
+  });
+  QRCode.toCanvas($('payQr'), payload, {
+    width: 200, margin: 1, color: { dark: '#1c1c1e', light: '#ffffff' }
+  });
+  $('qrPanel').classList.add('open');
 }
+
+$('copyFpsBtn').addEventListener('click', () => {
+  navigator.clipboard.writeText(CONFIG.fpsId).then(() => {
+    const b = $('copyFpsBtn');
+    b.textContent = '已複製';
+    setTimeout(() => b.textContent = '複製', 1200);
+  });
+});
+
+$('qrConfirmBtn').addEventListener('click', () => {
+  showSuccess('收款成功', '轉數快付款已記錄', [
+    ['付款方式', '轉數快 FPS'],
+    ['金額', fmt(amount)]
+  ]);
+  $('qrPanel').classList.remove('open');
+});
 
 /* ============================================================
    成功彈窗
    ============================================================ */
-function showSuccess(id, msg) {
-  document.getElementById('transactionId').textContent = id;
-  if (msg) document.getElementById('successMessage').textContent = msg;
-  document.getElementById('successModal').style.display = 'flex';
+function showSuccess(title, msg, rows) {
+  $('successTitle').textContent = title;
+  $('successMessage').textContent = msg;
+  const box = $('successBreakdown');
+  box.innerHTML = rows.map(([k, v], i) =>
+    `<div class="row${i === rows.length - 1 ? ' big' : ''}">
+       <span>${k}</span><span class="val ok">${v}</span>
+     </div>`
+  ).join('');
+  $('successModal').classList.add('open');
   if (navigator.vibrate) navigator.vibrate(40);
 }
 
-document.getElementById('closeModalBtn').addEventListener('click', () => {
-  document.getElementById('successModal').style.display = 'none';
-});
-document.getElementById('successModal').addEventListener('click', e => {
-  if (e.target.id === 'successModal') {
-    document.getElementById('successModal').style.display = 'none';
-  }
+$('closeModalBtn').addEventListener('click', () => {
+  $('successModal').classList.remove('open');
+  amountInput.value = '';
+  updateAmountState();
 });
 
-/* ============================================================
-   初始化
-   ============================================================ */
-document.addEventListener('DOMContentLoaded', () => {
-  renderFpsQr();
-  renderCrypto();
-  setupApplePay();
+$('successModal').addEventListener('click', e => {
+  if (e.target.id === 'successModal') {
+    $('successModal').classList.remove('open');
+    amountInput.value = '';
+    updateAmountState();
+  }
 });
 </script>
 </body>
