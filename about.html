@@ -1,616 +1,505 @@
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>關於我們 | 經貸智能財務</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@300;400;500;700&family=Roboto+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #00d4ff;
-            --primary-dark: #0099cc;
-            --secondary: #7b2cbf;
-            --dark-bg: #0a0a1a;
-            --card-bg: #14142e;
-            --border-color: #2a2a4a;
-            --text-primary: #ffffff;
-            --text-secondary: #b0b0d0;
-            --success: #00ff9d;
-            --warning: #ffcc00;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>關於我們 | 經貸智能財務</title>
+<style>
+  :root {
+    --primary: #0057b8;
+    --primary-dark: #004494;
+    --text: #1a1a1a;
+    --text-secondary: #5a5a5a;
+    --line: #e0e0e0;
+    --bg: #f5f6f8;
+    --success: #1b7a3d;
+    --warning-bg: #fff8e1;
+    --warning-border: #e6a700;
+  }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        html {
-            scroll-behavior: smooth;
-        }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang HK', 'Microsoft JhengHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
 
-        body {
-            font-family: 'Noto Sans HK', sans-serif;
-            background: var(--dark-bg);
-            color: var(--text-primary);
-            line-height: 1.6;
-            min-height: 100vh;
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(255, 119, 198, 0.05) 0%, transparent 50%);
-        }
+  .container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
+  /* Header */
+  header {
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
 
-        /* 頂部導航 */
-        header {
-            padding: 20px 0;
-            border-bottom: 1px solid var(--border-color);
-            background: rgba(10, 10, 26, 0.95);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+  .nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+  }
 
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: var(--primary);
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: var(--primary);
-            text-decoration: none;
-        }
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
 
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.5rem;
-        }
+  .nav-menu { display: flex; gap: 28px; align-items: center; }
 
-        .nav-menu {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
+  .nav-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.95rem;
+    padding: 4px 0;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+  }
 
-        .nav-link {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            padding: 8px 16px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
+  .nav-link:hover { color: var(--primary); }
+  .nav-link.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 500; }
 
-        .nav-link:hover {
-            color: var(--primary);
-            background: rgba(0, 212, 255, 0.1);
-        }
+  .nav-cta {
+    background: var(--primary);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
 
-        .nav-link.active {
-            color: var(--primary);
-            background: rgba(0, 212, 255, 0.1);
-        }
+  .nav-cta:hover { background: var(--primary-dark); color: #fff; }
 
-        /* 關於頁面樣式 */
-        .about-hero {
-            padding: 120px 0 60px;
-            text-align: center;
-        }
+  /* Hamburger */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+  }
 
-        .about-hero h1 {
-            font-size: 3.5rem;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
+  .hamburger span {
+    width: 24px;
+    height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: transform 0.2s, opacity 0.2s;
+  }
 
-        .about-hero p {
-            font-size: 1.3rem;
-            color: var(--text-secondary);
-            max-width: 700px;
-            margin: 0 auto;
-            font-family: 'Roboto Mono', monospace;
-        }
+  .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.active span:nth-child(2) { opacity: 0; }
+  .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-        /* 簡介卡片 */
-        .intro-section {
-            padding: 60px 0;
-        }
+  /* Page hero */
+  .page-hero {
+    background: #fff;
+    padding: 56px 0 48px;
+    text-align: center;
+    border-bottom: 1px solid var(--line);
+  }
 
-        .intro-card {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 50px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
+  .page-hero h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
 
-        .intro-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-        }
+  .page-hero p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    max-width: 560px;
+    margin: 0 auto;
+  }
 
-        .intro-title {
-            font-size: 2.2rem;
-            margin-bottom: 25px;
-            color: var(--primary);
-        }
+  /* Sections */
+  .section {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 36px;
+    margin: 32px 0;
+  }
 
-        .intro-text {
-            font-size: 1.1rem;
-            line-height: 1.8;
-            color: var(--text-secondary);
-            margin-bottom: 25px;
-        }
+  .section h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
+  }
 
-        /* 里程碑 */
-        .milestone-section {
-            padding: 60px 0;
-        }
+  .section p {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    line-height: 1.9;
+    margin-bottom: 14px;
+  }
 
-        .section-title {
-            font-size: 2.5rem;
-            text-align: center;
-            margin-bottom: 50px;
-            color: var(--primary);
-        }
+  .section p:last-child { margin-bottom: 0; }
 
-        .milestone-timeline {
-            position: relative;
-            max-width: 800px;
-            margin: 0 auto;
-        }
+  /* Milestones */
+  .milestones {
+    position: relative;
+    padding-left: 28px;
+  }
 
-        .milestone-timeline::before {
-            content: '';
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: linear-gradient(to bottom, var(--primary), var(--secondary));
-            transform: translateX(-50%);
-        }
+  .milestones::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 8px;
+    bottom: 8px;
+    width: 2px;
+    background: var(--line);
+  }
 
-        .milestone-item {
-            margin-bottom: 50px;
-            position: relative;
-            width: calc(50% - 40px);
-        }
+  .milestone {
+    position: relative;
+    padding-bottom: 28px;
+  }
 
-        .milestone-item:nth-child(odd) {
-            margin-left: auto;
-            padding-left: 40px;
-        }
+  .milestone:last-child { padding-bottom: 0; }
 
-        .milestone-item:nth-child(even) {
-            margin-right: auto;
-            padding-right: 40px;
-            text-align: right;
-        }
+  .milestone::before {
+    content: '';
+    position: absolute;
+    left: -28px;
+    top: 6px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border: 3px solid var(--primary);
+    border-radius: 50%;
+  }
 
-        .milestone-dot {
-            position: absolute;
-            top: 0;
-            width: 20px;
-            height: 20px;
-            background: var(--primary);
-            border-radius: 50%;
-            border: 4px solid var(--dark-bg);
-        }
+  .milestone-year {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 4px;
+  }
 
-        .milestone-item:nth-child(odd) .milestone-dot {
-            left: -10px;
-        }
+  .milestone-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
 
-        .milestone-item:nth-child(even) .milestone-dot {
-            right: -10px;
-        }
+  .milestone-desc {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+  }
 
-        .milestone-content {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color);
-            border-radius: 15px;
-            padding: 25px;
-            transition: all 0.3s ease;
-        }
+  /* Values */
+  .values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 16px;
+  }
 
-        .milestone-content:hover {
-            border-color: var(--primary);
-            transform: translateY(-5px);
-        }
+  .value-card {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 24px;
+  }
 
-        .milestone-year {
-            color: var(--primary);
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            font-family: 'Roboto Mono', monospace;
-        }
+  .value-card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: var(--primary);
+  }
 
-        .milestone-title {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            color: var(--text-primary);
-        }
+  .value-card p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin: 0;
+  }
 
-        .milestone-desc {
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
+  /* Footer */
+  footer {
+    margin-top: 64px;
+    background: #fff;
+    border-top: 1px solid var(--line);
+    padding: 40px 0 32px;
+  }
 
-        /* 核心價值 */
-        .values-section {
-            padding: 60px 0;
-        }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 40px;
+  }
 
-        .values-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
+  .footer-grid h3 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
 
-        .value-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 15px;
-            padding: 30px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
+  .footer-grid p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
 
-        .value-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-5px);
-        }
+  .warning-box {
+    background: var(--warning-bg);
+    border: 1px solid var(--warning-border);
+    border-radius: 6px;
+    padding: 18px;
+    font-size: 0.85rem;
+    color: #5a4500;
+    line-height: 1.8;
+  }
 
-        .value-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 1.5rem;
-        }
+  .warning-box strong { display: block; margin-bottom: 6px; color: #3d2e00; }
 
-        .value-card h3 {
-            font-size: 1.4rem;
-            margin-bottom: 15px;
-            color: var(--primary);
-        }
+  .license {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+  }
 
-        .value-card p {
-            color: var(--text-secondary);
-            line-height: 1.6;
-        }
+  .license strong { color: var(--text); }
 
-        /* 頁腳 */
-        footer {
-            margin-top: 80px;
-            padding: 40px 0;
-            border-top: 1px solid var(--border-color);
-            background: rgba(0, 0, 0, 0.3);
-        }
+  .contact-line {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
 
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 40px;
-        }
+  @media (max-width: 768px) {
+    .page-hero h1 { font-size: 1.5rem; }
+    .section { padding: 24px 20px; }
 
-        .warning-box {
-            background: rgba(255, 204, 0, 0.1);
-            border: 1px solid var(--warning);
-            border-radius: 12px;
-            padding: 25px;
-            margin-top: 30px;
-        }
+    .hamburger { display: flex; }
 
-        .license-info {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid var(--border-color);
-        }
+    .nav-menu {
+      position: fixed;
+      top: 64px;
+      left: 0;
+      right: 0;
+      background: #fff;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      transform: translateY(-120%);
+      opacity: 0;
+      visibility: hidden;
+      transition: transform 0.25s ease, opacity 0.25s ease, visibility 0.25s;
+      z-index: 99;
+    }
 
-        /* 響應式設計 */
-        @media (max-width: 768px) {
-            .about-hero h1 {
-                font-size: 2.5rem;
-            }
-            
-            .about-hero p {
-                font-size: 1.1rem;
-            }
-            
-            .intro-card {
-                padding: 30px;
-            }
-            
-            .intro-title {
-                font-size: 1.8rem;
-            }
-            
-            .section-title {
-                font-size: 2rem;
-            }
-            
-            .milestone-timeline::before {
-                left: 20px;
-            }
-            
-            .milestone-item {
-                width: calc(100% - 40px);
-                margin-left: 40px !important;
-                padding-left: 40px !important;
-                text-align: left !important;
-            }
-            
-            .milestone-item:nth-child(even) {
-                margin-right: 0;
-                padding-right: 0;
-            }
-            
-            .milestone-dot {
-                left: -10px !important;
-                right: auto !important;
-            }
-            
-            .nav-menu {
-                gap: 15px;
-            }
-            
-            .nav-link {
-                padding: 6px 12px;
-                font-size: 0.9rem;
-            }
-        }
+    .nav-menu.active {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
 
-        @media (max-width: 480px) {
-            .about-hero h1 {
-                font-size: 2rem;
-            }
-            
-            .logo span {
-                font-size: 1.4rem;
-            }
-            
-            .values-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
+    .nav-link {
+      padding: 14px 24px;
+      border-bottom: none;
+      font-size: 1rem;
+    }
+
+    .nav-link.active {
+      background: #f0f5ff;
+      border-bottom: none;
+    }
+
+    .nav-cta {
+      margin: 8px 24px 12px;
+      text-align: center;
+      padding: 12px;
+    }
+  }
+</style>
 </head>
 <body>
-    <!-- 頂部導航 -->
-    <header>
-        <div class="container nav-container">
-            <a href="index.html" class="logo">
-                <div class="logo-icon">AI</div>
-                <span>經貸智能財務</span>
-            </a>
-            
-            <nav class="nav-menu">
-                <a href="index.html" class="nav-link">智能評估</a>
-                <a href="about.html" class="nav-link active">關於我們</a>
-                <a href="payToBank.html" class="nav-link">銀行轉賬</a>
-            </nav>
+
+<header>
+  <div class="container nav-container">
+    <a href="index.html" class="logo">
+      <div class="logo-mark">經</div>
+      <span>經貸智能財務</span>
+    </a>
+
+    <button class="hamburger" id="hamburgerBtn" aria-label="選單" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="nav-menu" id="navMenu">
+      <a href="index.html" class="nav-link">貸款評估</a>
+      <a href="payToBank.html" class="nav-link">申請貸款</a>
+      <a href="about.html" class="nav-link active">關於我們</a>
+      <a href="loginUser.html" class="nav-link">登入</a>
+      <a href="payToBank.html" class="nav-link nav-cta">立即申請</a>
+    </nav>
+  </div>
+</header>
+
+<section class="page-hero">
+  <div class="container">
+    <h1>關於經貸智能財務</h1>
+    <p>為香港市民提供透明、有效率的私人貸款服務</p>
+  </div>
+</section>
+
+<div class="container">
+  <div class="section">
+    <h2>公司簡介</h2>
+    <p>經貸智能財務有限公司成立於 2023 年，持香港放債人牌照，專注為本地市民提供私人貸款服務。我們以清晰透明的審批流程、合理利率及高效率的服務為核心，讓客戶在申請貸款時能夠充分了解條款與還款安排。</p>
+    <p>傳統貸款審批往往耗時且資訊不透明。我們透過系統化的財務評估，在短時間內完成風險分析，為每位客戶提供合適的貸款方案，同時確保整個過程符合香港相關法規要求。</p>
+    <p>我們的評估模型依據申請人提供的財務資料進行分析，協助客戶了解自身的還款能力，並據此建議合適的貸款金額與年期。</p>
+  </div>
+
+  <div class="section">
+    <h2>發展里程</h2>
+    <div class="milestones">
+      <div class="milestone">
+        <div class="milestone-year">2023 年 8 月</div>
+        <div class="milestone-title">公司成立</div>
+        <div class="milestone-desc">經貸智能財務有限公司正式成立，取得香港放債人牌照並開始投入營運，初期獲 WTech(HK) 當時擁有人及相關人員支持。</div>
+      </div>
+      <div class="milestone">
+        <div class="milestone-year">2023 年 10 月</div>
+        <div class="milestone-title">網站改革</div>
+        <div class="milestone-desc">開放網上登入功能，客戶可於線上查詢申請進度及還款安排。</div>
+      </div>
+      <div class="milestone">
+        <div class="milestone-year">2025 年 4 月</div>
+        <div class="milestone-title">兩地營運</div>
+        <div class="milestone-desc">經貸貸款品牌於中國內地開始營運網貸業務。</div>
+      </div>
+      <div class="milestone">
+        <div class="milestone-year">2025 年 12 月</div>
+        <div class="milestone-title">評估系統升級</div>
+        <div class="milestone-desc">首版貸款評估模型正式投入運作，可在數分鐘內完成申請評估。</div>
+      </div>
+      <div class="milestone">
+        <div class="milestone-year">2026 年或之後</div>
+        <div class="milestone-title">未來規劃</div>
+        <div class="milestone-desc">將繼續於兩地營運金融相關業務，為客戶提供服務。</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>核心價值</h2>
+    <div class="values-grid">
+      <div class="value-card">
+        <h3>高效透明</h3>
+        <p>審批流程清晰，所有計算與條款公開透明，讓客戶清楚了解審批依據。</p>
+      </div>
+      <div class="value-card">
+        <h3>精準公平</h3>
+        <p>依據統一標準評估每位申請人，確保評估結果一致及公平。</p>
+      </div>
+      <div class="value-card">
+        <h3>安全合規</h3>
+        <p>嚴格遵守香港金融監管要求，確保所有操作合法合規，並保護客戶資料安全。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h3>經貸智能財務有限公司</h3>
+        <p>
+          地址：新界青衣島青衣路 20A 號<br>
+          電話：2294 3266<br>
+          電郵：info@jingdai.com.hk
+        </p>
+        <div class="license">
+          <strong>放債人牌照號碼：</strong>0987/2025<br>
+          辦公時間：星期一至五 09:00–18:00<br>
+          <div class="contact-line">
+            <strong>查詢及投訴電話：</strong>2294 3266
+          </div>
         </div>
-    </header>
-
-    <!-- 關於頁面主視覺 -->
-    <section class="about-hero">
-        <div class="container">
-            <h1>關於經貸智能財務</h1>
-            <p>革新傳統金融，用人工智能重新定義貸款體驗</p>
+      </div>
+      <div>
+        <h3>重要事項</h3>
+        <div class="warning-box">
+          <strong>借錢梗要還，咪俾錢中介。</strong>
+          還款能力評估非常重要，請確保您有能力按時還款。逾期還款可能影響您的信貸記錄。
         </div>
-    </section>
+        <p style="margin-top: 16px; font-size: 0.8rem;">
+          * 本頁資料僅供參考，實際批核條件以正式合約為準。<br>
+          * 利率可能根據市場情況及申請人信用狀況調整。<br>
+          * 提前還款可能會產生相關手續費用。
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
 
-    <!-- 公司簡介 -->
-    <section class="intro-section">
-        <div class="container">
-            <div class="intro-card">
-                <h2 class="intro-title">我們的使命</h2>
-                <p class="intro-text">
-                    經貸智能財務成立於2023年，是一家專注於人工智能金融科技的創新企業。我們致力於通過先進的機器學習算法，為香港市民提供更公平、更透明、更有效率的貸款服務。
-                </p>
-                <p class="intro-text">
-                    傳統的貸款審批過程往往耗時且不夠透明，我們利用AI技術在數秒內完成複雜的風險評估，為每位客戶提供個性化的貸款方案，同時確保整個過程完全合規。
-                </p>
-                <p class="intro-text">
-                    我們的Sigmoid AI模型經過大量數據訓練，能夠精準評估申請人的還款能力，實現了高效與安全的完美結合。
-                </p>
-            </div>
-        </div>
-    </section>
+<script>
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const navMenu = document.getElementById('navMenu');
 
-    <!-- 公司里程碑 -->
-    <section class="milestone-section">
-        <div class="container">
-            <h2 class="section-title">發展里程碑</h2>
-            <div class="milestone-timeline">
-                <!-- 里程碑 1 -->
-                <div class="milestone-item">
-                    <div class="milestone-dot"></div>
-                    <div class="milestone-content">
-                        <div class="milestone-year">2023年8月</div>
-                        <h3 class="milestone-title">公司成立</h3>
-                        <p class="milestone-desc">
-                            經貸智能財務有限公司正式成立，獲得香港放債人牌照，開始投入運營，並獲得WTech(HK)當時擁有人以及相關人員願意投資。
-                        </p>
-                    </div>
-                </div>
+  hamburgerBtn.addEventListener('click', function() {
+    const isOpen = navMenu.classList.toggle('active');
+    this.classList.toggle('active', isOpen);
+    this.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
 
-                <!-- 里程碑 2 -->
-                <div class="milestone-item">
-                    <div class="milestone-dot"></div>
-                    <div class="milestone-content">
-                        <div class="milestone-year">2023年10月</div>
-                        <h3 class="milestone-title">網站改革</h3>
-                        <p class="milestone-desc">
-                            開放登入功能。
-                        </p>
-                    </div>
-                </div>
+  navMenu.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      navMenu.classList.remove('active');
+      hamburgerBtn.classList.remove('active');
+      hamburgerBtn.setAttribute('aria-expanded', 'false');
+    });
+  });
 
-                <!-- 里程碑 3 -->
-                <div class="milestone-item">
-                    <div class="milestone-dot"></div>
-                    <div class="milestone-content">
-                        <div class="milestone-year">2025年4月</div>
-                        <h3 class="milestone-title">兩地運營</h3>
-                        <p class="milestone-desc">
-                            經貸貸款品牌在中國內地開始運營網貸業務。
-                        </p>
-                    </div>
-                </div>
-
-                <!-- 里程碑 4 -->
-                <div class="milestone-item">
-                    <div class="milestone-dot"></div>
-                    <div class="milestone-content">
-                        <div class="milestone-year">2025年12月</div>
-                        <h3 class="milestone-title">技術升級</h3>
-                        <p class="milestone-desc">
-                            首版Sigmoid AI貸款審批模型正式投入運營，實現了數分鐘內完成貸款申請評估的突破。
-                        </p>
-                    </div>
-                </div>
-
-                <div class="milestone-item">
-                    <div class="milestone-dot"></div>
-                    <div class="milestone-content">
-                        <div class="milestone-year">2026或之後</div>
-                        <h3 class="milestone-title">未來規劃</h3>
-                        <p class="milestone-desc">
-                            可能繼續兩地運營金融相關業務，為民服務。
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 核心價值 -->
-    <section class="values-section">
-        <div class="container">
-            <h2 class="section-title">核心價值</h2>
-            <div class="values-grid">
-                <div class="value-card">
-                    <div class="value-icon">⚡</div>
-                    <h3>高效透明</h3>
-                    <p>AI技術實現秒級審批，所有計算過程公開透明，讓客戶清楚了解審批依據。</p>
-                </div>
-                
-                <div class="value-card">
-                    <div class="value-icon">🎯</div>
-                    <h3>精準公平</h3>
-                    <p>機器學習算法消除人為偏見，為每位申請人提供最公平的評估結果。</p>
-                </div>
-                
-                <div class="value-card">
-                    <div class="value-icon">🔒</div>
-                    <h3>安全合規</h3>
-                    <p>嚴格遵守香港金融監管要求，確保所有操作合法合規，保護客戶數據安全。</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 頁腳 -->
-    <footer>
-        <div class="container">
-            <div class="footer-content">
-                <div>
-                    <h3 style="margin-bottom: 20px; color: var(--primary);">經貸智能財務有限公司</h3>
-                    <p style="color: var(--text-secondary); line-height: 1.8;">
-                        地址：新界青衣島青衣路20A號<br>
-                        電話：+852 22943266<br>
-                        電郵：info@jingdai.com.hk
-                    </p>
-                </div>
-                
-                <div>
-                    <h3 style="margin-bottom: 20px; color: var(--primary);">重要資訊</h3>
-                    <div class="warning-box">
-                        <strong style="color: var(--warning); display: block; margin-bottom: 10px;">⚠️ 重要忠告</strong>
-                        <p style="color: var(--text-secondary); line-height: 1.8; font-size: 0.9rem;">
-                            借錢梗要還，咪俾錢中介。<br>
-                            還款能力評估非常重要，請確保您有能力按時還款。<br>
-                            逾期還款可能影響您的信貸記錄。
-                        </p>
-                    </div>
-                    
-                    <div class="license-info">
-                        <strong>放債人牌照號碼：</strong><br>
-                        <span style="color: var(--text-primary); font-family: 'Roboto Mono', monospace; font-size: 1.1rem;">
-                            0987/2025
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <script>
-        // 簡單的滾動動畫
-        document.addEventListener('DOMContentLoaded', function() {
-            const observerOptions = {
-                threshold: 0.1,
-                rootMargin: '0px 0px -50px 0px'
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.style.opacity = '1';
-                        entry.target.style.transform = 'translateY(0)';
-                    }
-                });
-            }, observerOptions);
-
-            // 觀察所有卡片和里程碑
-            document.querySelectorAll('.milestone-content, .value-card, .intro-card').forEach(el => {
-                el.style.opacity = '0';
-                el.style.transform = 'translateY(20px)';
-                el.style.transition = 'all 0.6s ease';
-                observer.observe(el);
-            });
-        });
-    </script>
+  document.addEventListener('click', function(e) {
+    if (!navMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+      navMenu.classList.remove('active');
+      hamburgerBtn.classList.remove('active');
+      hamburgerBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
+</script>
 </body>
 </html>
