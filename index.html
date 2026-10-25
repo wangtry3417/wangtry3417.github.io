@@ -82,6 +82,40 @@
   .nav-link:hover { color: var(--primary); }
   .nav-link.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 500; }
 
+  .nav-cta {
+    background: var(--primary);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+
+  .nav-cta:hover { background: var(--primary-dark); color: #fff; }
+
+  /* Hamburger */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+  }
+
+  .hamburger span {
+    width: 24px;
+    height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: transform 0.2s, opacity 0.2s;
+  }
+
+  .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .hamburger.active span:nth-child(2) { opacity: 0; }
+  .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
   /* Hero */
   .hero {
     background: #fff;
@@ -105,7 +139,7 @@
     margin: 0 auto;
   }
 
-  /* Main form card */
+  /* Form card */
   .form-card {
     background: #fff;
     border-radius: 8px;
@@ -300,8 +334,6 @@
 
   .result-value.primary { color: var(--primary); }
 
-  .result-unit { font-size: 0.9rem; color: var(--text-secondary); font-weight: 400; margin-left: 2px; }
-
   /* Repayment details */
   .repayment-section {
     background: #fff;
@@ -334,6 +366,45 @@
 
   .detail-label { font-size: 0.9rem; color: var(--text-secondary); }
   .detail-value { font-size: 0.95rem; font-weight: 600; color: var(--text); }
+
+  /* Apply CTA */
+  .apply-cta {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 28px;
+    margin: 24px 0 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .apply-cta-text h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .apply-cta-text p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+
+  .apply-btn {
+    background: var(--primary);
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .apply-btn:hover { background: var(--primary-dark); }
 
   /* Footer */
   footer {
@@ -385,13 +456,71 @@
 
   .license strong { color: var(--text); }
 
+  .contact-line {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: var(--text);
+  }
+
+  .contact-line strong { color: var(--text); }
+
   @media (max-width: 768px) {
     .hero h1 { font-size: 1.5rem; }
     .form-card { padding: 24px 20px; }
-    .nav-menu { display: none; }
     .input-grid { grid-template-columns: 1fr; }
     .features-grid { grid-template-columns: 1fr; }
     .result-value { font-size: 1.3rem; }
+
+    .hamburger { display: flex; }
+
+    .nav-menu {
+      position: fixed;
+      top: 64px;
+      left: 0;
+      right: 0;
+      background: #fff;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+      transform: translateY(-120%);
+      opacity: 0;
+      visibility: hidden;
+      transition: transform 0.25s ease, opacity 0.25s ease, visibility 0.25s;
+      z-index: 99;
+    }
+
+    .nav-menu.active {
+      transform: translateY(0);
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .nav-link {
+      padding: 14px 24px;
+      border-bottom: none;
+      font-size: 1rem;
+    }
+
+    .nav-link.active {
+      background: #f0f5ff;
+      border-bottom: none;
+    }
+
+    .nav-cta {
+      margin: 8px 24px 12px;
+      text-align: center;
+      padding: 12px;
+    }
+
+    .apply-cta {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .apply-btn { width: 100%; text-align: center; }
   }
 </style>
 </head>
@@ -399,15 +528,23 @@
 
 <header>
   <div class="container nav-container">
-    <a href="#" class="logo">
+    <a href="index.html" class="logo">
       <div class="logo-mark">經</div>
       <span>經貸財務</span>
     </a>
-    <nav class="nav-menu">
-      <a href="#" class="nav-link active">貸款評估</a>
-      <a href="#" class="nav-link">銀行轉賬</a>
-      <a href="#" class="nav-link">關於我們</a>
-      <a href="#" class="nav-link">登入</a>
+
+    <button class="hamburger" id="hamburgerBtn" aria-label="選單" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="nav-menu" id="navMenu">
+      <a href="index.html" class="nav-link active">貸款評估</a>
+      <a href="payToBank.html" class="nav-link">申請貸款</a>
+      <a href="about.html" class="nav-link">關於我們</a>
+      <a href="loginUser.html" class="nav-link">登入</a>
+      <a href="payToBank.html" class="nav-link nav-cta">立即申請</a>
     </nav>
   </div>
 </header>
@@ -520,6 +657,14 @@
           </div>
         </div>
       </div>
+
+      <div class="apply-cta">
+        <div class="apply-cta-text">
+          <h3>準備好申請？</h3>
+          <p>填寫正式申請表格，專人會盡快聯絡你</p>
+        </div>
+        <a href="payToBank.html" class="apply-btn">前往申請</a>
+      </div>
     </div>
   </div>
 </div>
@@ -528,12 +673,14 @@
   <div class="container">
     <div class="footer-grid">
       <div>
-        <h3>經貸智能財務有限公司</h3>
+        <h3>經貸財務有限公司</h3>
         <p>提供私人貸款評估服務。所有計算結果僅供參考，實際批核條件以正式合約為準。</p>
         <div class="license">
-          <strong>放債人牌照號碼：</strong>0987/2025<br><br>
+          <strong>放債人牌照號碼：</strong>0987/2025<br>
           辦公時間：星期一至五 09:00–18:00<br>
-          查詢/投訴熱線：2294 3266
+          <div class="contact-line">
+            <strong>查詢及投訴電話：</strong>2294 3266
+          </div>
         </div>
       </div>
       <div>
@@ -636,6 +783,32 @@
 
     document.getElementById('resultsContainer').style.display = 'block';
   }
+
+  // Hamburger menu
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const navMenu = document.getElementById('navMenu');
+
+  hamburgerBtn.addEventListener('click', function() {
+    const isOpen = navMenu.classList.toggle('active');
+    this.classList.toggle('active', isOpen);
+    this.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+  });
+
+  navMenu.querySelectorAll('.nav-link').forEach(link => {
+    link.addEventListener('click', () => {
+      navMenu.classList.remove('active');
+      hamburgerBtn.classList.remove('active');
+      hamburgerBtn.setAttribute('aria-expanded', 'false');
+    });
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!navMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+      navMenu.classList.remove('active');
+      hamburgerBtn.classList.remove('active');
+      hamburgerBtn.setAttribute('aria-expanded', 'false');
+    }
+  });
 
   window.addEventListener('load', function() {
     calculateLoan();
