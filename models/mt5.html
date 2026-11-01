@@ -216,6 +216,24 @@
     .sage-panel th:first-child, .sage-panel td:first-child { text-align: left; color: var(--mt5-gray); }
     .sage-panel th { color: var(--mt5-gray); border-bottom: 1px solid var(--mt5-dark-border); }
     .sage-probs { margin-bottom: 6px; line-height: 1.5; }
+
+    .sage-verdict { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .sage-line { display: flex; justify-content: space-between; font-size: 12px; padding: 2px 0; }
+    .sage-line span:last-child { color: white; }
+    .sage-note { font-size: 10px; color: var(--mt5-gray); margin-top: 6px; line-height: 1.4; }
+    .btn-follow { width: 100%; margin-top: 8px; padding: 10px; border: none; border-radius: 8px; color: white; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-follow.buy { background: var(--mt5-blue); }
+    .btn-follow.sell { background: var(--mt5-red); }
+    .auto-tag { font-size: 10px; background: var(--mt5-blue); color: white; border-radius: 4px; padding: 1px 5px; margin-left: 4px; vertical-align: middle; }
+    .sage-pill { cursor: pointer; padding: 1px 8px; border-radius: 10px; background: var(--mt5-light-surface); color: var(--mt5-gray); font-weight: 600; }
+    .sage-pill.on { background: var(--mt5-green); color: white; }
+    #page-profile .setting-group { overflow-y: auto; flex: 1; min-height: 0; scrollbar-width: none; }
+    #page-profile .setting-group::-webkit-scrollbar { display: none; }
+    .switch-row { display: flex; justify-content: space-between; align-items: center; font-size: 15px; color: black; margin-bottom: 12px; }
+    .switch-row input { width: 22px; height: 22px; }
+    .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .mini-grid label { font-size: 12px; margin-bottom: 0; }
+    .mini-grid .setting-input { width: 100%; margin-top: 4px; padding: 8px; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -246,7 +264,7 @@
                     </div>
                     <div class="icon-btn">＋</div>
                 </div>
-                <div class="live-status"><span id="live-status-text">● 模擬報價</span><span id="live-status-time"></span></div>
+                <div class="live-status"><span id="live-status-text">● 模擬報價</span><span id="live-status-time"></span><span class="sage-pill" id="sage-pill" onclick="toggleAuto()">Sage 自動：關</span></div>
                 <div class="list-area" id="quotes-list"></div>
             </div>
 
@@ -260,6 +278,7 @@
                     <div class="summary-row"><span>Deposit</span><span id="display-deposit">0.00</span></div>
                     <div class="summary-row"><span>Floating P/L</span><span id="display-float-pl">0.00</span></div>
                     <div class="summary-row"><span>Closed P/L</span><span id="display-closed-pl">0.00</span></div>
+                    <div class="summary-row"><span>Sage 自動交易</span><span id="display-sage">關閉</span></div>
                     <div class="summary-row balance"><span>Balance</span><span id="display-balance">0.00</span></div>
                 </div>
             </div>
@@ -277,6 +296,17 @@
                             <button class="btn-save" onclick="saveBalance()">儲存</button>
                         </div>
                         <p style="font-size:11px; color:var(--mt5-gray); margin-top:5px;">* 注意：修改餘額會重置所有持倉</p>
+                    </div>
+                    <div class="setting-item">
+                        <label>Sage 自動交易</label>
+                        <div class="switch-row"><span>啟用自動落單 / 平倉</span><input type="checkbox" id="sage-enabled" onchange="saveSageSettings()"></div>
+                        <div class="mini-grid">
+                            <label>最低信心度 (%)<input type="number" id="sage-minconf" class="setting-input" min="5" max="95" step="1" onchange="saveSageSettings()"></label>
+                            <label>最多同時持倉<input type="number" id="sage-maxpos" class="setting-input" min="1" max="7" step="1" onchange="saveSageSettings()"></label>
+                            <label>止蝕 (% Balance)<input type="number" id="sage-sl" class="setting-input" min="0.1" step="0.1" onchange="saveSageSettings()"></label>
+                            <label>止賺 (% Balance)<input type="number" id="sage-tp" class="setting-input" min="0.1" step="0.1" onchange="saveSageSettings()"></label>
+                        </div>
+                        <p style="font-size:11px; color:var(--mt5-gray); margin-top:8px;">* 需要先設定 Balance。Sage 會自動揀貨幣對、計手數、止蝕止賺，訊號反轉時自動平倉。模擬帳戶用途，並非投資建議。</p>
                     </div>
                 </div>
             </div>
@@ -483,6 +513,7 @@
 
         calculateFloatingPL();
         if (sageActive) renderSage();
+        sageAutoTick();
     }
 
     // --- 4. 交易邏輯 ---
@@ -545,8 +576,8 @@
         switchTradeTab('positions');
     }
 
-    function closePosition(id) {
-        if (!confirm("確定要平倉嗎？")) return;
+    function closePosition(id, auto = false, reason = '') {
+        if (!auto && !confirm("確定要平倉嗎？")) return;
 
         const index = accountState.positions.findIndex(p => p.id === id);
         if (index === -1) return;
@@ -567,7 +598,9 @@
             closePrice: pos.closePrice,
             openTime: pos.openTime,
             closeTime: new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai' }),
-            profit: pos.currentPL
+            profit: pos.currentPL,
+            auto: !!pos.auto,
+            reason: reason
         });
 
         // 移除持倉
@@ -637,7 +670,7 @@
                     html += `
                         <div class="trade-item">
                             <div class="trade-row-1">
-                                <span>${pos.symbol}, <span class="${typeClass}">${pos.type.toLowerCase()} ${pos.lots.toFixed(2)}</span></span>
+                                <span>${pos.symbol}${pos.auto ? '<span class="auto-tag">Sage</span>' : ''}, <span class="${typeClass}">${pos.type.toLowerCase()} ${pos.lots.toFixed(2)}</span></span>
                                 <span class="${plClass(pos.currentPL)}">${fmtMoney(pos.currentPL)}</span>
                             </div>
                             <div class="trade-row-2">
@@ -658,14 +691,14 @@
                     html += `
                         <div class="trade-item">
                             <div class="trade-row-1">
-                                <span>${h.symbol}, <span class="${typeClass}">${h.type.toLowerCase()} ${h.lots.toFixed(2)}</span></span>
+                                <span>${h.symbol}${h.auto ? '<span class="auto-tag">Sage</span>' : ''}, <span class="${typeClass}">${h.type.toLowerCase()} ${h.lots.toFixed(2)}</span></span>
                                 <span class="${plClass(h.profit)}">${fmtMoney(h.profit)}</span>
                             </div>
                             <div class="trade-row-2">
                                 <span>${h.openPrice.toFixed(digits)} → ${h.closePrice.toFixed(digits)}</span>
                             </div>
                             <div class="trade-row-2">
-                                <span>${h.openTime}</span><span>${h.closeTime}</span>
+                                <span>${h.openTime}${h.reason ? ' · ' + h.reason : ''}</span><span>${h.closeTime}</span>
                             </div>
                         </div>`;
                 });
@@ -709,6 +742,7 @@
 
         if (pageId === 'page-history') renderTradeList();
         if (pageId === 'page-profile') {
+            syncSageUI();
             document.getElementById('input-balance').value = accountState.balance.toFixed(2);
         }
     }
@@ -800,7 +834,7 @@
         setLiveStatus(false);
     }
 
-    // --- Sage 計算（移植自貝氏平滑 + 高階敏感度估計器） ---
+    // --- Sage（貝氏平滑 + 高階敏感度，移植自 Python 版） ---
 
     // 貝氏平滑 (論文公式 3 / 4)
     function bayesianSmoothing(probs, opts = {}) {
@@ -808,7 +842,7 @@
         const n = probs.length;
         const p = probs.map(v => Math.max(v, 0));
         const prior = eta / n;
-        const sum = p.reduce((a, b) => a + b, 0);
+        const sum = p.reduce((x, y) => x + y, 0);
         let out;
         if (mode === 'continuous') {
             out = p.map(v => (1 - eps) * v + eps / n);
@@ -824,53 +858,76 @@
 
     function factorial(k) { let f = 1; for (let i = 2; i <= k; i++) f *= i; return f; }
 
-    // 效用 U(L) = Σ p̃_i · log(1 + L·r_i)，L = 名義槓桿
-    // 第 k 階導數有解析解：(-1)^(k-1)(k-1)! · r^k / (1 + L·r)^k  → 對角近似，各階皆軟截斷
-    function sensitivities(probs, rets, L, maxOrder = 6, clip = 1.0) {
-        const out = [];
-        for (let k = 1; k <= maxOrder; k++) {
-            let d = 0;
-            for (let i = 0; i < probs.length; i++) {
-                const base = Math.max(1 + L * rets[i], 1e-6);
-                d += probs[i] * Math.pow(-1, k - 1) * factorial(k - 1) * Math.pow(rets[i], k) / Math.pow(base, k);
-            }
-            out.push(softClip(d, clip));
+    // 效用 U(L) = Σ p̃_i · log(1 + L·r_i)；第 k 階導數（解析解，對角近似）
+    function derivU(probs, rets, L, k) {
+        let d = 0;
+        for (let i = 0; i < probs.length; i++) {
+            const base = Math.max(1 + L * rets[i], 1e-6);
+            d += probs[i] * Math.pow(-1, k - 1) * factorial(k - 1) * Math.pow(rets[i], k) / Math.pow(base, k);
         }
-        return out;
+        return d;
     }
 
-    function sageCompute(symbol, lots) {
+    // 用一階導數 = 0 搵最佳槓桿（效用為凹函數，二分法），上限 cap
+    function optimalLeverage(probs, rets, cap = 10) {
+        const f = L => derivU(probs, rets, L, 1);
+        if (f(0) <= 0) return 0;
+        if (f(cap) > 0) return cap;
+        let lo = 0, hi = cap;
+        for (let i = 0; i < 40; i++) {
+            const m = (lo + hi) / 2;
+            if (f(m) > 0) lo = m; else hi = m;
+        }
+        return (lo + hi) / 2;
+    }
+
+    function sageAnalyze(symbol) {
         const hist = priceHist[symbol];
-        if (!hist || hist.length < 15) return { error: `數據不足 (${hist ? hist.length : 0}/15 ticks)，請稍等` };
+        const n = hist ? hist.length : 0;
+        if (n < 15) return { error: `Sage 仲喺收集報價 (${n}/15)，請稍等幾秒` };
 
         const rets = [];
         for (let i = 1; i < hist.length; i++) rets.push(Math.log(hist[i] / hist[i - 1]));
-        const mean = rets.reduce((a, b) => a + b, 0) / rets.length;
-        const sd = Math.sqrt(rets.reduce((a, b) => a + (b - mean) ** 2, 0) / rets.length);
-        if (!(sd > 0)) return { error: '波動為零，無法計算' };
+        const mean = rets.reduce((x, y) => x + y, 0) / rets.length;
+        const sd = Math.sqrt(rets.reduce((x, y) => x + (y - mean) ** 2, 0) / rets.length);
+        if (!(sd > 0)) return { error: '市場未有波動，Sage 暫時觀望' };
 
         const thr = 0.5 * sd;
-        const buckets = [[], [], []]; // 下跌 / 持平 / 上漲
+        const buckets = [[], [], []]; // 跌 / 平 / 升
         rets.forEach(r => buckets[r < -thr ? 0 : (r > thr ? 2 : 1)].push(r));
-        const counts = buckets.map(b => b.length);
-        const total = counts.reduce((a, b) => a + b, 0);
-        const rawProbs = counts.map(c => c / total);
-        const stateRet = buckets.map((b, i) => b.length ? b.reduce((a, c) => a + c, 0) / b.length : [-thr, 0, thr][i]);
+        const total = rets.length;
+        const rawProbs = buckets.map(b => b.length / total);
+        const stateRet = buckets.map((b, i) => b.length ? b.reduce((x, y) => x + y, 0) / b.length : [-thr, 0, thr][i]);
         const probs = bayesianSmoothing(rawProbs, { mode: 'discrete' });
 
-        const mid = hist[hist.length - 1];
-        const notional = lots * 100000 * (symbol.startsWith('USD') ? 1 : mid);
-        const equity = accountState.balance > 0 ? accountState.balance : 10000;
-        const L = notional / equity;
+        const edge = probs[2] - probs[0];
+        let dir = edge > 0.05 ? 'BUY' : (edge < -0.05 ? 'SELL' : 'WAIT');
+        const conf = Math.round(Math.abs(edge) * 100);
 
-        return {
-            rawProbs, probs, L, usedDefaultEquity: !(accountState.balance > 0),
-            buy: sensitivities(probs, stateRet, L),
-            sell: sensitivities(probs, stateRet.map(r => -r), L)
-        };
+        const mid = hist[hist.length - 1];
+        const pipSize = symbol === 'USDJPY' ? 0.01 : 0.0001;
+        const pipVol = sd * Math.sqrt(60) * mid / pipSize; // 每分鐘大約波幅（點）
+        const risk = pipVol < 1.5 ? '低' : (pipVol < 4 ? '中' : '高');
+
+        const equity = accountState.balance > 0 ? accountState.balance : 10000;
+        let lots = 0;
+        if (dir !== 'WAIT') {
+            const sign = dir === 'BUY' ? 1 : -1;
+            const Lk = optimalLeverage(probs, stateRet.map(r => sign * r)) * 0.5; // 半凱利，較保守
+            if (Lk <= 0) {
+                dir = 'WAIT';
+            } else {
+                const unit = symbol.startsWith('USD') ? 1 : mid;
+                lots = Math.floor(Lk * equity / (100000 * unit) * 100) / 100;
+                lots = Math.min(Math.max(lots, 0.01), 5);
+            }
+        }
+        return { dir, conf, probs, risk, pipVol, lots, n };
     }
 
+    // --- Sage 顯示（淺白文字） ---
     let sageActive = false;
+    let lastSageAdvice = null;
 
     function toggleSage() {
         sageActive = !sageActive;
@@ -883,42 +940,181 @@
         if (el) el.classList.remove('active');
     }
 
-    function fmtSci(v) {
-        if (v === 0) return '0';
-        return (v >= 0 ? '+' : '') + v.toExponential(2);
-    }
-
     function renderSage() {
         const panel = document.getElementById('sage-panel');
-        const lots = parseFloat(document.getElementById('modal-lots').value) || 0.01;
-        const res = sageCompute(activeModalSymbol, lots);
-        if (res.error) { panel.textContent = res.error; return; }
+        const a = sageAnalyze(activeModalSymbol);
+        lastSageAdvice = a;
+        if (a.error) { panel.textContent = a.error; return; }
 
-        const names = ['一階 ∇', '二階 ∇²', '三階 ∇³', '四階 ∇⁴', '五階 ∇⁵', '六階 ∇⁶'];
-        let rows = '';
-        for (let k = 0; k < 6; k++) {
-            rows += `<tr><td>${names[k]}</td><td class="${plClass(res.buy[k])}">${fmtSci(res.buy[k])}</td><td class="${plClass(res.sell[k])}">${fmtSci(res.sell[k])}</td></tr>`;
+        const pct = v => Math.round(v * 100) + '%';
+        const dirText = a.dir === 'BUY' ? '買入 ▲' : (a.dir === 'SELL' ? '賣出 ▼' : '觀望 —');
+        const dirCls = a.dir === 'BUY' ? 'text-blue' : (a.dir === 'SELL' ? 'text-red' : '');
+        const riskCls = a.risk === '高' ? 'text-red' : (a.risk === '低' ? 'text-green' : '');
+
+        let html = `<div class="sage-verdict ${dirCls}">Sage 建議：${dirText}</div>
+            <div class="sage-line"><span>信心度</span><span>${a.dir === 'WAIT' ? '—' : a.conf + '%'}</span></div>
+            <div class="sage-line"><span>最近行情</span><span>升 ${pct(a.probs[2])} · 平 ${pct(a.probs[1])} · 跌 ${pct(a.probs[0])}</span></div>
+            <div class="sage-line"><span>風險</span><span class="${riskCls}">${a.risk}（每分鐘約波動 ${a.pipVol.toFixed(1)} 點）</span></div>`;
+        if (a.dir !== 'WAIT') {
+            html += `<div class="sage-line"><span>建議手數</span><span>${a.lots.toFixed(2)} lot</span></div>
+                <button class="btn-follow ${a.dir === 'BUY' ? 'buy' : 'sell'}" onclick="applySage()">按建議落單：${a.dir === 'BUY' ? '買入' : '賣出'} ${a.lots.toFixed(2)}</button>`;
+        } else {
+            html += `<div class="sage-line"><span>建議手數</span><span>暫時唔落單</span></div>`;
         }
-        const pct = v => (v * 100).toFixed(1) + '%';
-        panel.innerHTML = `
-            <div class="sage-probs">
-                平滑後概率 ↓ ${pct(res.probs[0])} · → ${pct(res.probs[1])} · ↑ ${pct(res.probs[2])}<br>
-                名義槓桿 L = ${res.L.toFixed(2)}${res.usedDefaultEquity ? '（Balance 為 0，以 10,000 計）' : ''}
-            </div>
-            <table>
-                <tr><th>敏感度</th><th>BUY</th><th>SELL</th></tr>
-                ${rows}
-            </table>`;
+        html += `<div class="sage-note">根據最近 ${a.n} 個報價推算，模擬用途，並非投資建議。</div>`;
+        panel.innerHTML = html;
+    }
+
+    function applySage() {
+        const a = lastSageAdvice;
+        if (!a || a.error || a.dir === 'WAIT') return;
+        document.getElementById('modal-lots').value = a.lots.toFixed(2);
+        executeTrade(a.dir.toLowerCase());
+    }
+
+    // --- Sage 自動交易 ---
+    const SAGE_KEY = 'mt5_sage_settings_v1';
+    let sageSettings = { enabled: false, minConf: 25, maxPos: 3, sl: 2, tp: 3 };
+    const lastAutoClose = {};
+    let lastAutoEval = 0;
+    let sageNote = '';
+
+    function loadSageSettings() {
+        try {
+            const raw = localStorage.getItem(SAGE_KEY);
+            if (raw) sageSettings = Object.assign(sageSettings, JSON.parse(raw));
+        } catch (e) {}
+    }
+    function persistSageSettings() {
+        try { localStorage.setItem(SAGE_KEY, JSON.stringify(sageSettings)); } catch (e) {}
+    }
+
+    function syncSageUI() {
+        const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+        const en = document.getElementById('sage-enabled');
+        if (en) en.checked = sageSettings.enabled;
+        set('sage-minconf', sageSettings.minConf);
+        set('sage-maxpos', sageSettings.maxPos);
+        set('sage-sl', sageSettings.sl);
+        set('sage-tp', sageSettings.tp);
+
+        const pill = document.getElementById('sage-pill');
+        if (pill) {
+            pill.textContent = 'Sage 自動：' + (sageSettings.enabled ? '開' : '關');
+            pill.classList.toggle('on', sageSettings.enabled);
+        }
+        const d = document.getElementById('display-sage');
+        if (d) d.textContent = sageSettings.enabled ? (sageNote || '運行中') : '關閉';
+    }
+
+    function saveSageSettings() {
+        const num = (id, def, min, max) => {
+            let v = parseFloat(document.getElementById(id).value);
+            if (isNaN(v)) v = def;
+            return Math.min(Math.max(v, min), max);
+        };
+        sageSettings.enabled = document.getElementById('sage-enabled').checked;
+        sageSettings.minConf = num('sage-minconf', 25, 5, 95);
+        sageSettings.maxPos = Math.round(num('sage-maxpos', 3, 1, 7));
+        sageSettings.sl = num('sage-sl', 2, 0.1, 100);
+        sageSettings.tp = num('sage-tp', 3, 0.1, 100);
+        persistSageSettings();
+        sageNote = '';
+        syncSageUI();
+    }
+
+    function toggleAuto() {
+        if (!sageSettings.enabled && !(accountState.balance > 0)) {
+            alert("請先喺 Settings 設定 Balance，Sage 先可以自動交易");
+            return;
+        }
+        sageSettings.enabled = !sageSettings.enabled;
+        persistSageSettings();
+        sageNote = '';
+        syncSageUI();
+    }
+
+    function setSageNote(msg) {
+        sageNote = msg;
+        const d = document.getElementById('display-sage');
+        if (d && sageSettings.enabled) d.textContent = msg || '運行中';
+    }
+
+    function openAutoPosition(symbol, dir, lots, conf) {
+        const q = quotesData.find(item => item.symbol === symbol);
+        if (!q) return;
+        const openPrice = dir === 'BUY' ? q.ask : q.bid;
+        accountState.positions.push({
+            id: Date.now() + Math.floor(Math.random() * 1000),
+            symbol: symbol,
+            type: dir,
+            lots: lots,
+            openPrice: openPrice,
+            closePrice: openPrice,
+            openTime: new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai' }),
+            currentPL: 0,
+            auto: true
+        });
+        saveState();
+        setSageNote(`剛落單 ${symbol} ${dir === 'BUY' ? '買' : '賣'} ${lots.toFixed(2)}（信心 ${conf}%）`);
+        if (document.getElementById('page-history').classList.contains('active')) renderTradeList();
+    }
+
+    function sageAutoTick() {
+        if (!sageSettings.enabled) return;
+        const now = Date.now();
+        if (now - lastAutoEval < 5000) return; // 每 5 秒評估一次
+        lastAutoEval = now;
+
+        if (!(accountState.balance > 0)) { setSageNote('請先設定 Balance'); return; }
+
+        // 1) 管理 Sage 持倉：止蝕 / 止賺 / 訊號反轉
+        accountState.positions.filter(p => p.auto).forEach(pos => {
+            let reason = '';
+            if (pos.currentPL <= -accountState.balance * sageSettings.sl / 100) reason = '止蝕';
+            else if (pos.currentPL >= accountState.balance * sageSettings.tp / 100) reason = '止賺';
+            else {
+                const a = sageAnalyze(pos.symbol);
+                if (!a.error && a.dir !== 'WAIT' && a.dir !== pos.type && a.conf >= sageSettings.minConf) reason = '訊號反轉';
+            }
+            if (reason) {
+                closePosition(pos.id, true, reason);
+                lastAutoClose[pos.symbol] = now;
+                setSageNote(`已平倉 ${pos.symbol}（${reason}）`);
+            }
+        });
+
+        // 2) 開新倉：揀信心度最高嘅貨幣對
+        let autoCount = accountState.positions.filter(p => p.auto).length;
+        if (autoCount >= sageSettings.maxPos) return;
+
+        const candidates = [];
+        quotesData.forEach(q => {
+            if (accountState.positions.some(p => p.auto && p.symbol === q.symbol)) return;
+            if (now - (lastAutoClose[q.symbol] || 0) < 30000) return; // 平倉後冷靜 30 秒
+            const a = sageAnalyze(q.symbol);
+            if (a.error || a.dir === 'WAIT' || a.conf < sageSettings.minConf) return;
+            candidates.push({ symbol: q.symbol, a });
+        });
+        candidates.sort((x, y) => y.a.conf - x.a.conf);
+
+        for (const c of candidates) {
+            if (autoCount >= sageSettings.maxPos) break;
+            openAutoPosition(c.symbol, c.a.dir, c.a.lots, c.a.conf);
+            autoCount++;
+        }
     }
 
     // --- 9. 初始化 ---
     function init() {
         loadState();
+        loadSageSettings();
         renderQuotes();
         updateTime();
         initBattery();
         updateSummary();
         renderTradeList();
+        syncSageUI();
         setInterval(updateTime, 1000);
         setInterval(updatePrices, 1000);
         fetchLiveRates();
