@@ -201,6 +201,21 @@
     .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--mt5-gray); cursor: pointer; flex: 1; }
     .nav-item.active { color: var(--mt5-blue); }
     .nav-icon { width: 24px; height: 24px; fill: currentColor; }
+
+    .live-status { padding: 4px 15px; font-size: 11px; color: var(--mt5-gray); border-bottom: 1px solid var(--mt5-light-border); display:flex; justify-content:space-between; }
+    .live-status .dot-live { color: var(--mt5-green); }
+
+    .modal-content { max-height: 92%; overflow-y: auto; scrollbar-width: none; }
+    .modal-content::-webkit-scrollbar { display: none; }
+    .btn-sage { background: var(--mt5-dark-border); color: white; border: 1px solid var(--mt5-gray); border-radius: 8px; padding: 10px; font-size: 14px; font-weight: 600; cursor: pointer; }
+    .btn-sage:active { opacity: 0.8; }
+    .sage-panel { display: none; font-size: 11px; color: var(--mt5-gray); background: var(--mt5-dark-bg); border: 1px solid var(--mt5-dark-border); border-radius: 8px; padding: 8px; }
+    .sage-panel.active { display: block; }
+    .sage-panel table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    .sage-panel th, .sage-panel td { padding: 3px 2px; text-align: right; font-weight: 400; }
+    .sage-panel th:first-child, .sage-panel td:first-child { text-align: left; color: var(--mt5-gray); }
+    .sage-panel th { color: var(--mt5-gray); border-bottom: 1px solid var(--mt5-dark-border); }
+    .sage-probs { margin-bottom: 6px; line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -231,6 +246,7 @@
                     </div>
                     <div class="icon-btn">＋</div>
                 </div>
+                <div class="live-status"><span id="live-status-text">● 模擬報價</span><span id="live-status-time"></span></div>
                 <div class="list-area" id="quotes-list"></div>
             </div>
 
@@ -297,7 +313,9 @@
                     <button class="btn-trade btn-sell" onclick="executeTrade('sell')">SELL<br><span style="font-size:12px;" id="btn-sell-price">1.15460</span></button>
                     <button class="btn-trade btn-buy" onclick="executeTrade('buy')">BUY<br><span style="font-size:12px;" id="btn-buy-price">1.15467</span></button>
                 </div>
-                <button style="background:transparent; border:none; color:var(--mt5-gray); margin-top:10px; cursor:pointer;" onclick="closeModal()">Cancel</button>
+                <button class="btn-sage" onclick="toggleSage()">Sage 計算</button>
+                <div class="sage-panel" id="sage-panel"></div>
+                <button style="background:transparent; border:none; color:var(--mt5-gray); margin-top:4px; cursor:pointer;" onclick="closeModal()">Cancel</button>
             </div>
         </div>
     </div>
@@ -419,12 +437,19 @@
 
     function updatePrices() {
         quotesData.forEach(q => {
-            const change = (Math.random() - 0.5) * 0.0004;
             const digits = getDigits(q.symbol);
-            const factor = digits === 3 ? 100 : 1;
+            const midNow = (q.bid + q.ask) / 2;
+            // 相對波動（約 ±0.2 pip/秒），有真實錨點時向錨點回歸
+            let change = (Math.random() - 0.5) * 0.00004 * midNow;
+            if (q.anchor) change += (q.anchor - midNow) * 0.02;
 
-            q.bid += (change * factor);
-            q.ask += (change * factor);
+            q.bid += change;
+            q.ask += change;
+
+            // 記錄中間價歷史，供 Sage 計算使用
+            const hist = priceHist[q.symbol] || (priceHist[q.symbol] = []);
+            hist.push((q.bid + q.ask) / 2);
+            if (hist.length > HIST_MAX) hist.shift();
 
             // 更新 High / Low
             if (q.bid < q.low) q.low = q.bid;
@@ -457,6 +482,7 @@
         }
 
         calculateFloatingPL();
+        if (sageActive) renderSage();
     }
 
     // --- 4. 交易邏輯 ---
@@ -475,12 +501,14 @@
         document.getElementById('btn-sell-price').textContent = q.bid.toFixed(digits);
         document.getElementById('btn-buy-price').textContent = q.ask.toFixed(digits);
         document.getElementById('modal-lots').value = "1.00";
+        hideSage();
 
         document.getElementById('trade-modal').classList.add('active');
     }
 
     function closeModal() {
         document.getElementById('trade-modal').classList.remove('active');
+        hideSage();
     }
 
     function adjustLot(amount) {
@@ -704,6 +732,185 @@
         alert("餘額已更新為 " + fmtMoney(val));
     }
 
+
+    // --- 真實行情（免 key 公開匯率 API，錨定中間價；tick 與 spread 為本地模擬） ---
+    const priceHist = {};
+    const HIST_MAX = 120;
+
+    const RATE_SOURCES = [
+        { name: 'open.er-api', url: 'https://open.er-api.com/v6/latest/USD' },
+        { name: 'frankfurter', url: 'https://api.frankfurter.app/latest?from=USD' }
+    ];
+
+    function rateToMid(symbol, r) {
+        switch (symbol) {
+            case 'EURUSD': return r.EUR ? 1 / r.EUR : null;
+            case 'GBPUSD': return r.GBP ? 1 / r.GBP : null;
+            case 'NZDUSD': return r.NZD ? 1 / r.NZD : null;
+            case 'AUDUSD': return r.AUD ? 1 / r.AUD : null;
+            case 'USDJPY': return r.JPY || null;
+            case 'USDCAD': return r.CAD || null;
+            case 'USDCHF': return r.CHF || null;
+        }
+        return null;
+    }
+
+    function applyRates(rates) {
+        quotesData.forEach(q => {
+            const mid = rateToMid(q.symbol, rates);
+            if (!mid) return;
+            const digits = getDigits(q.symbol);
+            const half = q.spread * Math.pow(10, -digits) / 2;
+            q.anchor = mid;
+            if (!q.liveInit) {
+                q.bid = mid - half;
+                q.ask = mid + half;
+                q.low = q.bid;
+                q.high = q.ask;
+                q.liveInit = true;
+                priceHist[q.symbol] = [];
+            }
+        });
+    }
+
+    function setLiveStatus(ok, name) {
+        const t = document.getElementById('live-status-text');
+        const tm = document.getElementById('live-status-time');
+        if (ok) {
+            t.innerHTML = `<span class="dot-live">●</span> 真實匯率 (${name})`;
+            tm.textContent = '更新 ' + new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai', hour12: false, hour: '2-digit', minute: '2-digit' });
+        } else {
+            t.textContent = '● 模擬報價（真實匯率取得失敗）';
+        }
+    }
+
+    async function fetchLiveRates() {
+        for (const src of RATE_SOURCES) {
+            try {
+                const res = await fetch(src.url, { cache: 'no-store' });
+                if (!res.ok) continue;
+                const data = await res.json();
+                const rates = data.rates;
+                if (!rates) continue;
+                applyRates(rates);
+                setLiveStatus(true, src.name);
+                return;
+            } catch (e) { /* 試下一個來源 */ }
+        }
+        setLiveStatus(false);
+    }
+
+    // --- Sage 計算（移植自貝氏平滑 + 高階敏感度估計器） ---
+
+    // 貝氏平滑 (論文公式 3 / 4)
+    function bayesianSmoothing(probs, opts = {}) {
+        const eta = opts.eta ?? 0.01, eps = opts.epsilon ?? 0.001, mode = opts.mode ?? 'discrete';
+        const n = probs.length;
+        const p = probs.map(v => Math.max(v, 0));
+        const prior = eta / n;
+        const sum = p.reduce((a, b) => a + b, 0);
+        let out;
+        if (mode === 'continuous') {
+            out = p.map(v => (1 - eps) * v + eps / n);
+        } else {
+            out = p.map(v => (v + prior) / (sum + prior * n));
+            if (mode === 'both') out = out.map(v => (1 - eps) * v + eps / n);
+        }
+        return out.map(v => Math.min(Math.max(v, 1e-12), 1));
+    }
+
+    // 軟截斷 h_safe = c * tanh(h / c)
+    function softClip(h, c = 1.0) { return c * Math.tanh(h / c); }
+
+    function factorial(k) { let f = 1; for (let i = 2; i <= k; i++) f *= i; return f; }
+
+    // 效用 U(L) = Σ p̃_i · log(1 + L·r_i)，L = 名義槓桿
+    // 第 k 階導數有解析解：(-1)^(k-1)(k-1)! · r^k / (1 + L·r)^k  → 對角近似，各階皆軟截斷
+    function sensitivities(probs, rets, L, maxOrder = 6, clip = 1.0) {
+        const out = [];
+        for (let k = 1; k <= maxOrder; k++) {
+            let d = 0;
+            for (let i = 0; i < probs.length; i++) {
+                const base = Math.max(1 + L * rets[i], 1e-6);
+                d += probs[i] * Math.pow(-1, k - 1) * factorial(k - 1) * Math.pow(rets[i], k) / Math.pow(base, k);
+            }
+            out.push(softClip(d, clip));
+        }
+        return out;
+    }
+
+    function sageCompute(symbol, lots) {
+        const hist = priceHist[symbol];
+        if (!hist || hist.length < 15) return { error: `數據不足 (${hist ? hist.length : 0}/15 ticks)，請稍等` };
+
+        const rets = [];
+        for (let i = 1; i < hist.length; i++) rets.push(Math.log(hist[i] / hist[i - 1]));
+        const mean = rets.reduce((a, b) => a + b, 0) / rets.length;
+        const sd = Math.sqrt(rets.reduce((a, b) => a + (b - mean) ** 2, 0) / rets.length);
+        if (!(sd > 0)) return { error: '波動為零，無法計算' };
+
+        const thr = 0.5 * sd;
+        const buckets = [[], [], []]; // 下跌 / 持平 / 上漲
+        rets.forEach(r => buckets[r < -thr ? 0 : (r > thr ? 2 : 1)].push(r));
+        const counts = buckets.map(b => b.length);
+        const total = counts.reduce((a, b) => a + b, 0);
+        const rawProbs = counts.map(c => c / total);
+        const stateRet = buckets.map((b, i) => b.length ? b.reduce((a, c) => a + c, 0) / b.length : [-thr, 0, thr][i]);
+        const probs = bayesianSmoothing(rawProbs, { mode: 'discrete' });
+
+        const mid = hist[hist.length - 1];
+        const notional = lots * 100000 * (symbol.startsWith('USD') ? 1 : mid);
+        const equity = accountState.balance > 0 ? accountState.balance : 10000;
+        const L = notional / equity;
+
+        return {
+            rawProbs, probs, L, usedDefaultEquity: !(accountState.balance > 0),
+            buy: sensitivities(probs, stateRet, L),
+            sell: sensitivities(probs, stateRet.map(r => -r), L)
+        };
+    }
+
+    let sageActive = false;
+
+    function toggleSage() {
+        sageActive = !sageActive;
+        document.getElementById('sage-panel').classList.toggle('active', sageActive);
+        if (sageActive) renderSage();
+    }
+    function hideSage() {
+        sageActive = false;
+        const el = document.getElementById('sage-panel');
+        if (el) el.classList.remove('active');
+    }
+
+    function fmtSci(v) {
+        if (v === 0) return '0';
+        return (v >= 0 ? '+' : '') + v.toExponential(2);
+    }
+
+    function renderSage() {
+        const panel = document.getElementById('sage-panel');
+        const lots = parseFloat(document.getElementById('modal-lots').value) || 0.01;
+        const res = sageCompute(activeModalSymbol, lots);
+        if (res.error) { panel.textContent = res.error; return; }
+
+        const names = ['一階 ∇', '二階 ∇²', '三階 ∇³', '四階 ∇⁴', '五階 ∇⁵', '六階 ∇⁶'];
+        let rows = '';
+        for (let k = 0; k < 6; k++) {
+            rows += `<tr><td>${names[k]}</td><td class="${plClass(res.buy[k])}">${fmtSci(res.buy[k])}</td><td class="${plClass(res.sell[k])}">${fmtSci(res.sell[k])}</td></tr>`;
+        }
+        const pct = v => (v * 100).toFixed(1) + '%';
+        panel.innerHTML = `
+            <div class="sage-probs">
+                平滑後概率 ↓ ${pct(res.probs[0])} · → ${pct(res.probs[1])} · ↑ ${pct(res.probs[2])}<br>
+                名義槓桿 L = ${res.L.toFixed(2)}${res.usedDefaultEquity ? '（Balance 為 0，以 10,000 計）' : ''}
+            </div>
+            <table>
+                <tr><th>敏感度</th><th>BUY</th><th>SELL</th></tr>
+                ${rows}
+            </table>`;
+    }
+
     // --- 9. 初始化 ---
     function init() {
         loadState();
@@ -714,6 +921,8 @@
         renderTradeList();
         setInterval(updateTime, 1000);
         setInterval(updatePrices, 1000);
+        fetchLiveRates();
+        setInterval(fetchLiveRates, 5 * 60 * 1000);
     }
     init();
 </script>
