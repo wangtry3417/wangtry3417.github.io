@@ -8,6 +8,7 @@
     :root {
         --mt5-blue: #007AFF;
         --mt5-red: #FF3B30;
+        --mt5-green: #34C759;
         --mt5-gray: #8E8E93;
         --mt5-dark-bg: #000000;
         --mt5-dark-surface: #1C1C1E;
@@ -29,7 +30,6 @@
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
-    /* 手機殼體 */
     .phone {
         width: 375px;
         height: 812px;
@@ -40,11 +40,11 @@
         flex-direction: column;
         box-shadow: 0 20px 40px rgba(0,0,0,0.2);
         border: 8px solid #333;
-        background-color: var(--mt5-dark-bg); /* 預設深色底 */
+        background-color: var(--mt5-dark-bg);
         transition: background-color 0.3s;
     }
+    .phone.light { background-color: var(--mt5-light-bg); }
 
-    /* 狀態欄 */
     .status-bar {
         display: flex;
         justify-content: space-between;
@@ -56,79 +56,48 @@
         color: white;
         transition: color 0.3s;
     }
+    .phone.light .status-bar { color: black; }
 
     .status-icons { display: flex; gap: 5px; align-items: center; }
 
-    /* 靈動島 */
+    .battery-container { display: flex; align-items: center; gap: 3px; font-size: 12px; font-weight: 500; }
+    .battery-icon { width: 22px; height: 11px; border: 1px solid currentColor; border-radius: 3px; padding: 1px; position: relative; }
+    .battery-icon::after { content: ''; position: absolute; right: -3px; top: 2px; width: 2px; height: 5px; background-color: currentColor; border-radius: 0 1px 1px 0; }
+    .battery-level { height: 100%; background-color: currentColor; border-radius: 1px; transition: width 0.3s, background-color 0.3s; width: 100%; }
+    .battery-level.low { background-color: var(--mt5-red); }
+    .charging-icon { display: none; width: 10px; height: 10px; fill: currentColor; }
+    .charging .charging-icon { display: block; }
+    .charging .battery-level { width: 100% !important; }
+
     .dynamic-island {
-        position: absolute;
-        top: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 110px;
-        height: 30px;
-        background-color: #000;
-        border-radius: 20px;
-        z-index: 20;
+        position: absolute; top: 10px; left: 50%; transform: translateX(-50%);
+        width: 110px; height: 30px; background-color: #000; border-radius: 20px; z-index: 20;
     }
 
-    /* 內容區域 */
-    .content {
-        flex: 1;
-        overflow: hidden;
-        position: relative;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .page {
-        display: none;
-        flex: 1;
-        flex-direction: column;
-        overflow: hidden;
-        height: 100%;
-    }
+    .content { flex: 1; overflow: hidden; position: relative; display: flex; flex-direction: column; min-height: 0; }
+    .page { display: none; flex: 1; flex-direction: column; overflow: hidden; min-height: 0; }
     .page.active { display: flex; }
 
-    /* --- 報價頁面 (Light Mode) --- */
     #page-quotes { background-color: var(--mt5-light-bg); color: black; }
-    #page-quotes .status-bar { color: black; }
-    
+
     .top-toolbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 15px;
-        border-bottom: 1px solid var(--mt5-light-border);
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 10px 15px; border-bottom: 1px solid var(--mt5-light-border);
     }
-    .segmented-control {
-        display: flex;
-        background-color: var(--mt5-light-surface);
-        border-radius: 8px;
-        padding: 2px;
-    }
-    .segment {
-        padding: 6px 20px;
-        font-size: 13px;
-        font-weight: 500;
-        border-radius: 6px;
-        color: var(--mt5-gray);
-        cursor: pointer;
-    }
+    .segmented-control { display: flex; background-color: var(--mt5-light-surface); border-radius: 8px; padding: 2px; }
+    .segment { padding: 6px 20px; font-size: 13px; font-weight: 500; border-radius: 6px; color: var(--mt5-gray); cursor: pointer; }
     .segment.active { background-color: white; color: black; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
     .icon-btn { color: var(--mt5-blue); font-size: 20px; cursor: pointer; width: 30px; text-align: center; font-weight: bold;}
 
-    .list-area { flex: 1; overflow-y: auto; scrollbar-width: none; }
+    .list-area { flex: 1; overflow-y: auto; scrollbar-width: none; min-height: 0; }
     .list-area::-webkit-scrollbar { display: none; }
 
     .quote-item {
-        padding: 8px 15px;
-        border-bottom: 1px solid var(--mt5-light-border);
-        display: grid;
-        grid-template-columns: 1.2fr 1fr 1fr;
-        gap: 5px;
-        transition: background-color 0.2s;
+        padding: 8px 15px; border-bottom: 1px solid var(--mt5-light-border);
+        display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 5px;
+        transition: background-color 0.2s; cursor: pointer;
     }
+    .quote-item:active { background-color: var(--mt5-light-surface); }
     .quote-item.flash-bg { background-color: rgba(0,122,255,0.05); }
 
     .quote-col { display: flex; flex-direction: column; }
@@ -144,40 +113,37 @@
 
     .text-blue { color: var(--mt5-blue); }
     .text-red { color: var(--mt5-red); }
+    .text-green { color: var(--mt5-green); }
     sup { font-size: 0.6em; vertical-align: super; }
 
-    /* --- 歷史/交易頁面 (Dark Mode) --- */
     #page-history { background-color: var(--mt5-dark-bg); color: white; }
     .nav-tabs {
-        display: flex;
-        justify-content: center;
-        gap: 15px;
-        padding: 10px 15px;
-        border-bottom: 1px solid var(--mt5-dark-border);
-        font-size: 13px;
+        display: flex; justify-content: center; gap: 15px;
+        padding: 10px 15px; border-bottom: 1px solid var(--mt5-dark-border); font-size: 13px;
     }
     .nav-tab { padding: 5px 12px; border-radius: 8px; color: var(--mt5-gray); cursor: pointer; }
     .nav-tab.active { background-color: #333; color: white; font-weight: 500; }
 
     .trade-item {
-        padding: 10px 15px;
-        border-bottom: 1px solid var(--mt5-dark-border);
-        font-size: 14px;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
+        padding: 10px 15px; border-bottom: 1px solid var(--mt5-dark-border);
+        font-size: 14px; display: flex; flex-direction: column; gap: 4px;
     }
-    .trade-row-1 { display: flex; justify-content: space-between; font-weight: 500; }
+    .trade-row-1 { display: flex; justify-content: space-between; font-weight: 500; align-items: center; }
     .trade-row-2 { display: flex; justify-content: space-between; font-size: 12px; color: var(--mt5-gray); }
-    
+    .action-btn {
+        background-color: var(--mt5-dark-border); color: white; border: none;
+        padding: 4px 10px; border-radius: 4px; font-size: 11px; cursor: pointer;
+    }
+    .action-btn:active { background-color: var(--mt5-gray); }
+
+    .empty-state {
+        display: flex; justify-content: center; align-items: center;
+        height: 100%; min-height: 200px; color: var(--mt5-gray); font-size: 14px; font-style: italic;
+    }
+
     .summary-area {
-        padding: 10px 15px;
-        border-top: 1px solid var(--mt5-dark-border);
-        font-size: 13px;
-        color: var(--mt5-gray);
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
+        padding: 10px 15px; border-top: 1px solid var(--mt5-dark-border);
+        font-size: 13px; color: var(--mt5-gray); display: flex; flex-direction: column; gap: 6px;
         background-color: var(--mt5-dark-surface);
     }
     .summary-row { display: flex; justify-content: space-between; }
@@ -185,9 +151,7 @@
     .summary-row.balance { font-weight: bold; font-size: 14px; margin-top: 4px; }
     .summary-row.balance span:last-child { color: white; }
 
-    /* --- 我的頁面 (Settings) --- */
     #page-profile { background-color: var(--mt5-light-bg); color: black; }
-    #page-profile .status-bar { color: black; }
     .profile-header { padding: 20px; text-align: center; border-bottom: 1px solid var(--mt5-light-border); }
     .profile-avatar { width: 60px; height: 60px; background: var(--mt5-light-surface); border-radius: 50%; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: var(--mt5-gray); }
     .setting-group { padding: 20px; }
@@ -195,54 +159,70 @@
     .setting-item label { display: block; font-size: 13px; color: var(--mt5-gray); margin-bottom: 8px; }
     .setting-input-group { display: flex; gap: 10px; }
     .setting-input {
-        flex: 1; padding: 12px; border: 1px solid var(--mt5-light-border); border-radius: 8px; font-size: 16px; outline: none; background: var(--mt5-light-bg); color: black;
+        flex: 1; min-width: 0; padding: 12px; border: 1px solid var(--mt5-light-border); border-radius: 8px; font-size: 16px; outline: none; background: var(--mt5-light-bg); color: black;
     }
     .setting-input:focus { border-color: var(--mt5-blue); }
     .btn-save {
         background-color: var(--mt5-blue); color: white; border: none; border-radius: 8px; padding: 0 20px; font-size: 15px; font-weight: 600; cursor: pointer;
     }
     .btn-save:active { opacity: 0.8; }
-    .toast { position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; border-radius: 20px; font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 100; }
-    .toast.show { opacity: 1; }
 
-    /* --- 底部導航欄 --- */
+    .modal-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6); z-index: 50; display: none;
+        justify-content: center; align-items: center; backdrop-filter: blur(2px);
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+        background: var(--mt5-dark-surface); width: 85%; border-radius: 12px;
+        padding: 20px; color: white; display: flex; flex-direction: column; gap: 15px;
+        border: 1px solid var(--mt5-dark-border);
+    }
+    .modal-header { font-size: 18px; font-weight: bold; text-align: center; border-bottom: 1px solid var(--mt5-dark-border); padding-bottom: 10px; }
+    .modal-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--mt5-gray); }
+    .modal-row span:last-child { color: white; font-weight: 500; }
+    .trade-buttons { display: flex; gap: 10px; margin-top: 10px; }
+    .btn-trade {
+        flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; color: white; cursor: pointer;
+    }
+    .btn-buy { background-color: var(--mt5-blue); }
+    .btn-sell { background-color: var(--mt5-red); }
+    .btn-trade:active { opacity: 0.8; }
+    .lot-input-group { display: flex; align-items: center; gap: 10px; background: var(--mt5-dark-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--mt5-dark-border); }
+    .lot-input { background: transparent; border: none; color: white; font-size: 18px; width: 100%; text-align: center; outline: none; font-weight: bold; }
+
     .bottom-bar {
-        display: flex;
-        justify-content: space-around;
-        padding: 10px 0 25px;
-        font-size: 10px;
-        border-top: 1px solid var(--mt5-dark-border);
-        background-color: var(--mt5-dark-surface);
-        z-index: 10;
+        display: flex; justify-content: space-around; padding: 10px 0 25px; font-size: 10px;
+        border-top: 1px solid var(--mt5-dark-border); background-color: var(--mt5-dark-surface); z-index: 10;
+        transition: background-color 0.3s;
     }
-    #page-quotes .bottom-bar, #page-profile .bottom-bar { border-top: 1px solid var(--mt5-light-border); background-color: var(--mt5-light-surface); }
+    .phone.light .bottom-bar { border-top: 1px solid var(--mt5-light-border); background-color: var(--mt5-light-surface); }
 
-    .nav-item {
-        display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--mt5-gray); cursor: pointer; flex: 1;
-    }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--mt5-gray); cursor: pointer; flex: 1; }
     .nav-item.active { color: var(--mt5-blue); }
     .nav-icon { width: 24px; height: 24px; fill: currentColor; }
-
 </style>
 </head>
 <body>
 
-    <div class="phone" id="phone">
+    <div class="phone light" id="phone">
         <div class="dynamic-island"></div>
-        
-        <!-- 狀態欄 -->
+
         <div class="status-bar">
-            <span id="status-time">1:35</span>
+            <span id="status-time">--:--</span>
             <div class="status-icons">
                 <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><path d="M1 11h2V6H1v5zm4 0h2V4H5v7zm4 0h2V2H9v9zm4 0h2V0h-2v11z"/></svg>
                 <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><path d="M9 2c-2.8 0-5.3 1.1-7.1 3l1.4 1.4C4.8 4.9 6.8 4 9 4s4.2.9 5.7 2.4l1.4-1.4C14.3 3.1 11.8 2 9 2zm0 4c-1.6 0-3 .6-4.1 1.6L9 12l4.1-4.4C12 7.6 10.6 7 9 7z"/></svg>
-                <svg width="24" height="12" viewBox="0 0 24 12" fill="currentColor"><rect x="1" y="1" width="20" height="10" rx="3" stroke="currentColor" stroke-width="1" fill="none"/><rect x="2" y="2" width="14" height="8" rx="2" fill="currentColor"/><path d="M23 4v4a2 2 0 0 0 0-4z"/></svg>
+                <div class="battery-container" id="battery-container">
+                    <span id="battery-text">100%</span>
+                    <div class="battery-icon"><div class="battery-level" id="battery-level"></div></div>
+                    <svg class="charging-icon" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+                </div>
             </div>
         </div>
 
         <div class="content">
-            <!-- 報價頁面 (淺色) -->
-            <div class="page" id="page-quotes">
+            <div class="page active" id="page-quotes">
                 <div class="top-toolbar">
                     <div class="icon-btn">✎</div>
                     <div class="segmented-control">
@@ -251,72 +231,23 @@
                     </div>
                     <div class="icon-btn">＋</div>
                 </div>
-                <div class="list-area" id="quotes-list">
-                    <!-- JS 動態生成 -->
-                </div>
+                <div class="list-area" id="quotes-list"></div>
             </div>
 
-            <!-- 歷史/交易頁面 (深色) -->
-            <div class="page active" id="page-history">
+            <div class="page" id="page-history">
                 <div class="nav-tabs">
-                    <div class="nav-tab">Positions</div>
-                    <div class="nav-tab">Orders</div>
-                    <div class="nav-tab active">Deals</div>
+                    <div class="nav-tab active" id="tab-pos" onclick="switchTradeTab('positions')">Positions</div>
+                    <div class="nav-tab" id="tab-hist" onclick="switchTradeTab('history')">History</div>
                 </div>
-                <div class="list-area">
-                    <!-- 靜態歷史記錄，根據截圖還原 -->
-                    <div class="trade-item">
-                        <div class="trade-row-1"><span>EURUSD sell 0.25</span><span class="text-blue">13.50</span></div>
-                        <div class="trade-row-2"><span>1.10488 → 1.10434</span><span>2023.05.04 11:29:19</span></div>
-                    </div>
-                    <div class="trade-item">
-                        <div class="trade-row-1"><span>EURUSD sell 0.25</span><span class="text-blue">21.50</span></div>
-                        <div class="trade-row-2"><span>1.10511 → 1.10425</span><span>2023.05.04 11:29:35</span></div>
-                    </div>
-                    <div class="trade-item">
-                        <div class="trade-row-1"><span>EURUSD sell 0.25</span><span class="text-blue">121.75</span></div>
-                        <div class="trade-row-2"><span>1.10527 → 1.10040</span><span>2023.05.04 18:24:32</span></div>
-                    </div>
-                    <div class="trade-item">
-                        <div class="trade-row-1"><span>EURUSD sell 0.25</span><span class="text-blue">124.75</span></div>
-                        <div class="trade-row-2"><span>1.10539 → 1.10040</span><span>2023.05.04 18:24:40</span></div>
-                    </div>
-                    <div class="trade-item">
-                        <div class="trade-row-1"><span>EURUSD sell 0.25</span><span class="text-blue">129.00</span></div>
-                        <div class="trade-row-2"><span>1.10553 → 1.10037</span><span>2023.05.04 18:24:44</span></div>
-                    </div>
-                    <div class="trade-item">
-                        <div class="trade-row-1"><span>EURUSD sell 0.25</span><span class="text-blue">134.00</span></div>
-                        <div class="trade-row-2"><span>1.10574 → 1.10038</span><span>2023.05.04 18:24:50</span></div>
-                    </div>
-                    <div class="trade-item">
-                        <div class="trade-row-1"><span>EURUSD sell 0.25</span><span class="text-blue">137.25</span></div>
-                        <div class="trade-row-2"><span>1.10585 → 1.10036</span><span>2023.05.04 18:24:54</span></div>
-                    </div>
-                    <div class="trade-item">
-                        <div class="trade-row-1"><span>EURUSD sell 0.25</span><span class="text-blue">141.50</span></div>
-                        <div class="trade-row-2"><span>1.10600 → 1.10034</span><span>2023.05.04 18:24:59</span></div>
-                    </div>
-                    <div class="trade-item">
-                        <div class="trade-row-1"><span>EURUSD sell 0.25</span><span class="text-blue">158.25</span></div>
-                        <div class="trade-row-2"><span>1.10663 → 1.10030</span><span>2023.05.04 18:25:03</span></div>
-                    </div>
-                    <div class="trade-item">
-                        <div class="trade-row-1"><span>EURUSD sell 0.25</span><span class="text-blue">194.25</span></div>
-                        <div class="trade-row-2"><span>1.10812 → 1.10035</span><span>2023.05.04 18:25:07</span></div>
-                    </div>
-                </div>
-                <!-- 結餘匯總 -->
+                <div class="list-area" id="trade-list"></div>
                 <div class="summary-area">
-                    <div class="summary-row"><span>Deposit</span><span>3 000.00</span></div>
-                    <div class="summary-row"><span>Profit</span><span>2 566.09</span></div>
-                    <div class="summary-row"><span>Swap</span><span>-9.55</span></div>
-                    <div class="summary-row"><span>Commission</span><span>0.00</span></div>
-                    <div class="summary-row balance"><span>Balance</span><span id="display-balance">5 556.54</span></div>
+                    <div class="summary-row"><span>Deposit</span><span id="display-deposit">0.00</span></div>
+                    <div class="summary-row"><span>Floating P/L</span><span id="display-float-pl">0.00</span></div>
+                    <div class="summary-row"><span>Closed P/L</span><span id="display-closed-pl">0.00</span></div>
+                    <div class="summary-row balance"><span>Balance</span><span id="display-balance">0.00</span></div>
                 </div>
             </div>
 
-            <!-- 我的頁面 (Settings) -->
             <div class="page" id="page-profile">
                 <div class="profile-header">
                     <div class="profile-avatar">👤</div>
@@ -326,70 +257,118 @@
                     <div class="setting-item">
                         <label>自定義 Balance (USD)</label>
                         <div class="setting-input-group">
-                            <input type="number" id="input-balance" class="setting-input" step="0.01">
+                            <input type="number" id="input-balance" class="setting-input" step="0.01" placeholder="輸入金額...">
                             <button class="btn-save" onclick="saveBalance()">儲存</button>
                         </div>
+                        <p style="font-size:11px; color:var(--mt5-gray); margin-top:5px;">* 注意：修改餘額會重置所有持倉</p>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- 底部導航欄 -->
         <div class="bottom-bar">
             <div class="nav-item active" onclick="switchTab('page-quotes', this)">
                 <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 <span>Quotes</span>
             </div>
             <div class="nav-item" onclick="switchTab('page-history', this)">
-                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
-                <span>Chart</span>
-            </div>
-            <div class="nav-item" onclick="switchTab('page-history', this)">
                 <svg class="nav-icon" viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
                 <span>Trade</span>
-            </div>
-            <div class="nav-item" onclick="switchTab('page-history', this)">
-                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-                <span>History</span>
             </div>
             <div class="nav-item" onclick="switchTab('page-profile', this)">
                 <svg class="nav-icon" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.44-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/></svg>
                 <span>Settings</span>
             </div>
         </div>
-        
-        <div class="toast" id="toast">已更新 Balance</div>
+
+        <div class="modal-overlay" id="trade-modal">
+            <div class="modal-content">
+                <div class="modal-header" id="modal-symbol">EURUSD</div>
+                <div class="modal-row"><span>Bid</span><span id="modal-bid">1.15460</span></div>
+                <div class="modal-row"><span>Ask</span><span id="modal-ask">1.15467</span></div>
+
+                <div class="lot-input-group">
+                    <button class="action-btn" onclick="adjustLot(-0.1)">-</button>
+                    <input type="number" class="lot-input" id="modal-lots" value="1.00" step="0.01" min="0.01">
+                    <button class="action-btn" onclick="adjustLot(0.1)">+</button>
+                </div>
+
+                <div class="trade-buttons">
+                    <button class="btn-trade btn-sell" onclick="executeTrade('sell')">SELL<br><span style="font-size:12px;" id="btn-sell-price">1.15460</span></button>
+                    <button class="btn-trade btn-buy" onclick="executeTrade('buy')">BUY<br><span style="font-size:12px;" id="btn-buy-price">1.15467</span></button>
+                </div>
+                <button style="background:transparent; border:none; color:var(--mt5-gray); margin-top:10px; cursor:pointer;" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
     </div>
 
 <script>
+    // --- 全局狀態 ---
+    const STORAGE_KEY = 'mt5_app_state_v1';
+
+    let accountState = {
+        balance: 0.00,
+        deposit: 0.00,
+        closedPL: 0.00,
+        positions: [],
+        history: []
+    };
+
+    let currentTradeTab = 'positions';
+
+    function saveState() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(accountState)); } catch (e) {}
+    }
+    function loadState() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) {
+                const s = JSON.parse(raw);
+                accountState = Object.assign(accountState, s);
+            }
+        } catch (e) {}
+    }
+
     // --- 1. 時間處理 (UTC+8) ---
     function updateTime() {
         const now = new Date();
-        // 獲取 UTC+8 時間字串 (HH:MM)
-        const timeStr = now.toLocaleTimeString('en-GB', { 
-            timeZone: 'Asia/Shanghai', 
-            hour12: false, 
-            hour: '2-digit', 
-            minute: '2-digit' 
-        });
-        
-        // 更新狀態欄時間
+        const timeStr = now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai', hour12: false, hour: '2-digit', minute: '2-digit' });
         document.getElementById('status-time').textContent = timeStr;
 
-        // 更新報價列表時間 (格式: HH:MM:SS)
-        const timeSecStr = now.toLocaleTimeString('en-GB', { 
-            timeZone: 'Asia/Shanghai', 
-            hour12: false, 
-            hour: '2-digit', 
-            minute: '2-digit',
-            second: '2-digit'
-        });
-        document.querySelectorAll('.time-text').forEach(el => {
-            el.textContent = timeSecStr;
-        });
+        const timeSecStr = now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        document.querySelectorAll('.time-text').forEach(el => { el.textContent = timeSecStr; });
     }
 
-    // --- 2. 報價數據與渲染 ---
+    // --- 2. 電池 API ---
+    async function initBattery() {
+        if (!navigator.getBattery) return;
+        try {
+            const battery = await navigator.getBattery();
+            function updateBattery() {
+                const level = Math.round(battery.level * 100);
+                const text = document.getElementById('battery-text');
+                const fill = document.getElementById('battery-level');
+                const container = document.getElementById('battery-container');
+
+                text.textContent = `${level}%`;
+                fill.style.width = `${level}%`;
+
+                if (battery.charging) {
+                    container.classList.add('charging');
+                    fill.classList.remove('low');
+                } else {
+                    container.classList.remove('charging');
+                    if (level <= 20) fill.classList.add('low');
+                    else fill.classList.remove('low');
+                }
+            }
+            updateBattery();
+            battery.addEventListener('levelchange', updateBattery);
+            battery.addEventListener('chargingchange', updateBattery);
+        } catch (e) { console.log("Battery API not supported"); }
+    }
+
+    // --- 3. 報價數據 ---
     const quotesData = [
         { symbol: 'EURUSD', bid: 1.15460, ask: 1.15467, spread: 21, low: 1.15493, high: 1.15750 },
         { symbol: 'GBPUSD', bid: 1.34760, ask: 1.34779, spread: 19, low: 1.34493, high: 1.34998 },
@@ -397,148 +376,346 @@
         { symbol: 'USDCAD', bid: 1.24566, ask: 1.24591, spread: 25, low: 1.24382, high: 1.24643 },
         { symbol: 'USDCHF', bid: 0.91497, ask: 0.91518, spread: 21, low: 0.91162, high: 0.91498 },
         { symbol: 'NZDUSD', bid: 0.71353, ask: 0.71388, spread: 35, low: 0.71022, high: 0.71523 },
-        { symbol: 'AUDUSD', bid: 0.73948, ask: 0.73968, spread: 20, low: 0.73832, high: 0.74119 },
-        { symbol: 'AUDNZD', bid: 1.03588, ask: 1.03663, spread: 75, low: 1.03555, high: 1.04069 },
-        { symbol: 'AUDCAD', bid: 0.92100, ask: 0.92160, spread: 60, low: 0.92000, high: 0.92225 }
+        { symbol: 'AUDUSD', bid: 0.73948, ask: 0.73968, spread: 20, low: 0.73832, high: 0.74119 }
     ];
 
     function formatPrice(price, digits = 5) {
         let str = price.toFixed(digits);
-        // 分開最後一位，做成上標
-        let main = str.slice(0, -1);
-        let sup = str.slice(-1);
-        return `${main}<sup>${sup}</sup>`;
+        return `${str.slice(0, -1)}<sup>${str.slice(-1)}</sup>`;
+    }
+
+    function getDigits(symbol) {
+        return symbol === 'USDJPY' ? 3 : 5;
     }
 
     function renderQuotes() {
         const list = document.getElementById('quotes-list');
         list.innerHTML = '';
-        
+
         quotesData.forEach((q, index) => {
-            const isBidBlue = index % 2 === 0; // 模擬截圖中的顏色交替
-            
+            const isBidBlue = index % 2 === 0;
+            const digits = getDigits(q.symbol);
             const html = `
-                <div class="quote-item" id="quote-${q.symbol}">
+                <div class="quote-item" id="quote-${q.symbol}" onclick="openTradeModal('${q.symbol}')">
                     <div class="quote-col left">
                         <span class="time-text">--:--:--</span>
                         <span class="symbol-text">${q.symbol}</span>
                         <span class="spread-text">Spread: ${q.spread}</span>
                     </div>
                     <div class="quote-col mid">
-                        <span class="bid-price ${isBidBlue ? 'text-blue' : 'text-red'}" id="bid-${q.symbol}">${formatPrice(q.bid)}</span>
-                        <span class="low-high">Low: ${q.low.toFixed(5)}</span>
+                        <span class="bid-price ${isBidBlue ? 'text-blue' : 'text-red'}" id="bid-${q.symbol}">${formatPrice(q.bid, digits)}</span>
+                        <span class="low-high" id="low-${q.symbol}">Low: ${q.low.toFixed(digits)}</span>
                     </div>
                     <div class="quote-col right">
-                        <span class="ask-price ${isBidBlue ? 'text-blue' : 'text-red'}" id="ask-${q.symbol}">${formatPrice(q.ask)}</span>
-                        <span class="low-high">High: ${q.high.toFixed(5)}</span>
+                        <span class="ask-price ${isBidBlue ? 'text-blue' : 'text-red'}" id="ask-${q.symbol}">${formatPrice(q.ask, digits)}</span>
+                        <span class="low-high" id="high-${q.symbol}">High: ${q.high.toFixed(digits)}</span>
                     </div>
                 </div>
             `;
             list.insertAdjacentHTML('beforeend', html);
         });
+        updateTime();
     }
 
-    // 實時更新價格
     function updatePrices() {
         quotesData.forEach(q => {
-            // 隨機波動 -0.00020 到 +0.00020
             const change = (Math.random() - 0.5) * 0.0004;
-            
-            // 根據不同貨幣對調整小數位
-            let digits = 5;
-            if (q.symbol === 'USDJPY') digits = 3;
-            if (q.symbol.includes('NZD') || q.symbol.includes('AUD')) digits = 5; // 假設
-            
+            const digits = getDigits(q.symbol);
             const factor = digits === 3 ? 100 : 1;
-            const newBid = q.bid + (change * factor);
-            const newAsk = q.ask + (change * factor);
-            
-            q.bid = newBid;
-            q.ask = newAsk;
-            
-            // 更新 DOM，加入輕微閃爍效果
+
+            q.bid += (change * factor);
+            q.ask += (change * factor);
+
+            // 更新 High / Low
+            if (q.bid < q.low) q.low = q.bid;
+            if (q.ask > q.high) q.high = q.ask;
+
             const bidEl = document.getElementById(`bid-${q.symbol}`);
             const askEl = document.getElementById(`ask-${q.symbol}`);
             const itemEl = document.getElementById(`quote-${q.symbol}`);
-            
+
             if (bidEl && askEl) {
                 bidEl.innerHTML = formatPrice(q.bid, digits);
                 askEl.innerHTML = formatPrice(q.ask, digits);
-                
+                document.getElementById(`low-${q.symbol}`).textContent = `Low: ${q.low.toFixed(digits)}`;
+                document.getElementById(`high-${q.symbol}`).textContent = `High: ${q.high.toFixed(digits)}`;
                 itemEl.classList.add('flash-bg');
                 setTimeout(() => itemEl.classList.remove('flash-bg'), 200);
             }
         });
-    }
 
-    // --- 3. Balance 設定邏輯 ---
-    const defaultBalance = 5556.54;
-    
-    function initBalance() {
-        let savedBalance = localStorage.getItem('mt5_balance');
-        if (!savedBalance) {
-            savedBalance = defaultBalance.toFixed(2);
-            localStorage.setItem('mt5_balance', savedBalance);
+        const modal = document.getElementById('trade-modal');
+        if (modal.classList.contains('active')) {
+            const q = quotesData.find(item => item.symbol === activeModalSymbol);
+            if (q) {
+                const digits = getDigits(q.symbol);
+                document.getElementById('modal-bid').textContent = q.bid.toFixed(digits);
+                document.getElementById('modal-ask').textContent = q.ask.toFixed(digits);
+                document.getElementById('btn-sell-price').textContent = q.bid.toFixed(digits);
+                document.getElementById('btn-buy-price').textContent = q.ask.toFixed(digits);
+            }
         }
-        updateBalanceDisplay(savedBalance);
-        document.getElementById('input-balance').value = savedBalance;
+
+        calculateFloatingPL();
     }
 
-    function updateBalanceDisplay(val) {
-        // 格式化為 5 556.54
-        const num = parseFloat(val).toFixed(2);
-        document.getElementById('display-balance').textContent = Number(num).toLocaleString('en-US', {minimumFractionDigits: 2});
+    // --- 4. 交易邏輯 ---
+    let activeModalSymbol = '';
+
+    function openTradeModal(symbol) {
+        activeModalSymbol = symbol;
+        const q = quotesData.find(item => item.symbol === symbol);
+        if (!q) return;
+
+        const digits = getDigits(q.symbol);
+
+        document.getElementById('modal-symbol').textContent = symbol;
+        document.getElementById('modal-bid').textContent = q.bid.toFixed(digits);
+        document.getElementById('modal-ask').textContent = q.ask.toFixed(digits);
+        document.getElementById('btn-sell-price').textContent = q.bid.toFixed(digits);
+        document.getElementById('btn-buy-price').textContent = q.ask.toFixed(digits);
+        document.getElementById('modal-lots').value = "1.00";
+
+        document.getElementById('trade-modal').classList.add('active');
     }
 
-    function saveBalance() {
-        const inputVal = document.getElementById('input-balance').value;
-        if (!isNaN(inputVal) && inputVal !== '') {
-            localStorage.setItem('mt5_balance', parseFloat(inputVal).toFixed(2));
-            updateBalanceDisplay(inputVal);
-            
-            // 顯示提示
-            const toast = document.getElementById('toast');
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 2000);
+    function closeModal() {
+        document.getElementById('trade-modal').classList.remove('active');
+    }
+
+    function adjustLot(amount) {
+        const input = document.getElementById('modal-lots');
+        let val = parseFloat(input.value) || 0;
+        val = Math.max(0.01, val + amount);
+        input.value = val.toFixed(2);
+    }
+
+    function executeTrade(type) {
+        const lots = parseFloat(document.getElementById('modal-lots').value);
+        if (isNaN(lots) || lots <= 0) return alert("請輸入有效手數");
+
+        const q = quotesData.find(item => item.symbol === activeModalSymbol);
+        const openPrice = type === 'buy' ? q.ask : q.bid;
+        const timeStr = new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai' });
+
+        const newPos = {
+            id: Date.now(),
+            symbol: q.symbol,
+            type: type.toUpperCase(),
+            lots: lots,
+            openPrice: openPrice,
+            closePrice: openPrice,
+            openTime: timeStr,
+            currentPL: 0
+        };
+
+        accountState.positions.push(newPos);
+        saveState();
+        closeModal();
+
+        document.querySelectorAll('.nav-item')[1].click();
+        switchTradeTab('positions');
+    }
+
+    function closePosition(id) {
+        if (!confirm("確定要平倉嗎？")) return;
+
+        const index = accountState.positions.findIndex(p => p.id === id);
+        if (index === -1) return;
+
+        const pos = accountState.positions[index];
+
+        // 結算利潤
+        accountState.closedPL += pos.currentPL;
+        accountState.balance += pos.currentPL;
+
+        // 記錄到歷史
+        accountState.history.unshift({
+            id: pos.id,
+            symbol: pos.symbol,
+            type: pos.type,
+            lots: pos.lots,
+            openPrice: pos.openPrice,
+            closePrice: pos.closePrice,
+            openTime: pos.openTime,
+            closeTime: new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai' }),
+            profit: pos.currentPL
+        });
+
+        // 移除持倉
+        accountState.positions.splice(index, 1);
+        saveState();
+
+        renderTradeList();
+        calculateFloatingPL();
+    }
+
+    // --- 5. 盈虧計算 ---
+    function calculateFloatingPL() {
+        let totalFloat = 0;
+
+        accountState.positions.forEach(pos => {
+            const q = quotesData.find(item => item.symbol === pos.symbol);
+            if (!q) return;
+
+            const closePrice = pos.type === 'BUY' ? q.bid : q.ask;
+            pos.closePrice = closePrice;
+
+            // 以 1 lot = 100,000 單位計算
+            const diff = pos.type === 'BUY' ? (closePrice - pos.openPrice) : (pos.openPrice - closePrice);
+            let pl;
+            if (pos.symbol === 'USDJPY') {
+                // JPY 報價：換算為 USD 盈虧
+                pl = diff * 100000 * pos.lots / closePrice;
+            } else if (pos.symbol === 'USDCAD' || pos.symbol === 'USDCHF') {
+                // USD 為基礎貨幣：換算為 USD 盈虧
+                pl = diff * 100000 * pos.lots / closePrice;
+            } else {
+                pl = diff * 100000 * pos.lots;
+            }
+
+            pos.currentPL = pl;
+            totalFloat += pl;
+        });
+
+        updateSummary(totalFloat);
+
+        // 如果正在顯示 Positions，實時更新列表
+        if (currentTradeTab === 'positions' &&
+            document.getElementById('page-history').classList.contains('active')) {
+            renderTradeList();
         }
     }
 
-    // --- 4. Tab 切換邏輯 ---
-    function switchTab(pageId, navEl) {
-        // 隱藏所有頁面
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        // 顯示目標頁面
-        document.getElementById(pageId).classList.add('active');
-        
-        // 切換底部導航 active 狀態
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        navEl.classList.add('active');
+    // --- 6. 渲染交易列表 ---
+    function fmtMoney(n) {
+        const sign = n < 0 ? '-' : '';
+        return sign + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+    function plClass(n) { return n > 0 ? 'text-green' : (n < 0 ? 'text-red' : ''); }
 
-        // 根據頁面切換手機外殼主題 (模擬原圖效果)
-        const phone = document.getElementById('phone');
-        if (pageId === 'page-history') {
-            phone.style.backgroundColor = 'var(--mt5-dark-bg)';
+    function renderTradeList() {
+        const list = document.getElementById('trade-list');
+        const scrollTop = list.scrollTop;
+        let html = '';
+
+        if (currentTradeTab === 'positions') {
+            if (accountState.positions.length === 0) {
+                html = '<div class="empty-state">暫無持倉</div>';
+            } else {
+                accountState.positions.slice().reverse().forEach(pos => {
+                    const digits = getDigits(pos.symbol);
+                    const typeClass = pos.type === 'BUY' ? 'text-blue' : 'text-red';
+                    html += `
+                        <div class="trade-item">
+                            <div class="trade-row-1">
+                                <span>${pos.symbol}, <span class="${typeClass}">${pos.type.toLowerCase()} ${pos.lots.toFixed(2)}</span></span>
+                                <span class="${plClass(pos.currentPL)}">${fmtMoney(pos.currentPL)}</span>
+                            </div>
+                            <div class="trade-row-2">
+                                <span>${pos.openPrice.toFixed(digits)} → ${pos.closePrice.toFixed(digits)}</span>
+                                <button class="action-btn" onclick="closePosition(${pos.id})">平倉</button>
+                            </div>
+                            <div class="trade-row-2"><span>${pos.openTime}</span></div>
+                        </div>`;
+                });
+            }
         } else {
-            phone.style.backgroundColor = 'var(--mt5-light-bg)';
+            if (accountState.history.length === 0) {
+                html = '<div class="empty-state">暫無歷史記錄</div>';
+            } else {
+                accountState.history.forEach(h => {
+                    const digits = getDigits(h.symbol);
+                    const typeClass = h.type === 'BUY' ? 'text-blue' : 'text-red';
+                    html += `
+                        <div class="trade-item">
+                            <div class="trade-row-1">
+                                <span>${h.symbol}, <span class="${typeClass}">${h.type.toLowerCase()} ${h.lots.toFixed(2)}</span></span>
+                                <span class="${plClass(h.profit)}">${fmtMoney(h.profit)}</span>
+                            </div>
+                            <div class="trade-row-2">
+                                <span>${h.openPrice.toFixed(digits)} → ${h.closePrice.toFixed(digits)}</span>
+                            </div>
+                            <div class="trade-row-2">
+                                <span>${h.openTime}</span><span>${h.closeTime}</span>
+                            </div>
+                        </div>`;
+                });
+            }
+        }
+
+        list.innerHTML = html;
+        list.scrollTop = scrollTop;
+    }
+
+    function switchTradeTab(tab) {
+        currentTradeTab = tab;
+        document.getElementById('tab-pos').classList.toggle('active', tab === 'positions');
+        document.getElementById('tab-hist').classList.toggle('active', tab === 'history');
+        renderTradeList();
+    }
+
+    function updateSummary(totalFloat) {
+        if (typeof totalFloat !== 'number') {
+            totalFloat = accountState.positions.reduce((s, p) => s + (p.currentPL || 0), 0);
+        }
+        document.getElementById('display-deposit').textContent = fmtMoney(accountState.deposit);
+        const floatEl = document.getElementById('display-float-pl');
+        floatEl.textContent = fmtMoney(totalFloat);
+        floatEl.className = plClass(totalFloat);
+        const closedEl = document.getElementById('display-closed-pl');
+        closedEl.textContent = fmtMoney(accountState.closedPL);
+        closedEl.className = plClass(accountState.closedPL);
+        document.getElementById('display-balance').textContent = fmtMoney(accountState.balance);
+    }
+
+    // --- 7. 頁面切換 ---
+    function switchTab(pageId, navEl) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(pageId).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        if (navEl) navEl.classList.add('active');
+
+        // 深色 / 淺色主題
+        document.getElementById('phone').classList.toggle('light', pageId !== 'page-history');
+
+        if (pageId === 'page-history') renderTradeList();
+        if (pageId === 'page-profile') {
+            document.getElementById('input-balance').value = accountState.balance.toFixed(2);
         }
     }
 
-    // --- 5. 初始化與定時器 ---
-    document.addEventListener('DOMContentLoaded', () => {
-        // 預設打開報價頁面
-        document.querySelector('.nav-item').click();
+    // --- 8. 設定：自定義餘額 ---
+    function saveBalance() {
+        const val = parseFloat(document.getElementById('input-balance').value);
+        if (isNaN(val) || val < 0) return alert("請輸入有效金額");
+        if (!confirm("修改餘額會重置所有持倉及歷史記錄，確定嗎？")) return;
 
+        accountState = {
+            balance: val,
+            deposit: val,
+            closedPL: 0,
+            positions: [],
+            history: []
+        };
+        saveState();
+        updateSummary(0);
+        renderTradeList();
+        alert("餘額已更新為 " + fmtMoney(val));
+    }
+
+    // --- 9. 初始化 ---
+    function init() {
+        loadState();
         renderQuotes();
-        initBalance();
         updateTime();
-
-        // 每秒更新時間
+        initBattery();
+        updateSummary();
+        renderTradeList();
         setInterval(updateTime, 1000);
-        
-        // 每 1.5 秒更新價格
-        setInterval(updatePrices, 1500);
-    });
-
+        setInterval(updatePrices, 1000);
+    }
+    init();
 </script>
 </body>
 </html>
