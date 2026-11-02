@@ -278,8 +278,14 @@
                     <div class="summary-row"><span>Deposit</span><span id="display-deposit">0.00</span></div>
                     <div class="summary-row"><span>Floating P/L</span><span id="display-float-pl">0.00</span></div>
                     <div class="summary-row"><span>Closed P/L</span><span id="display-closed-pl">0.00</span></div>
-                    <div class="summary-row"><span>Sage 自動交易</span><span id="display-sage">關閉</span></div>
+                    <div class="summary-row"><span>Sage 狀態</span><span id="display-sage">關閉</span></div>
+                    <div class="summary-row"><span>Sage 戰績</span><span id="display-sage-stats">—</span></div>
                     <div class="summary-row balance"><span>Balance</span><span id="display-balance">0.00</span></div>
+                    <div class="summary-row"><span>Equity</span><span id="display-equity">0.00</span></div>
+                    <div class="summary-row" style="gap:8px;">
+                        <button class="action-btn" style="flex:1; padding:8px;" onclick="promptBalanceOp('deposit')">入金</button>
+                        <button class="action-btn" style="flex:1; padding:8px;" onclick="promptBalanceOp('withdraw')">出金</button>
+                    </div>
                 </div>
             </div>
 
@@ -298,15 +304,27 @@
                         <p style="font-size:11px; color:var(--mt5-gray); margin-top:5px;">* 注意：修改餘額會重置所有持倉</p>
                     </div>
                     <div class="setting-item">
+                        <label>入金 / 出金 (USD)</label>
+                        <div class="setting-input-group">
+                            <input type="number" id="input-amount" class="setting-input" step="0.01" min="0" placeholder="輸入金額...">
+                        </div>
+                        <div class="setting-input-group" style="margin-top:8px;">
+                            <button class="btn-save" style="flex:1; padding:12px;" onclick="settingsBalanceOp('deposit')">入金</button>
+                            <button class="btn-save" style="flex:1; padding:12px; background-color:var(--mt5-red);" onclick="settingsBalanceOp('withdraw')">出金</button>
+                        </div>
+                        <p style="font-size:11px; color:var(--mt5-gray); margin-top:5px;">* 入金 / 出金唔會重置持倉；出金唔可以超過扣除浮虧後嘅餘額</p>
+                    </div>
+                    <div class="setting-item">
                         <label>Sage 自動交易</label>
                         <div class="switch-row"><span>啟用自動落單 / 平倉</span><input type="checkbox" id="sage-enabled" onchange="saveSageSettings()"></div>
                         <div class="mini-grid">
                             <label>最低信心度 (%)<input type="number" id="sage-minconf" class="setting-input" min="5" max="95" step="1" onchange="saveSageSettings()"></label>
                             <label>最多同時持倉<input type="number" id="sage-maxpos" class="setting-input" min="1" max="7" step="1" onchange="saveSageSettings()"></label>
-                            <label>止蝕 (% Balance)<input type="number" id="sage-sl" class="setting-input" min="0.1" step="0.1" onchange="saveSageSettings()"></label>
-                            <label>止賺 (% Balance)<input type="number" id="sage-tp" class="setting-input" min="0.1" step="0.1" onchange="saveSageSettings()"></label>
+                            <label>每單風險 (% 淨值)<input type="number" id="sage-risk" class="setting-input" min="0.1" max="5" step="0.1" onchange="saveSageSettings()"></label>
+                            <label>風險回報比 (止賺 ÷ 止蝕)<input type="number" id="sage-rr" class="setting-input" min="1" max="5" step="0.1" onchange="saveSageSettings()"></label>
+                            <label>最大回撤停機 (%)<input type="number" id="sage-maxdd" class="setting-input" min="1" max="50" step="1" onchange="saveSageSettings()"></label>
                         </div>
-                        <p style="font-size:11px; color:var(--mt5-gray); margin-top:8px;">* 需要先設定 Balance。Sage 會自動揀貨幣對、計手數、止蝕止賺，訊號反轉時自動平倉。模擬帳戶用途，並非投資建議。</p>
+                        <p style="font-size:11px; color:var(--mt5-gray); margin-top:8px;">* Sage 按波動計止蝕距離，再按「每單風險」反推手數，並設槓桿上限；賺 1 倍風險後移到保本，賺 1.5 倍後追蹤止蝕。淨值由高位回撤超過設定值會暫停開新倉。模擬帳戶用途，並非投資建議。</p>
                     </div>
                 </div>
             </div>
@@ -427,7 +445,9 @@
         { symbol: 'USDCHF', bid: 0.91497, ask: 0.91518, spread: 21, low: 0.91162, high: 0.91498 },
         { symbol: 'NZDUSD', bid: 0.71353, ask: 0.71388, spread: 35, low: 0.71022, high: 0.71523 },
         { symbol: 'AUDUSD', bid: 0.73948, ask: 0.73968, spread: 20, low: 0.73832, high: 0.74119 },
-        { symbol: 'XAUUSD', bid: 4000.00, ask: 4000.30, spread: 30, low: 4000.00, high: 4000.30 }
+        { symbol: 'XAUUSD', bid: 4000.00, ask: 4000.30, spread: 30, low: 4000.00, high: 4000.30, vol: 1.5 },
+        { symbol: 'BTCUSD', bid: 100000.00, ask: 100015.00, spread: 1500, low: 100000.00, high: 100015.00, vol: 4 },
+        { symbol: 'ETHUSD', bid: 3500.00, ask: 3501.00, spread: 100, low: 3500.00, high: 3501.00, vol: 5 }
     ];
 
     function formatPrice(price, digits = 5) {
@@ -436,13 +456,15 @@
     }
 
     function getDigits(symbol) {
-        if (symbol === 'XAUUSD') return 2;
+        if (symbol === 'XAUUSD' || symbol === 'BTCUSD' || symbol === 'ETHUSD') return 2;
         return symbol === 'USDJPY' ? 3 : 5;
     }
 
     // 1 lot 合約大小：外匯 100,000；黃金 100 盎司
     function contractSize(symbol) {
-        return symbol === 'XAUUSD' ? 100 : 100000;
+        if (symbol === 'XAUUSD') return 100;
+        if (symbol === 'BTCUSD' || symbol === 'ETHUSD') return 1; // 1 lot = 1 隻幣
+        return 100000;
     }
 
     function renderQuotes() {
@@ -479,7 +501,7 @@
             const digits = getDigits(q.symbol);
             const midNow = (q.bid + q.ask) / 2;
             // 相對波動（約 ±0.2 pip/秒），有真實錨點時向錨點回歸
-            let change = (Math.random() - 0.5) * 0.00004 * midNow;
+            let change = (Math.random() - 0.5) * 0.00004 * midNow * (q.vol || 1);
             if (q.anchor) change += (q.anchor - midNow) * 0.02;
 
             q.bid += change;
@@ -609,7 +631,8 @@
             closeTime: new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai' }),
             profit: pos.currentPL,
             auto: !!pos.auto,
-            reason: reason
+            reason: reason,
+            ts: Date.now()
         });
 
         // 移除持倉
@@ -686,7 +709,7 @@
                                 <span>${pos.openPrice.toFixed(digits)} → ${pos.closePrice.toFixed(digits)}</span>
                                 <button class="action-btn" onclick="closePosition(${pos.id})">平倉</button>
                             </div>
-                            <div class="trade-row-2"><span>${pos.openTime}</span></div>
+                            <div class="trade-row-2"><span>${pos.openTime}</span>${pos.sl ? `<span>SL ${pos.sl.toFixed(digits)} · TP ${pos.tp.toFixed(digits)}</span>` : ''}</div>
                         </div>`;
                 });
             }
@@ -695,6 +718,17 @@
                 html = '<div class="empty-state">暫無歷史記錄</div>';
             } else {
                 accountState.history.forEach(h => {
+                    if (h.kind === 'balance') {
+                        html += `
+                        <div class="trade-item">
+                            <div class="trade-row-1">
+                                <span>${h.type === 'DEPOSIT' ? '入金' : '出金'}</span>
+                                <span class="${plClass(h.profit)}">${fmtMoney(h.profit)}</span>
+                            </div>
+                            <div class="trade-row-2"><span>Balance</span><span>${h.closeTime}</span></div>
+                        </div>`;
+                        return;
+                    }
                     const digits = getDigits(h.symbol);
                     const typeClass = h.type === 'BUY' ? 'text-blue' : 'text-red';
                     html += `
@@ -737,6 +771,13 @@
         closedEl.textContent = fmtMoney(accountState.closedPL);
         closedEl.className = plClass(accountState.closedPL);
         document.getElementById('display-balance').textContent = fmtMoney(accountState.balance);
+        const eqEl = document.getElementById('display-equity');
+        if (eqEl) eqEl.textContent = fmtMoney(accountState.balance + totalFloat);
+        const stEl = document.getElementById('display-sage-stats');
+        if (stEl) {
+            const st = sageStats();
+            stEl.textContent = st.n ? `${st.w}/${st.n} 勝 · ${fmtMoney(st.net)}` : '—';
+        }
     }
 
     // --- 7. 頁面切換 ---
@@ -765,6 +806,7 @@
         accountState = {
             balance: val,
             deposit: val,
+            sage: { peak: val, paused: false },
             closedPL: 0,
             positions: [],
             history: []
@@ -778,7 +820,7 @@
 
     // --- 真實行情（免 key 公開匯率 API，錨定中間價；tick 與 spread 為本地模擬） ---
     const priceHist = {};
-    const HIST_MAX = 120;
+    const HIST_MAX = 300;
 
     const RATE_SOURCES = [
         { name: 'open.er-api', url: 'https://open.er-api.com/v6/latest/USD' },
@@ -795,6 +837,8 @@
             case 'USDCAD': return r.CAD || null;
             case 'USDCHF': return r.CHF || null;
             case 'XAUUSD': return r.XAU ? 1 / r.XAU : null;
+            case 'BTCUSD': return r.BTC ? 1 / r.BTC : null;
+            case 'ETHUSD': return r.ETH ? 1 / r.ETH : null;
         }
         return null;
     }
@@ -831,37 +875,60 @@
         }
     }
 
-    async function fetchGoldPrice() {
+    function fj(url) {
+        const opt = { cache: 'no-store' };
+        if (typeof AbortSignal !== 'undefined' && AbortSignal.timeout) opt.signal = AbortSignal.timeout(8000);
+        return fetch(url, opt);
+    }
+
+    // 黃金 / 加密貨幣現貨（免 key）：gold-api，加密貨幣另有 Coinbase 後備
+    async function fetchSpot(sym) {
         try {
-            const res = await fetch('https://api.gold-api.com/price/XAU', { cache: 'no-store' });
-            if (res.ok) {
-                const d = await res.json();
-                if (d && d.price > 0) return d.price;
-            }
+            const res = await fj('https://api.gold-api.com/price/' + sym);
+            if (res.ok) { const d = await res.json(); if (d && d.price > 0) return d.price; }
         } catch (e) {}
+        if (sym !== 'XAU') {
+            try {
+                const res = await fj(`https://api.coinbase.com/v2/prices/${sym}-USD/spot`);
+                if (res.ok) {
+                    const d = await res.json();
+                    const v = parseFloat(d && d.data && d.data.amount);
+                    if (v > 0) return v;
+                }
+            } catch (e) {}
+        }
         return null;
     }
 
-    async function fetchLiveRates() {
-        let rates = null, srcName = '';
-        for (const src of RATE_SOURCES) {
-            try {
-                const res = await fetch(src.url, { cache: 'no-store' });
-                if (!res.ok) continue;
-                const data = await res.json();
-                if (!data.rates) continue;
-                rates = Object.assign({}, data.rates);
-                srcName = src.name;
-                break;
-            } catch (e) { /* 試下一個來源 */ }
-        }
+    let fxRates = null, fxTs = 0;
 
-        // 黃金：優先用專門來源，否則用匯率 API 入面嘅 XAU
-        const gp = await fetchGoldPrice();
-        if (gp) {
-            rates = Object.assign(rates || {}, { XAU: 1 / gp });
-            srcName = srcName ? srcName + ' + gold-api' : 'gold-api';
+    async function fetchLiveRates() {
+        let srcName = '';
+        // 外匯匯率：每 5 分鐘更新一次已足夠
+        if (!fxRates || Date.now() - fxTs > 5 * 60 * 1000) {
+            for (const src of RATE_SOURCES) {
+                try {
+                    const res = await fj(src.url);
+                    if (!res.ok) continue;
+                    const data = await res.json();
+                    if (!data.rates) continue;
+                    fxRates = Object.assign({}, data.rates);
+                    fxTs = Date.now();
+                    fxRates.__src = src.name;
+                    break;
+                } catch (e) { /* 試下一個來源 */ }
+            }
         }
+        let rates = fxRates ? Object.assign({}, fxRates) : null;
+        if (rates) { srcName = rates.__src; delete rates.__src; }
+
+        // 黃金 + 加密貨幣：每 30 秒更新
+        const spots = await Promise.all(['XAU', 'BTC', 'ETH'].map(async sy => [sy, await fetchSpot(sy)]));
+        let gotSpot = false;
+        spots.forEach(([sy, price]) => {
+            if (price) { rates = rates || {}; rates[sy] = 1 / price; gotSpot = true; }
+        });
+        if (gotSpot) srcName = (srcName ? srcName + ' + ' : '') + 'gold-api/coinbase';
 
         if (rates) {
             applyRates(rates);
@@ -872,7 +939,7 @@
         liveFetchDone = true;
     }
 
-    // --- Sage（貝氏平滑 + 高階敏感度，移植自 Python 版） ---
+    // ================= Sage 引擎（貝氏平滑 + 高階敏感度） =================
 
     // 貝氏平滑 (論文公式 3 / 4)
     function bayesianSmoothing(probs, opts = {}) {
@@ -891,9 +958,6 @@
         return out.map(v => Math.min(Math.max(v, 1e-12), 1));
     }
 
-    // 軟截斷 h_safe = c * tanh(h / c)
-    function softClip(h, c = 1.0) { return c * Math.tanh(h / c); }
-
     function factorial(k) { let f = 1; for (let i = 2; i <= k; i++) f *= i; return f; }
 
     // 效用 U(L) = Σ p̃_i · log(1 + L·r_i)；第 k 階導數（解析解，對角近似）
@@ -906,8 +970,8 @@
         return d;
     }
 
-    // 用一階導數 = 0 搵最佳槓桿（效用為凹函數，二分法），上限 cap
-    function optimalLeverage(probs, rets, cap = 10) {
+    // 一階導數 = 0 → 最佳槓桿（二分法）
+    function optimalLeverage(probs, rets, cap = 20) {
         const f = L => derivU(probs, rets, L, 1);
         if (f(0) <= 0) return 0;
         if (f(cap) > 0) return cap;
@@ -919,51 +983,101 @@
         return (lo + hi) / 2;
     }
 
-    function sageAnalyze(symbol) {
-        const hist = priceHist[symbol];
-        const n = hist ? hist.length : 0;
-        if (n < 15) return { error: `Sage 仲喺收集報價 (${n}/15)，請稍等幾秒` };
+    // ---------- 策略參數 ----------
+    const SAGE_MIN_TICKS = 60;          // 最少報價數（約 1 分鐘暖機）
+    const SAGE_SHORT_WIN = 60;          // 短期視窗（約 1 分鐘）；長期視窗最多 5 分鐘
+    const SAGE_MIN_HOLD = 30000;        // 最短持倉 30 秒，避免來回洗
+    const SAGE_MAX_HOLD = 20 * 60000;   // 最長 20 分鐘仲未賺到 1 倍風險就離場
+    const SAGE_MAX_SAME_USD = 2;        // 同一個美元方向最多 2 單
+    const SAGE_MAX_TOTAL_LEV = 20;      // 總名義槓桿上限（倍淨值）
+    const SAGE_MAX_POS_LEV = 10;        // 單倉槓桿上限
+    const USD_BASE = ['USDJPY', 'USDCAD', 'USDCHF'];
 
-        const rets = [];
-        for (let i = 1; i < hist.length; i++) rets.push(Math.log(hist[i] / hist[i - 1]));
-        const mean = rets.reduce((x, y) => x + y, 0) / rets.length;
-        const sd = Math.sqrt(rets.reduce((x, y) => x + (y - mean) ** 2, 0) / rets.length);
-        if (!(sd > 0)) return { error: '市場未有波動，Sage 暫時觀望' };
+    function currentEquity() {
+        return accountState.balance + accountState.positions.reduce((sum, p) => sum + (p.currentPL || 0), 0);
+    }
+    function sageState() { return accountState.sage || (accountState.sage = { peak: 0, paused: false }); }
+    function resetSageGuard() { const st = sageState(); st.peak = currentEquity(); st.paused = false; saveState(); }
 
+    function notionalPerLot(symbol, mid) { return contractSize(symbol) * (symbol.startsWith('USD') ? 1 : mid); }
+    function usdPerPriceUnit(symbol, mid) { return contractSize(symbol) / (USD_BASE.includes(symbol) ? mid : 1); }
+    // +1 = 長美元，-1 = 短美元（黃金 / 加密貨幣買入 = 短美元）
+    function usdDir(symbol, type) {
+        const longUsd = USD_BASE.includes(symbol) ? type === 'BUY' : type === 'SELL';
+        return longUsd ? 1 : -1;
+    }
+
+    function sageWindow(rets) {
+        const n = rets.length;
+        const mean = rets.reduce((x, y) => x + y, 0) / n;
+        const sd = Math.sqrt(rets.reduce((x, y) => x + (y - mean) ** 2, 0) / n);
+        if (!(sd > 0)) return null;
         const thr = 0.5 * sd;
         const buckets = [[], [], []]; // 跌 / 平 / 升
         rets.forEach(r => buckets[r < -thr ? 0 : (r > thr ? 2 : 1)].push(r));
-        const total = rets.length;
-        const rawProbs = buckets.map(b => b.length / total);
+        const raw = buckets.map(b => b.length / n);
         const stateRet = buckets.map((b, i) => b.length ? b.reduce((x, y) => x + y, 0) / b.length : [-thr, 0, thr][i]);
-        const probs = bayesianSmoothing(rawProbs, { mode: 'discrete' });
-
-        const edge = probs[2] - probs[0];
-        let dir = edge > 0.05 ? 'BUY' : (edge < -0.05 ? 'SELL' : 'WAIT');
-        const conf = Math.round(Math.abs(edge) * 100);
-
-        const mid = hist[hist.length - 1];
-        const pipSize = symbol === 'USDJPY' ? 0.01 : (symbol === 'XAUUSD' ? 0.1 : 0.0001);
-        const pipVol = sd * Math.sqrt(60) * mid / pipSize; // 每分鐘大約波幅（點）
-        const risk = pipVol < 1.5 ? '低' : (pipVol < 4 ? '中' : '高');
-
-        const equity = accountState.balance > 0 ? accountState.balance : 10000;
-        let lots = 0;
-        if (dir !== 'WAIT') {
-            const sign = dir === 'BUY' ? 1 : -1;
-            const Lk = optimalLeverage(probs, stateRet.map(r => sign * r)) * 0.5; // 半凱利，較保守
-            if (Lk <= 0) {
-                dir = 'WAIT';
-            } else {
-                const unit = symbol.startsWith('USD') ? 1 : mid;
-                lots = Math.floor(Lk * equity / (contractSize(symbol) * unit) * 100) / 100;
-                lots = Math.min(Math.max(lots, 0.01), 5);
-            }
-        }
-        return { dir, conf, probs, risk, pipVol, lots, n };
+        const probs = bayesianSmoothing(raw, { mode: 'discrete' });
+        return { n, mean, sd, probs, stateRet, edge: probs[2] - probs[0], t: mean / (sd / Math.sqrt(n)) };
     }
 
-    // --- Sage 顯示（淺白文字） ---
+    // 分析一個品種：長短期方向一致 + 趨勢夠強 才出訊號；止蝕按波動，手數按風險反推
+    function sageAnalyze(symbol) {
+        const hist = priceHist[symbol];
+        const n = hist ? hist.length : 0;
+        if (n < SAGE_MIN_TICKS) return { error: `Sage 仲喺收集報價 (${n}/${SAGE_MIN_TICKS})，請稍等` };
+        const q = quotesData.find(x => x.symbol === symbol);
+        if (!q) return { error: '找不到品種' };
+
+        const rets = [];
+        for (let i = 1; i < hist.length; i++) rets.push(Math.log(hist[i] / hist[i - 1]));
+        const L = sageWindow(rets);
+        const S = sageWindow(rets.slice(-SAGE_SHORT_WIN));
+        if (!L || !S) return { error: '市場未有波動，Sage 暫時觀望' };
+
+        const score = (L.edge + S.edge) / 2;
+        const agree = L.edge * S.edge > 0 && Math.sign(score) === Math.sign(L.t);
+        const strong = Math.abs(score) >= 0.1 && Math.abs(L.t) >= 1.5;
+        let dir = (agree && strong) ? (score > 0 ? 'BUY' : 'SELL') : 'WAIT';
+        const conf = Math.round(100 * (0.5 * Math.min(Math.abs(score) / 0.5, 1) + 0.5 * Math.min(Math.abs(L.t) / 3, 1)));
+
+        const mid = hist[hist.length - 1];
+        const spreadPx = Math.max(q.ask - q.bid, 0);
+        const minVol = L.sd * Math.sqrt(60) * mid;     // 每分鐘價格波幅
+        const volPct = L.sd * Math.sqrt(60) * 100;     // 每分鐘波幅 %
+        const cls = (symbol === 'BTCUSD' || symbol === 'ETHUSD') ? [0.05, 0.15]
+                  : symbol === 'XAUUSD' ? [0.03, 0.08] : [0.012, 0.03];
+        const risk = volPct < cls[0] ? '低' : (volPct < cls[1] ? '中' : '高');
+
+        const plan = { dir, conf, probs: L.probs, risk, volPct, n, lots: 0 };
+        if (dir === 'WAIT') return plan;
+
+        const sign = dir === 'BUY' ? 1 : -1;
+        const entry = dir === 'BUY' ? q.ask : q.bid;
+        // 止蝕距離：2.5 倍每分鐘波幅，且至少 3 倍 spread（令成本佔風險 ≤ 1/3）
+        const stopDist = Math.max(2.5 * minVol, 3 * spreadPx);
+        const equity = Math.max(currentEquity(), 0);
+        const riskAmt = equity * sageSettings.risk / 100;
+        let lots = riskAmt / (stopDist * usdPerPriceUnit(symbol, mid));
+
+        // 槓桿上限：半凱利（由貝氏平滑概率 + 一階條件求得）與固定上限取細
+        const kelly = optimalLeverage(L.probs, L.stateRet.map(r => sign * r), 20) * 0.5;
+        const levCap = Math.min(kelly, SAGE_MAX_POS_LEV);
+        const lotsCap = levCap * equity / notionalPerLot(symbol, mid);
+        lots = Math.min(lots, lotsCap, 5);
+        lots = Math.floor(lots * 100) / 100;
+
+        Object.assign(plan, {
+            lots, stopDist, entry,
+            sl: entry - sign * stopDist,
+            tp: entry + sign * stopDist * sageSettings.rr,
+            riskAmt: lots * stopDist * usdPerPriceUnit(symbol, mid),
+            notional: lots * notionalPerLot(symbol, mid)
+        });
+        return plan;
+    }
+
+    // ---------- 顯示（淺白文字） ----------
     let sageActive = false;
     let lastSageAdvice = null;
 
@@ -984,6 +1098,7 @@
         lastSageAdvice = a;
         if (a.error) { panel.textContent = a.error; return; }
 
+        const digits = getDigits(activeModalSymbol);
         const pct = v => Math.round(v * 100) + '%';
         const dirText = a.dir === 'BUY' ? '買入 ▲' : (a.dir === 'SELL' ? '賣出 ▼' : '觀望 —');
         const dirCls = a.dir === 'BUY' ? 'text-blue' : (a.dir === 'SELL' ? 'text-red' : '');
@@ -992,10 +1107,14 @@
         let html = `<div class="sage-verdict ${dirCls}">Sage 建議：${dirText}</div>
             <div class="sage-line"><span>信心度</span><span>${a.dir === 'WAIT' ? '—' : a.conf + '%'}</span></div>
             <div class="sage-line"><span>最近行情</span><span>升 ${pct(a.probs[2])} · 平 ${pct(a.probs[1])} · 跌 ${pct(a.probs[0])}</span></div>
-            <div class="sage-line"><span>風險</span><span class="${riskCls}">${a.risk}（每分鐘約波動 ${a.pipVol.toFixed(1)} 點）</span></div>`;
-        if (a.dir !== 'WAIT') {
+            <div class="sage-line"><span>風險</span><span class="${riskCls}">${a.risk}（每分鐘約 ±${a.volPct.toFixed(3)}%）</span></div>`;
+        if (a.dir !== 'WAIT' && a.lots >= 0.01) {
             html += `<div class="sage-line"><span>建議手數</span><span>${a.lots.toFixed(2)} lot</span></div>
+                <div class="sage-line"><span>止蝕 / 止賺</span><span>${a.sl.toFixed(digits)} / ${a.tp.toFixed(digits)}</span></div>
+                <div class="sage-line"><span>最多蝕約</span><span>$${a.riskAmt.toFixed(2)}</span></div>
                 <button class="btn-follow ${a.dir === 'BUY' ? 'buy' : 'sell'}" onclick="applySage()">按建議落單：${a.dir === 'BUY' ? '買入' : '賣出'} ${a.lots.toFixed(2)}</button>`;
+        } else if (a.dir !== 'WAIT') {
+            html += `<div class="sage-line"><span>建議手數</span><span>資金太少，唔落單</span></div>`;
         } else {
             html += `<div class="sage-line"><span>建議手數</span><span>暫時唔落單</span></div>`;
         }
@@ -1003,19 +1122,23 @@
         panel.innerHTML = html;
     }
 
+    // 按建議落單：由 Sage 接手管理（止蝕、止賺、移動止蝕）
     function applySage() {
         const a = lastSageAdvice;
-        if (!a || a.error || a.dir === 'WAIT') return;
-        document.getElementById('modal-lots').value = a.lots.toFixed(2);
-        executeTrade(a.dir.toLowerCase());
+        if (!a || a.error || a.dir === 'WAIT' || a.lots < 0.01) return;
+        closeModal();
+        openAutoPosition(activeModalSymbol, a.dir, a);
+        document.querySelectorAll('.nav-item')[1].click();
+        switchTradeTab('positions');
     }
 
-    // --- Sage 自動交易 ---
-    const SAGE_KEY = 'mt5_sage_settings_v1';
-    let sageSettings = { enabled: true, minConf: 25, maxPos: 3, sl: 2, tp: 3 };
+    // ---------- 自動操盤 ----------
+    const SAGE_KEY = 'mt5_sage_settings_v2';
+    let sageSettings = { enabled: true, minConf: 40, maxPos: 3, risk: 1, rr: 2, maxDD: 10 };
     const lastAutoClose = {};
     let lastAutoEval = 0;
-    let sageNote = '';
+    let sageStatus = '';
+    let sageNote = '', sageNoteTs = 0;
 
     function loadSageSettings() {
         try {
@@ -1027,22 +1150,34 @@
         try { localStorage.setItem(SAGE_KEY, JSON.stringify(sageSettings)); } catch (e) {}
     }
 
+    function sageStats() {
+        const h = accountState.history.filter(x => x.auto);
+        return { n: h.length, w: h.filter(x => x.profit > 0).length, net: h.reduce((sum, x) => sum + x.profit, 0) };
+    }
+
+    function renderSageStatus() {
+        const d = document.getElementById('display-sage');
+        if (!d) return;
+        if (!sageSettings.enabled) { d.textContent = '關閉'; return; }
+        d.textContent = (sageNote && Date.now() - sageNoteTs < 15000) ? sageNote : (sageStatus || '運行中');
+    }
+
     function syncSageUI() {
         const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
         const en = document.getElementById('sage-enabled');
         if (en) en.checked = sageSettings.enabled;
         set('sage-minconf', sageSettings.minConf);
         set('sage-maxpos', sageSettings.maxPos);
-        set('sage-sl', sageSettings.sl);
-        set('sage-tp', sageSettings.tp);
+        set('sage-risk', sageSettings.risk);
+        set('sage-rr', sageSettings.rr);
+        set('sage-maxdd', sageSettings.maxDD);
 
         const pill = document.getElementById('sage-pill');
         if (pill) {
             pill.textContent = 'Sage 自動：' + (sageSettings.enabled ? '開' : '關');
             pill.classList.toggle('on', sageSettings.enabled);
         }
-        const d = document.getElementById('display-sage');
-        if (d) d.textContent = sageSettings.enabled ? (sageNote || '運行中') : '關閉';
+        renderSageStatus();
         keepAwake();
     }
 
@@ -1067,13 +1202,16 @@
             if (isNaN(v)) v = def;
             return Math.min(Math.max(v, min), max);
         };
+        const wasEnabled = sageSettings.enabled;
         sageSettings.enabled = document.getElementById('sage-enabled').checked;
-        sageSettings.minConf = num('sage-minconf', 25, 5, 95);
-        sageSettings.maxPos = Math.round(num('sage-maxpos', 3, 1, 7));
-        sageSettings.sl = num('sage-sl', 2, 0.1, 100);
-        sageSettings.tp = num('sage-tp', 3, 0.1, 100);
+        sageSettings.minConf = num('sage-minconf', 40, 5, 95);
+        sageSettings.maxPos = Math.round(num('sage-maxpos', 3, 1, 8));
+        sageSettings.risk = num('sage-risk', 1, 0.1, 5);
+        sageSettings.rr = num('sage-rr', 2, 1, 5);
+        sageSettings.maxDD = num('sage-maxdd', 10, 1, 50);
         persistSageSettings();
-        sageNote = '';
+        if (!wasEnabled && sageSettings.enabled) resetSageGuard();
+        sageStatus = '';
         syncSageUI();
     }
 
@@ -1084,53 +1222,68 @@
         }
         sageSettings.enabled = !sageSettings.enabled;
         persistSageSettings();
-        sageNote = '';
+        if (sageSettings.enabled) resetSageGuard();
+        sageStatus = '';
         syncSageUI();
     }
 
     function setSageNote(msg) {
         sageNote = msg;
-        const d = document.getElementById('display-sage');
-        if (d && sageSettings.enabled) d.textContent = msg || '運行中';
+        sageNoteTs = Date.now();
+        renderSageStatus();
     }
 
-    function openAutoPosition(symbol, dir, lots, conf) {
+    function openAutoPosition(symbol, dir, plan) {
         const q = quotesData.find(item => item.symbol === symbol);
         if (!q) return;
+        const sign = dir === 'BUY' ? 1 : -1;
         const openPrice = dir === 'BUY' ? q.ask : q.bid;
         accountState.positions.push({
             id: Date.now() + Math.floor(Math.random() * 1000),
             symbol: symbol,
             type: dir,
-            lots: lots,
+            lots: plan.lots,
             openPrice: openPrice,
             closePrice: openPrice,
             openTime: new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai' }),
+            openTs: Date.now(),
             currentPL: 0,
-            auto: true
+            auto: true,
+            r: plan.stopDist,
+            sl: openPrice - sign * plan.stopDist,
+            tp: openPrice + sign * plan.stopDist * sageSettings.rr
         });
         saveState();
-        setSageNote(`剛落單 ${symbol} ${dir === 'BUY' ? '買' : '賣'} ${lots.toFixed(2)}（信心 ${conf}%）`);
+        setSageNote(`剛落單 ${symbol} ${dir === 'BUY' ? '買' : '賣'} ${plan.lots.toFixed(2)}（信心 ${plan.conf}%）`);
         if (document.getElementById('page-history').classList.contains('active')) renderTradeList();
     }
 
-    function sageAutoTick() {
-        if (!sageSettings.enabled) return;
-        const now = Date.now();
-        if (now - lastAutoEval < 5000) return; // 每 5 秒評估一次
-        lastAutoEval = now;
-
-        if (!liveFetchDone) { setSageNote('等待真實報價…'); return; }
-        if (!(accountState.balance > 0)) { setSageNote('請先設定 Balance'); return; }
-
-        // 1) 管理 Sage 持倉：止蝕 / 止賺 / 訊號反轉
+    // 持倉管理：止蝕 / 止賺 / 移動止蝕 / 超時 / 訊號反轉（每秒檢查）
+    function sageManage(now) {
+        let changed = false;
         accountState.positions.filter(p => p.auto).forEach(pos => {
+            const d = pos.type === 'BUY' ? 1 : -1;
+            const px = pos.closePrice;
+            const R = pos.r ? (px - pos.openPrice) * d / pos.r : 0;
             let reason = '';
-            if (pos.currentPL <= -accountState.balance * sageSettings.sl / 100) reason = '止蝕';
-            else if (pos.currentPL >= accountState.balance * sageSettings.tp / 100) reason = '止賺';
+
+            if (pos.sl && (d > 0 ? px <= pos.sl : px >= pos.sl)) reason = pos.slMoved ? '移動止蝕' : '止蝕';
+            else if (pos.tp && (d > 0 ? px >= pos.tp : px <= pos.tp)) reason = '止賺';
             else {
-                const a = sageAnalyze(pos.symbol);
-                if (!a.error && a.dir !== 'WAIT' && a.dir !== pos.type && a.conf >= sageSettings.minConf) reason = '訊號反轉';
+                if (pos.r && pos.sl) {
+                    let newSl = pos.sl;
+                    if (R >= 1.5) newSl = px - d * pos.r;                    // 追蹤：緊貼 1 倍風險
+                    else if (R >= 1) newSl = pos.openPrice + d * 0.1 * pos.r; // 保本
+                    if (newSl !== pos.sl && (d > 0 ? newSl > pos.sl : newSl < pos.sl)) {
+                        pos.sl = newSl; pos.slMoved = true; changed = true;
+                    }
+                }
+                const held = now - (pos.openTs || now);
+                if (held > SAGE_MAX_HOLD && R < 1) reason = '超時離場';
+                else if (held > SAGE_MIN_HOLD) {
+                    const a = sageAnalyze(pos.symbol);
+                    if (!a.error && a.dir !== 'WAIT' && a.dir !== pos.type && a.conf >= sageSettings.minConf + 15) reason = '訊號反轉';
+                }
             }
             if (reason) {
                 closePosition(pos.id, true, reason);
@@ -1138,25 +1291,114 @@
                 setSageNote(`已平倉 ${pos.symbol}（${reason}）`);
             }
         });
+        if (changed) saveState();
+    }
 
-        // 2) 開新倉：揀信心度最高嘅貨幣對
-        let autoCount = accountState.positions.filter(p => p.auto).length;
-        if (autoCount >= sageSettings.maxPos) return;
+    // 開新倉：回撤保護、連輸冷靜、美元方向分散、槓桿上限
+    function sageEntries(now) {
+        if (now - lastAutoEval < 5000) return; // 每 5 秒評估一次
+        lastAutoEval = now;
 
+        const eq = currentEquity();
+        if (!(eq > 0)) { sageStatus = '淨值不足，已停止'; renderSageStatus(); return; }
+
+        const st = sageState();
+        if (!st.peak) st.peak = eq;
+        st.peak = Math.max(st.peak, eq);
+        if (!st.paused && eq < st.peak * (1 - sageSettings.maxDD / 100)) { st.paused = true; saveState(); }
+        if (st.paused) { sageStatus = '回撤保護：已暫停開新倉（撳「Sage 自動」掣重啟）'; renderSageStatus(); return; }
+
+        const recent = accountState.history.filter(h => h.auto);
+        let streak = 0;
+        for (const h of recent) { if (h.profit < 0) streak++; else break; }
+        if (streak >= 3 && now - (recent[0].ts || 0) < 5 * 60000) { sageStatus = '連輸 3 單，冷靜 5 分鐘'; renderSageStatus(); return; }
+
+        const autos = accountState.positions.filter(p => p.auto);
+        if (autos.length >= sageSettings.maxPos) { sageStatus = `持倉 ${autos.length} 單，監察中`; renderSageStatus(); return; }
+
+        const anyLive = quotesData.some(q => q.liveInit);
         const candidates = [];
         quotesData.forEach(q => {
-            if (accountState.positions.some(p => p.auto && p.symbol === q.symbol)) return;
-            if (now - (lastAutoClose[q.symbol] || 0) < 30000) return; // 平倉後冷靜 30 秒
+            if (anyLive && !q.liveInit) return;                          // 只做有真實報價嘅品種
+            if (autos.some(p => p.symbol === q.symbol)) return;
+            if (now - (lastAutoClose[q.symbol] || 0) < 180000) return;   // 平倉後冷靜 3 分鐘
             const a = sageAnalyze(q.symbol);
-            if (a.error || a.dir === 'WAIT' || a.conf < sageSettings.minConf) return;
+            if (a.error || a.dir === 'WAIT' || a.conf < sageSettings.minConf || a.lots < 0.01) return;
             candidates.push({ symbol: q.symbol, a });
         });
         candidates.sort((x, y) => y.a.conf - x.a.conf);
 
+        let totalNotional = autos.reduce((sum, p) => {
+            const q = quotesData.find(x => x.symbol === p.symbol);
+            return sum + p.lots * notionalPerLot(p.symbol, q ? (q.bid + q.ask) / 2 : p.openPrice);
+        }, 0);
+        let opened = 0;
+
         for (const c of candidates) {
-            if (autoCount >= sageSettings.maxPos) break;
-            openAutoPosition(c.symbol, c.a.dir, c.a.lots, c.a.conf);
-            autoCount++;
+            if (autos.length >= sageSettings.maxPos) break;
+            const dirUsd = usdDir(c.symbol, c.a.dir);
+            if (autos.filter(p => usdDir(p.symbol, p.type) === dirUsd).length >= SAGE_MAX_SAME_USD) continue;
+            if (totalNotional + c.a.notional > SAGE_MAX_TOTAL_LEV * eq) continue;
+            openAutoPosition(c.symbol, c.a.dir, c.a);
+            autos.push({ symbol: c.symbol, type: c.a.dir });
+            totalNotional += c.a.notional;
+            opened++;
+        }
+        if (!opened) { sageStatus = autos.length ? `持倉 ${autos.length} 單，監察中` : '觀望中，等待明確訊號'; renderSageStatus(); }
+    }
+
+    function sageAutoTick() {
+        if (!sageSettings.enabled) return;
+        const now = Date.now();
+        sageManage(now);
+        if (!liveFetchDone) { sageStatus = '等待真實報價…'; renderSageStatus(); return; }
+        if (!(accountState.balance > 0)) { sageStatus = '請先設定 Balance 或入金'; renderSageStatus(); return; }
+        sageEntries(now);
+    }
+
+    // ================= 入金 / 出金 =================
+    function balanceOp(type, amountRaw) {
+        const amount = parseFloat(amountRaw);
+        if (!(amount > 0)) { alert("請輸入有效金額"); return false; }
+        const floating = accountState.positions.reduce((sum, p) => sum + (p.currentPL || 0), 0);
+        const st = sageState();
+
+        if (type === 'withdraw') {
+            const maxW = Math.max(0, accountState.balance + Math.min(0, floating));
+            if (amount > maxW + 1e-9) { alert("出金金額超過可用餘額（最多 " + fmtMoney(maxW) + "）"); return false; }
+            accountState.balance -= amount;
+            accountState.deposit -= amount;
+            st.peak = Math.max(0, st.peak - amount);
+        } else {
+            accountState.balance += amount;
+            accountState.deposit += amount;
+            st.peak += amount;
+        }
+        accountState.history.unshift({
+            kind: 'balance',
+            id: Date.now(),
+            type: type === 'withdraw' ? 'WITHDRAW' : 'DEPOSIT',
+            profit: type === 'withdraw' ? -amount : amount,
+            closeTime: new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai' }),
+            ts: Date.now()
+        });
+        saveState();
+        updateSummary();
+        renderTradeList();
+        return true;
+    }
+
+    function promptBalanceOp(type) {
+        const v = prompt(type === 'withdraw' ? '出金金額 (USD)' : '入金金額 (USD)');
+        if (v === null) return;
+        balanceOp(type, v);
+    }
+
+    function settingsBalanceOp(type) {
+        const input = document.getElementById('input-amount');
+        if (balanceOp(type, input.value)) {
+            input.value = '';
+            document.getElementById('input-balance').value = accountState.balance.toFixed(2);
         }
     }
 
@@ -1174,7 +1416,7 @@
         setInterval(updateTime, 1000);
         setInterval(updatePrices, 1000);
         fetchLiveRates();
-        setInterval(fetchLiveRates, 5 * 60 * 1000);
+        setInterval(fetchLiveRates, 30 * 1000);
     }
     init();
 </script>
