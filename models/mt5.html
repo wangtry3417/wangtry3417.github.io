@@ -363,6 +363,7 @@
     };
 
     let currentTradeTab = 'positions';
+    let stateLoaded = false;
 
     function saveState() {
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(accountState)); } catch (e) {}
@@ -373,6 +374,7 @@
             if (raw) {
                 const s = JSON.parse(raw);
                 accountState = Object.assign(accountState, s);
+                stateLoaded = true;
             }
         } catch (e) {}
     }
@@ -424,7 +426,8 @@
         { symbol: 'USDCAD', bid: 1.24566, ask: 1.24591, spread: 25, low: 1.24382, high: 1.24643 },
         { symbol: 'USDCHF', bid: 0.91497, ask: 0.91518, spread: 21, low: 0.91162, high: 0.91498 },
         { symbol: 'NZDUSD', bid: 0.71353, ask: 0.71388, spread: 35, low: 0.71022, high: 0.71523 },
-        { symbol: 'AUDUSD', bid: 0.73948, ask: 0.73968, spread: 20, low: 0.73832, high: 0.74119 }
+        { symbol: 'AUDUSD', bid: 0.73948, ask: 0.73968, spread: 20, low: 0.73832, high: 0.74119 },
+        { symbol: 'XAUUSD', bid: 4000.00, ask: 4000.30, spread: 30, low: 4000.00, high: 4000.30 }
     ];
 
     function formatPrice(price, digits = 5) {
@@ -433,7 +436,13 @@
     }
 
     function getDigits(symbol) {
+        if (symbol === 'XAUUSD') return 2;
         return symbol === 'USDJPY' ? 3 : 5;
+    }
+
+    // 1 lot 合約大小：外匯 100,000；黃金 100 盎司
+    function contractSize(symbol) {
+        return symbol === 'XAUUSD' ? 100 : 100000;
     }
 
     function renderQuotes() {
@@ -632,7 +641,7 @@
                 // USD 為基礎貨幣：換算為 USD 盈虧
                 pl = diff * 100000 * pos.lots / closePrice;
             } else {
-                pl = diff * 100000 * pos.lots;
+                pl = diff * contractSize(pos.symbol) * pos.lots;
             }
 
             pos.currentPL = pl;
@@ -785,6 +794,7 @@
             case 'USDJPY': return r.JPY || null;
             case 'USDCAD': return r.CAD || null;
             case 'USDCHF': return r.CHF || null;
+            case 'XAUUSD': return r.XAU ? 1 / r.XAU : null;
         }
         return null;
     }
@@ -807,31 +817,59 @@
         });
     }
 
+    let liveFetchDone = false;
+
     function setLiveStatus(ok, name) {
         const t = document.getElementById('live-status-text');
         const tm = document.getElementById('live-status-time');
+        const missing = quotesData.filter(q => !q.liveInit).map(q => q.symbol);
         if (ok) {
-            t.innerHTML = `<span class="dot-live">●</span> 真實匯率 (${name})`;
+            t.innerHTML = `<span class="dot-live">●</span> 真實匯率 (${name})` + (missing.length ? `，${missing.join('/')} 暫用模擬價` : '');
             tm.textContent = '更新 ' + new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai', hour12: false, hour: '2-digit', minute: '2-digit' });
         } else {
             t.textContent = '● 模擬報價（真實匯率取得失敗）';
         }
     }
 
+    async function fetchGoldPrice() {
+        try {
+            const res = await fetch('https://api.gold-api.com/price/XAU', { cache: 'no-store' });
+            if (res.ok) {
+                const d = await res.json();
+                if (d && d.price > 0) return d.price;
+            }
+        } catch (e) {}
+        return null;
+    }
+
     async function fetchLiveRates() {
+        let rates = null, srcName = '';
         for (const src of RATE_SOURCES) {
             try {
                 const res = await fetch(src.url, { cache: 'no-store' });
                 if (!res.ok) continue;
                 const data = await res.json();
-                const rates = data.rates;
-                if (!rates) continue;
-                applyRates(rates);
-                setLiveStatus(true, src.name);
-                return;
+                if (!data.rates) continue;
+                rates = Object.assign({}, data.rates);
+                srcName = src.name;
+                break;
             } catch (e) { /* 試下一個來源 */ }
         }
-        setLiveStatus(false);
+
+        // 黃金：優先用專門來源，否則用匯率 API 入面嘅 XAU
+        const gp = await fetchGoldPrice();
+        if (gp) {
+            rates = Object.assign(rates || {}, { XAU: 1 / gp });
+            srcName = srcName ? srcName + ' + gold-api' : 'gold-api';
+        }
+
+        if (rates) {
+            applyRates(rates);
+            setLiveStatus(true, srcName);
+        } else {
+            setLiveStatus(false);
+        }
+        liveFetchDone = true;
     }
 
     // --- Sage（貝氏平滑 + 高階敏感度，移植自 Python 版） ---
@@ -905,7 +943,7 @@
         const conf = Math.round(Math.abs(edge) * 100);
 
         const mid = hist[hist.length - 1];
-        const pipSize = symbol === 'USDJPY' ? 0.01 : 0.0001;
+        const pipSize = symbol === 'USDJPY' ? 0.01 : (symbol === 'XAUUSD' ? 0.1 : 0.0001);
         const pipVol = sd * Math.sqrt(60) * mid / pipSize; // 每分鐘大約波幅（點）
         const risk = pipVol < 1.5 ? '低' : (pipVol < 4 ? '中' : '高');
 
@@ -918,7 +956,7 @@
                 dir = 'WAIT';
             } else {
                 const unit = symbol.startsWith('USD') ? 1 : mid;
-                lots = Math.floor(Lk * equity / (100000 * unit) * 100) / 100;
+                lots = Math.floor(Lk * equity / (contractSize(symbol) * unit) * 100) / 100;
                 lots = Math.min(Math.max(lots, 0.01), 5);
             }
         }
@@ -974,7 +1012,7 @@
 
     // --- Sage 自動交易 ---
     const SAGE_KEY = 'mt5_sage_settings_v1';
-    let sageSettings = { enabled: false, minConf: 25, maxPos: 3, sl: 2, tp: 3 };
+    let sageSettings = { enabled: true, minConf: 25, maxPos: 3, sl: 2, tp: 3 };
     const lastAutoClose = {};
     let lastAutoEval = 0;
     let sageNote = '';
@@ -1005,7 +1043,23 @@
         }
         const d = document.getElementById('display-sage');
         if (d) d.textContent = sageSettings.enabled ? (sageNote || '運行中') : '關閉';
+        keepAwake();
     }
+
+    // 自動操盤開啟時保持螢幕唔休眠（背景分頁嘅計時器會被瀏覽器減速）
+    let wakeLock = null;
+    async function keepAwake() {
+        try {
+            if (sageSettings.enabled && 'wakeLock' in navigator && document.visibilityState === 'visible' && !wakeLock) {
+                wakeLock = await navigator.wakeLock.request('screen');
+                wakeLock.addEventListener('release', () => { wakeLock = null; });
+            } else if (!sageSettings.enabled && wakeLock) {
+                await wakeLock.release();
+                wakeLock = null;
+            }
+        } catch (e) { wakeLock = null; }
+    }
+    document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') keepAwake(); });
 
     function saveSageSettings() {
         const num = (id, def, min, max) => {
@@ -1066,6 +1120,7 @@
         if (now - lastAutoEval < 5000) return; // 每 5 秒評估一次
         lastAutoEval = now;
 
+        if (!liveFetchDone) { setSageNote('等待真實報價…'); return; }
         if (!(accountState.balance > 0)) { setSageNote('請先設定 Balance'); return; }
 
         // 1) 管理 Sage 持倉：止蝕 / 止賺 / 訊號反轉
@@ -1108,6 +1163,7 @@
     // --- 9. 初始化 ---
     function init() {
         loadState();
+        if (!stateLoaded) { accountState.balance = 10000; accountState.deposit = 10000; saveState(); }
         loadSageSettings();
         renderQuotes();
         updateTime();
