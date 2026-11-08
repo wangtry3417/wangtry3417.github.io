@@ -94,7 +94,7 @@
 
     .quote-item {
         padding: 8px 15px; border-bottom: 1px solid var(--mt5-light-border);
-        display: grid; grid-template-columns: 1.2fr 1fr 1fr; gap: 5px;
+        display: grid; grid-template-columns: 0.9fr 1.05fr 1.05fr; gap: 5px;
         transition: background-color 0.2s; cursor: pointer;
     }
     .quote-item:active { background-color: var(--mt5-light-surface); }
@@ -234,6 +234,30 @@
     .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .mini-grid label { font-size: 12px; margin-bottom: 0; }
     .mini-grid .setting-input { width: 100%; margin-top: 4px; padding: 8px; font-size: 14px; }
+
+    .bid-price, .ask-price { white-space: nowrap; }
+    .live-status { align-items: center; gap: 8px; }
+    .live-status > span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .live-status > span:nth-child(2) { white-space: nowrap; }
+    .sage-pill { white-space: nowrap; }
+    .src-dot { font-size: 9px; margin-left: 4px; color: var(--mt5-gray); }
+    .src-dot.live { color: var(--mt5-green); }
+
+    #page-chart { background-color: #000; color: white; }
+    .chart-top { display: flex; gap: 6px; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--mt5-dark-border); }
+    .chart-top select { background: var(--mt5-dark-surface); color: white; border: 1px solid var(--mt5-dark-border); border-radius: 6px; padding: 5px 6px; font-size: 13px; }
+    .tf-group { display: flex; gap: 2px; flex: 1; overflow-x: auto; scrollbar-width: none; }
+    .tf-btn { padding: 4px 7px; font-size: 12px; color: var(--mt5-gray); border-radius: 5px; cursor: pointer; white-space: nowrap; }
+    .tf-btn.active { background: #333; color: white; }
+    .chart-tools { display: flex; gap: 4px; padding: 5px 10px; border-bottom: 1px solid var(--mt5-dark-border); overflow-x: auto; scrollbar-width: none; }
+    .chart-tools::-webkit-scrollbar, .tf-group::-webkit-scrollbar { display: none; }
+    .tool-btn { flex: none; min-width: 34px; height: 28px; padding: 0 8px; font-size: 12px; background: var(--mt5-dark-surface); color: white; border: 1px solid var(--mt5-dark-border); border-radius: 6px; cursor: pointer; }
+    .tool-btn.active { background: var(--mt5-blue); border-color: var(--mt5-blue); }
+    .chart-ohlc { font-size: 11px; color: var(--mt5-gray); padding: 4px 10px; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; }
+    .chart-wrap { flex: 1; position: relative; min-height: 0; }
+    #chart-canvas { position: absolute; left: 0; top: 0; width: 100%; height: 100%; touch-action: none; }
+    .chart-trade { display: flex; gap: 8px; padding: 6px 10px; }
+    .chart-trade .btn-trade { padding: 9px; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -266,6 +290,31 @@
                 </div>
                 <div class="live-status"><span id="live-status-text">● 模擬報價</span><span id="live-status-time"></span><span class="sage-pill" id="sage-pill" onclick="toggleAuto()">Sage 自動：關</span></div>
                 <div class="list-area" id="quotes-list"></div>
+            </div>
+
+            <div class="page" id="page-chart">
+                <div class="chart-top">
+                    <select id="chart-symbol" onchange="chartSetSymbol(this.value)"></select>
+                    <div class="tf-group" id="chart-tfs"></div>
+                </div>
+                <div class="chart-tools" id="chart-tools">
+                    <button class="tool-btn active" data-tool="cursor" onclick="chartSetTool('cursor')">☝ 移動</button>
+                    <button class="tool-btn" data-tool="cross" onclick="chartSetTool('cross')">✛ 十字線</button>
+                    <button class="tool-btn" data-tool="trend" onclick="chartSetTool('trend')">╱ 趨勢線</button>
+                    <button class="tool-btn" data-tool="h" onclick="chartSetTool('h')">─ 水平線</button>
+                    <button class="tool-btn" data-tool="v" onclick="chartSetTool('v')">│ 垂直線</button>
+                    <button class="tool-btn" data-tool="rect" onclick="chartSetTool('rect')">▭ 矩形</button>
+                    <button class="tool-btn" data-tool="fib" onclick="chartSetTool('fib')">Fib</button>
+                    <button class="tool-btn" onclick="chartZoom(1.25)">＋</button>
+                    <button class="tool-btn" onclick="chartZoom(0.8)">－</button>
+                    <button class="tool-btn" onclick="chartScrollEnd()">⏭ 最新</button>
+                    <button class="tool-btn" onclick="chartDeleteSel()">🗑 刪除</button>
+                </div>
+                <div class="chart-ohlc" id="chart-ohlc"></div>
+                <div class="chart-wrap" id="chart-wrap"><canvas id="chart-canvas"></canvas></div>
+                <div class="chart-trade">
+                    <button class="btn-trade btn-buy" onclick="openTradeModal(chartSym)">新訂單 / Sage</button>
+                </div>
             </div>
 
             <div class="page" id="page-history">
@@ -317,6 +366,23 @@
                     <div class="setting-item">
                         <label>Sage 自動交易</label>
                         <div class="switch-row"><span>啟用自動落單 / 平倉</span><input type="checkbox" id="sage-enabled" onchange="saveSageSettings()"></div>
+                        <div style="margin-bottom:12px;">
+                            <label>基金組合</label>
+                            <select id="sage-fund" class="setting-input" style="width:100%;" onchange="onFundChange(this.value)">
+                                <option value="low">低風險組合</option>
+                                <option value="margin">Margin 組合（高槓桿）</option>
+                                <option value="fast">快速穩健投資組合</option>
+                                <option value="custom">自訂</option>
+                            </select>
+                            <p id="sage-fund-desc" style="font-size:11px; color:var(--mt5-gray); margin-top:6px; line-height:1.5;"></p>
+                        </div>
+                        <div class="switch-row"><span>只喺開工時間操盤（香港時間）</span><input type="checkbox" id="sage-hours-on" onchange="saveSageSettings()"></div>
+                        <div class="mini-grid" style="margin-bottom:12px;">
+                            <label>開工<input type="time" id="sage-start" class="setting-input" onchange="saveSageSettings()"></label>
+                            <label>收工<input type="time" id="sage-end" class="setting-input" onchange="saveSageSettings()"></label>
+                        </div>
+                        <div class="switch-row"><span>只限星期一至五</span><input type="checkbox" id="sage-weekdays" onchange="saveSageSettings()"></div>
+                        <div class="switch-row"><span>收工自動平倉（收工前 10 分鐘唔開新倉）</span><input type="checkbox" id="sage-flatten" onchange="saveSageSettings()"></div>
                         <div class="mini-grid">
                             <label>最低信心度 (%)<input type="number" id="sage-minconf" class="setting-input" min="5" max="95" step="1" onchange="saveSageSettings()"></label>
                             <label>最多同時持倉<input type="number" id="sage-maxpos" class="setting-input" min="1" max="7" step="1" onchange="saveSageSettings()"></label>
@@ -334,6 +400,10 @@
             <div class="nav-item active" onclick="switchTab('page-quotes', this)">
                 <svg class="nav-icon" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
                 <span>Quotes</span>
+            </div>
+            <div class="nav-item" onclick="switchTab('page-chart', this)">
+                <svg class="nav-icon" viewBox="0 0 24 24"><path d="M7 3h2v3h2v9H9v3H7v-3H5V6h2V3zm10 4h2v3h2v8h-2v3h-2v-3h-2v-8h2V7z"/></svg>
+                <span>Chart</span>
             </div>
             <div class="nav-item" onclick="switchTab('page-history', this)">
                 <svg class="nav-icon" viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
@@ -362,6 +432,7 @@
                     <button class="btn-trade btn-buy" onclick="executeTrade('buy')">BUY<br><span style="font-size:12px;" id="btn-buy-price">1.15467</span></button>
                 </div>
                 <button class="btn-sage" onclick="toggleSage()">Sage 計算</button>
+                <button class="btn-sage" onclick="closeModal(); chartOpen(activeModalSymbol)">📈 查看 K 線圖</button>
                 <div class="sage-panel" id="sage-panel"></div>
                 <button style="background:transparent; border:none; color:var(--mt5-gray); margin-top:4px; cursor:pointer;" onclick="closeModal()">Cancel</button>
             </div>
@@ -400,10 +471,10 @@
     // --- 1. 時間處理 (UTC+8) ---
     function updateTime() {
         const now = new Date();
-        const timeStr = now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai', hour12: false, hour: '2-digit', minute: '2-digit' });
+        const timeStr = now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai', hourCycle: 'h23', hour: '2-digit', minute: '2-digit' });
         document.getElementById('status-time').textContent = timeStr;
 
-        const timeSecStr = now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai', hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const timeSecStr = now.toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai', hourCycle: 'h23', hour: '2-digit', minute: '2-digit', second: '2-digit' });
         document.querySelectorAll('.time-text').forEach(el => { el.textContent = timeSecStr; });
     }
 
@@ -451,7 +522,8 @@
     ];
 
     function formatPrice(price, digits = 5) {
-        let str = price.toFixed(digits);
+        const str = price.toFixed(digits);
+        if (digits <= 2) return str;   // 黃金 / 加密貨幣唔拆上標
         return `${str.slice(0, -1)}<sup>${str.slice(-1)}</sup>`;
     }
 
@@ -478,7 +550,7 @@
                 <div class="quote-item" id="quote-${q.symbol}" onclick="openTradeModal('${q.symbol}')">
                     <div class="quote-col left">
                         <span class="time-text">--:--:--</span>
-                        <span class="symbol-text">${q.symbol}</span>
+                        <span class="symbol-text">${q.symbol}<span class="src-dot${q.liveInit ? ' live' : ''}" id="dot-${q.symbol}">●</span></span>
                         <span class="spread-text">Spread: ${q.spread}</span>
                     </div>
                     <div class="quote-col mid">
@@ -511,6 +583,7 @@
             const hist = priceHist[q.symbol] || (priceHist[q.symbol] = []);
             hist.push((q.bid + q.ask) / 2);
             if (hist.length > HIST_MAX) hist.shift();
+            feedCandle(q.symbol, q.bid, Date.now());
 
             // 更新 High / Low
             if (q.bid < q.low) q.low = q.bid;
@@ -525,6 +598,8 @@
                 askEl.innerHTML = formatPrice(q.ask, digits);
                 document.getElementById(`low-${q.symbol}`).textContent = `Low: ${q.low.toFixed(digits)}`;
                 document.getElementById(`high-${q.symbol}`).textContent = `High: ${q.high.toFixed(digits)}`;
+                const dotEl = document.getElementById('dot-' + q.symbol);
+                if (dotEl) dotEl.className = 'src-dot' + (q.liveInit ? ' live' : '');
                 itemEl.classList.add('flash-bg');
                 setTimeout(() => itemEl.classList.remove('flash-bg'), 200);
             }
@@ -545,6 +620,7 @@
         calculateFloatingPL();
         if (sageActive) renderSage();
         sageAutoTick();
+        chartTick();
     }
 
     // --- 4. 交易邏輯 ---
@@ -603,7 +679,7 @@
         saveState();
         closeModal();
 
-        document.querySelectorAll('.nav-item')[1].click();
+        document.querySelectorAll('.nav-item')[2].click();
         switchTradeTab('positions');
     }
 
@@ -788,8 +864,9 @@
         if (navEl) navEl.classList.add('active');
 
         // 深色 / 淺色主題
-        document.getElementById('phone').classList.toggle('light', pageId !== 'page-history');
+        document.getElementById('phone').classList.toggle('light', pageId !== 'page-history' && pageId !== 'page-chart');
 
+        if (pageId === 'page-chart') chartEnter();
         if (pageId === 'page-history') renderTradeList();
         if (pageId === 'page-profile') {
             syncSageUI();
@@ -846,17 +923,23 @@
     function applyRates(rates) {
         quotesData.forEach(q => {
             const mid = rateToMid(q.symbol, rates);
-            if (!mid) return;
+            if (!mid || !isFinite(mid) || mid <= 0) return;
             const digits = getDigits(q.symbol);
             const half = q.spread * Math.pow(10, -digits) / 2;
+            const cur = (q.bid + q.ask) / 2;
             q.anchor = mid;
-            if (!q.liveInit) {
+            // 首次取得真實價，或者同現價偏離超過 0.5%：直接對齊真實價（唔好慢慢爬）
+            if (!q.liveInit || Math.abs(mid - cur) / cur > 0.005) {
+                const first = !q.liveInit;
                 q.bid = mid - half;
                 q.ask = mid + half;
-                q.low = q.bid;
-                q.high = q.ask;
+                if (first) { q.low = q.bid; q.high = q.ask; }
+                else { q.low = Math.min(q.low, q.bid); q.high = Math.max(q.high, q.ask); }
                 q.liveInit = true;
                 priceHist[q.symbol] = [];
+                // 舊 K 線同新價格斷層太大就作廢，避免圖表出現假跳空
+                const arr = m1[q.symbol];
+                if (arr && arr.length && Math.abs(arr[arr.length - 1][4] - mid) / mid > 0.005) m1[q.symbol] = [];
             }
         });
     }
@@ -869,7 +952,7 @@
         const missing = quotesData.filter(q => !q.liveInit).map(q => q.symbol);
         if (ok) {
             t.innerHTML = `<span class="dot-live">●</span> 真實匯率 (${name})` + (missing.length ? `，${missing.join('/')} 暫用模擬價` : '');
-            tm.textContent = '更新 ' + new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai', hour12: false, hour: '2-digit', minute: '2-digit' });
+            tm.textContent = '更新 ' + new Date().toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai', hourCycle: 'h23', hour: '2-digit', minute: '2-digit' });
         } else {
             t.textContent = '● 模擬報價（真實匯率取得失敗）';
         }
@@ -913,6 +996,7 @@
                     const data = await res.json();
                     if (!data.rates) continue;
                     fxRates = Object.assign({}, data.rates);
+                    ['XAU', 'XBT', 'BTC', 'ETH'].forEach(k => { delete fxRates[k]; }); // 黃金同加密貨幣只信現貨來源
                     fxTs = Date.now();
                     fxRates.__src = src.name;
                     break;
@@ -926,6 +1010,12 @@
         const spots = await Promise.all(['XAU', 'BTC', 'ETH'].map(async sy => [sy, await fetchSpot(sy)]));
         let gotSpot = false;
         spots.forEach(([sy, price]) => {
+            const q = quotesData.find(x => x.symbol === sy + 'USD');
+            // 防呆：同現價差超過 25% 嘅單次報價先當異常，連續兩次一致先接受
+            if (price && q && q.liveInit && q.anchor && Math.abs(price - q.anchor) / q.anchor > 0.25) {
+                if (q.pendingSpot && Math.abs(price - q.pendingSpot) / q.pendingSpot < 0.02) q.pendingSpot = null;
+                else { q.pendingSpot = price; price = null; }
+            }
             if (price) { rates = rates || {}; rates[sy] = 1 / price; gotSpot = true; }
         });
         if (gotSpot) srcName = (srcName ? srcName + ' + ' : '') + 'gold-api/coinbase';
@@ -937,6 +1027,10 @@
             setLiveStatus(false);
         }
         liveFetchDone = true;
+        ['BTCUSD', 'ETHUSD'].forEach(sy => {
+            const q = quotesData.find(x => x.symbol === sy);
+            if (q && q.liveInit && !histLoaded[sy]) { histLoaded[sy] = true; chartLoadRealHistory(sy); }
+        });
     }
 
     // ================= Sage 引擎（貝氏平滑 + 高階敏感度） =================
@@ -987,10 +1081,6 @@
     const SAGE_MIN_TICKS = 60;          // 最少報價數（約 1 分鐘暖機）
     const SAGE_SHORT_WIN = 60;          // 短期視窗（約 1 分鐘）；長期視窗最多 5 分鐘
     const SAGE_MIN_HOLD = 30000;        // 最短持倉 30 秒，避免來回洗
-    const SAGE_MAX_HOLD = 20 * 60000;   // 最長 20 分鐘仲未賺到 1 倍風險就離場
-    const SAGE_MAX_SAME_USD = 2;        // 同一個美元方向最多 2 單
-    const SAGE_MAX_TOTAL_LEV = 20;      // 總名義槓桿上限（倍淨值）
-    const SAGE_MAX_POS_LEV = 10;        // 單倉槓桿上限
     const USD_BASE = ['USDJPY', 'USDCAD', 'USDCHF'];
 
     function currentEquity() {
@@ -1061,8 +1151,8 @@
         let lots = riskAmt / (stopDist * usdPerPriceUnit(symbol, mid));
 
         // 槓桿上限：半凱利（由貝氏平滑概率 + 一階條件求得）與固定上限取細
-        const kelly = optimalLeverage(L.probs, L.stateRet.map(r => sign * r), 20) * 0.5;
-        const levCap = Math.min(kelly, SAGE_MAX_POS_LEV);
+        const kelly = optimalLeverage(L.probs, L.stateRet.map(r => sign * r), 40) * 0.5;
+        const levCap = Math.min(kelly, sageSettings.posLev);
         const lotsCap = levCap * equity / notionalPerLot(symbol, mid);
         lots = Math.min(lots, lotsCap, 5);
         lots = Math.floor(lots * 100) / 100;
@@ -1128,13 +1218,64 @@
         if (!a || a.error || a.dir === 'WAIT' || a.lots < 0.01) return;
         closeModal();
         openAutoPosition(activeModalSymbol, a.dir, a);
-        document.querySelectorAll('.nav-item')[1].click();
+        document.querySelectorAll('.nav-item')[2].click();
         switchTradeTab('positions');
     }
 
     // ---------- 自動操盤 ----------
-    const SAGE_KEY = 'mt5_sage_settings_v2';
-    let sageSettings = { enabled: true, minConf: 40, maxPos: 3, risk: 1, rr: 2, maxDD: 10 };
+    const SAGE_KEY = 'mt5_sage_settings_v3';
+    const ALL_FX = ['EURUSD', 'GBPUSD', 'USDJPY', 'USDCAD', 'USDCHF', 'NZDUSD', 'AUDUSD'];
+    const FUNDS = {
+        low: {
+            name: '低風險組合', short: '低風險', symbols: ALL_FX,
+            desc: '細注碼：每單只冒 0.3% 淨值，單倉槓桿 ≤ 3 倍，只做外匯；信心度要 55% 以上，最多 2 單，回撤 4% 即停。慢但穩。',
+            risk: 0.3, rr: 2, maxPos: 2, minConf: 55, maxDD: 4, posLev: 3, totalLev: 6, maxHoldMin: 30, beR: 1, trailR: 1.5
+        },
+        margin: {
+            name: 'Margin 組合', short: 'Margin', symbols: null,
+            desc: '高槓桿：單倉最高 20 倍、總計 50 倍，每單冒 2% 淨值，包括黃金同加密貨幣，最多 5 單，回撤 25% 先停。賺蝕波幅都大，可能好快爆倉式虧損。',
+            risk: 2, rr: 2.5, maxPos: 5, minConf: 35, maxDD: 25, posLev: 20, totalLev: 50, maxHoldMin: 20, beR: 1, trailR: 2
+        },
+        fast: {
+            name: '快速穩健投資組合', short: '快速穩健', symbols: ALL_FX.concat(['XAUUSD']),
+            desc: '快入快出：每單冒 1%，止賺只係 1.5 倍風險，最長持 8 分鐘，賺 0.7 倍風險已移去保本；做外匯同黃金，最多 4 單，回撤 8% 即停。',
+            risk: 1, rr: 1.5, maxPos: 4, minConf: 40, maxDD: 8, posLev: 8, totalLev: 16, maxHoldMin: 8, beR: 0.7, trailR: 1.2
+        }
+    };
+    function fundParams(key) {
+        const f = FUNDS[key];
+        if (!f) return {};
+        return { risk: f.risk, rr: f.rr, maxPos: f.maxPos, minConf: f.minConf, maxDD: f.maxDD, posLev: f.posLev,
+                 totalLev: f.totalLev, maxHoldMin: f.maxHoldMin, beR: f.beR, trailR: f.trailR, symbols: f.symbols };
+    }
+    let sageSettings = Object.assign({
+        enabled: true, fund: 'fast',
+        hoursOn: true, start: '08:30', end: '17:30', weekdaysOnly: false, flatten: true,
+        posLev: 10, totalLev: 20, maxHoldMin: 20, beR: 1, trailR: 1.5, symbols: null
+    }, fundParams('fast'));
+
+    // ---------- 開工時間（香港時間 UTC+8） ----------
+    function toMin(hhmm) { const m = /^(\d\d):(\d\d)$/.exec(hhmm || ''); return m ? (+m[1]) * 60 + (+m[2]) : 0; }
+    function hkParts(now) {
+        const d = new Date(now);
+        const hm = d.toLocaleTimeString('en-GB', { timeZone: 'Asia/Shanghai', hourCycle: 'h23', hour: '2-digit', minute: '2-digit' });
+        const wd = d.toLocaleDateString('en-US', { timeZone: 'Asia/Shanghai', weekday: 'short' });
+        const [h, m] = hm.split(':').map(Number);
+        return { min: h * 60 + m, wd: wd };
+    }
+    function inWorkHours(now) {
+        if (!sageSettings.hoursOn) return true;
+        const t = hkParts(now);
+        if (sageSettings.weekdaysOnly && (t.wd === 'Sat' || t.wd === 'Sun')) return false;
+        const a = toMin(sageSettings.start), b = toMin(sageSettings.end);
+        if (a === b) return true;
+        return a < b ? (t.min >= a && t.min < b) : (t.min >= a || t.min < b);
+    }
+    function minutesToClose(now) {
+        if (!sageSettings.hoursOn) return Infinity;
+        const t = hkParts(now);
+        return (toMin(sageSettings.end) - t.min + 1440) % 1440;
+    }
     const lastAutoClose = {};
     let lastAutoEval = 0;
     let sageStatus = '';
@@ -1159,18 +1300,28 @@
         const d = document.getElementById('display-sage');
         if (!d) return;
         if (!sageSettings.enabled) { d.textContent = '關閉'; return; }
-        d.textContent = (sageNote && Date.now() - sageNoteTs < 15000) ? sageNote : (sageStatus || '運行中');
+        const fn = FUNDS[sageSettings.fund] ? FUNDS[sageSettings.fund].short : '自訂';
+        const txt = (sageNote && Date.now() - sageNoteTs < 15000) ? sageNote : (sageStatus || '運行中');
+        d.textContent = fn + '｜' + txt;
     }
 
     function syncSageUI() {
         const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
-        const en = document.getElementById('sage-enabled');
-        if (en) en.checked = sageSettings.enabled;
+        const chk = (id, v) => { const el = document.getElementById(id); if (el) el.checked = !!v; };
+        chk('sage-enabled', sageSettings.enabled);
+        set('sage-fund', sageSettings.fund);
+        const fd = document.getElementById('sage-fund-desc');
+        if (fd) fd.textContent = FUNDS[sageSettings.fund] ? FUNDS[sageSettings.fund].desc : '自訂：用返下面你自己設定嘅數值（槓桿上限、持倉時間等沿用上一個組合）。';
         set('sage-minconf', sageSettings.minConf);
         set('sage-maxpos', sageSettings.maxPos);
         set('sage-risk', sageSettings.risk);
         set('sage-rr', sageSettings.rr);
         set('sage-maxdd', sageSettings.maxDD);
+        chk('sage-hours-on', sageSettings.hoursOn);
+        set('sage-start', sageSettings.start);
+        set('sage-end', sageSettings.end);
+        chk('sage-weekdays', sageSettings.weekdaysOnly);
+        chk('sage-flatten', sageSettings.flatten);
 
         const pill = document.getElementById('sage-pill');
         if (pill) {
@@ -1179,6 +1330,14 @@
         }
         renderSageStatus();
         keepAwake();
+    }
+
+    function onFundChange(key) {
+        if (FUNDS[key]) Object.assign(sageSettings, fundParams(key), { fund: key });
+        else sageSettings.fund = 'custom';
+        persistSageSettings();
+        sageStatus = '';
+        syncSageUI();
     }
 
     // 自動操盤開啟時保持螢幕唔休眠（背景分頁嘅計時器會被瀏覽器減速）
@@ -1209,6 +1368,19 @@
         sageSettings.risk = num('sage-risk', 1, 0.1, 5);
         sageSettings.rr = num('sage-rr', 2, 1, 5);
         sageSettings.maxDD = num('sage-maxdd', 10, 1, 50);
+
+        // 手動改過核心數值 → 變成「自訂」
+        const f = FUNDS[sageSettings.fund];
+        if (f && (f.risk !== sageSettings.risk || f.rr !== sageSettings.rr || f.maxPos !== sageSettings.maxPos ||
+                  f.minConf !== sageSettings.minConf || f.maxDD !== sageSettings.maxDD)) sageSettings.fund = 'custom';
+
+        sageSettings.hoursOn = document.getElementById('sage-hours-on').checked;
+        const st = document.getElementById('sage-start').value, en = document.getElementById('sage-end').value;
+        if (/^\d\d:\d\d$/.test(st)) sageSettings.start = st;
+        if (/^\d\d:\d\d$/.test(en)) sageSettings.end = en;
+        sageSettings.weekdaysOnly = document.getElementById('sage-weekdays').checked;
+        sageSettings.flatten = document.getElementById('sage-flatten').checked;
+
         persistSageSettings();
         if (!wasEnabled && sageSettings.enabled) resetSageGuard();
         sageStatus = '';
@@ -1262,6 +1434,8 @@
     function sageManage(now) {
         let changed = false;
         accountState.positions.filter(p => p.auto).forEach(pos => {
+            const qq = quotesData.find(x => x.symbol === pos.symbol);
+            if (qq && !qq.liveInit && quotesData.some(x => x.liveInit)) return; // 呢個品種仲未有真實價，唔用舊價觸發止蝕止賺
             const d = pos.type === 'BUY' ? 1 : -1;
             const px = pos.closePrice;
             const R = pos.r ? (px - pos.openPrice) * d / pos.r : 0;
@@ -1272,14 +1446,14 @@
             else {
                 if (pos.r && pos.sl) {
                     let newSl = pos.sl;
-                    if (R >= 1.5) newSl = px - d * pos.r;                    // 追蹤：緊貼 1 倍風險
-                    else if (R >= 1) newSl = pos.openPrice + d * 0.1 * pos.r; // 保本
+                    if (R >= sageSettings.trailR) newSl = px - d * pos.r;                    // 追蹤：緊貼 1 倍風險
+                    else if (R >= sageSettings.beR) newSl = pos.openPrice + d * 0.1 * pos.r; // 保本
                     if (newSl !== pos.sl && (d > 0 ? newSl > pos.sl : newSl < pos.sl)) {
                         pos.sl = newSl; pos.slMoved = true; changed = true;
                     }
                 }
                 const held = now - (pos.openTs || now);
-                if (held > SAGE_MAX_HOLD && R < 1) reason = '超時離場';
+                if (held > sageSettings.maxHoldMin * 60000 && R < sageSettings.beR) reason = '超時離場';
                 else if (held > SAGE_MIN_HOLD) {
                     const a = sageAnalyze(pos.symbol);
                     if (!a.error && a.dir !== 'WAIT' && a.dir !== pos.type && a.conf >= sageSettings.minConf + 15) reason = '訊號反轉';
@@ -1320,6 +1494,7 @@
         const candidates = [];
         quotesData.forEach(q => {
             if (anyLive && !q.liveInit) return;                          // 只做有真實報價嘅品種
+            if (sageSettings.symbols && !sageSettings.symbols.includes(q.symbol)) return; // 基金組合限定品種
             if (autos.some(p => p.symbol === q.symbol)) return;
             if (now - (lastAutoClose[q.symbol] || 0) < 180000) return;   // 平倉後冷靜 3 分鐘
             const a = sageAnalyze(q.symbol);
@@ -1333,12 +1508,13 @@
             return sum + p.lots * notionalPerLot(p.symbol, q ? (q.bid + q.ask) / 2 : p.openPrice);
         }, 0);
         let opened = 0;
+        const sameLimit = Math.max(2, Math.ceil(sageSettings.maxPos / 2));
 
         for (const c of candidates) {
             if (autos.length >= sageSettings.maxPos) break;
             const dirUsd = usdDir(c.symbol, c.a.dir);
-            if (autos.filter(p => usdDir(p.symbol, p.type) === dirUsd).length >= SAGE_MAX_SAME_USD) continue;
-            if (totalNotional + c.a.notional > SAGE_MAX_TOTAL_LEV * eq) continue;
+            if (autos.filter(p => usdDir(p.symbol, p.type) === dirUsd).length >= sameLimit) continue;
+            if (totalNotional + c.a.notional > sageSettings.totalLev * eq) continue;
             openAutoPosition(c.symbol, c.a.dir, c.a);
             autos.push({ symbol: c.symbol, type: c.a.dir });
             totalNotional += c.a.notional;
@@ -1349,10 +1525,29 @@
 
     function sageAutoTick() {
         if (!sageSettings.enabled) return;
-        const now = Date.now();
-        sageManage(now);
+        // 未攞到真實報價之前，唔好用舊價 / 預設價去觸發止蝕止賺
         if (!liveFetchDone) { sageStatus = '等待真實報價…'; renderSageStatus(); return; }
+        const now = Date.now();
+        const working = inWorkHours(now);
+
+        if (!working && sageSettings.flatten) {
+            accountState.positions.filter(p => p.auto).forEach(pos => {
+                closePosition(pos.id, true, '收工');
+                lastAutoClose[pos.symbol] = now;
+                setSageNote(`收工，已平倉 ${pos.symbol}`);
+            });
+            sageStatus = `休息中（開工 ${sageSettings.start}–${sageSettings.end} 香港時間）`;
+            renderSageStatus();
+            return;
+        }
+
+        sageManage(now);
+
+        if (!working) { sageStatus = '休息中，只管理現有持倉'; renderSageStatus(); return; }
         if (!(accountState.balance > 0)) { sageStatus = '請先設定 Balance 或入金'; renderSageStatus(); return; }
+        if (sageSettings.hoursOn && sageSettings.flatten && minutesToClose(now) < 10) {
+            sageStatus = '快收工，唔開新倉'; renderSageStatus(); return;
+        }
         sageEntries(now);
     }
 
@@ -1402,11 +1597,551 @@
         }
     }
 
+    // ================= 報價保存（重開頁面時用最後已知價，未有真實價前唔拿預設價計盈虧） =================
+    const QUOTE_KEY = 'mt5_quotes_v1';
+    function saveQuotes() {
+        try {
+            localStorage.setItem(QUOTE_KEY, JSON.stringify({
+                ts: Date.now(),
+                q: quotesData.map(q => ({ symbol: q.symbol, bid: q.bid, ask: q.ask, low: q.low, high: q.high }))
+            }));
+        } catch (e) {}
+    }
+    function loadQuotes() {
+        try {
+            const raw = localStorage.getItem(QUOTE_KEY);
+            if (!raw) return;
+            const o = JSON.parse(raw);
+            if (!o || !o.q || Date.now() - o.ts > 14 * 86400000) return;
+            o.q.forEach(sv => {
+                const q = quotesData.find(x => x.symbol === sv.symbol);
+                if (q && sv.bid > 0 && sv.ask > 0) { q.bid = sv.bid; q.ask = sv.ask; q.low = sv.low; q.high = sv.high; }
+            });
+        } catch (e) {}
+    }
+
+    // ================= 圖表（K 線 + 畫線） =================
+    const CANDLE_KEY = 'mt5_candles_v1', DRAW_KEY = 'mt5_drawings_v1';
+    const TFS = [['M1', 1], ['M5', 5], ['M15', 15], ['M30', 30], ['H1', 60], ['H4', 240]];
+    const M1_MAX = 2000, M1_SEED = 1200;
+    let m1 = {};          // symbol -> [[t, o, h, l, c, sim], ...]（1 分鐘 K 線，t 為毫秒）
+    let drawings = {};    // symbol -> [{id, type, p1:{t,p}, p2:{t,p}}]
+    const histLoaded = {};
+    let chartSym = 'EURUSD', chartTf = 5;
+    let chartBarW = 8, chartOffset = 0;
+    let chartTool = 'cursor', chartSel = null, chartDraft = null, chartCross = null, chartDrag = null, chartPinch = null;
+    let chartGeo = null, chartRaf = 0, chartReady = false;
+    const chartPtrs = new Map();
+
+    function loadCandles() { try { const r = localStorage.getItem(CANDLE_KEY); if (r) m1 = JSON.parse(r) || {}; } catch (e) { m1 = {}; } }
+    function saveCandles() { try { localStorage.setItem(CANDLE_KEY, JSON.stringify(m1)); } catch (e) {} }
+    function loadDrawings() { try { const r = localStorage.getItem(DRAW_KEY); if (r) drawings = JSON.parse(r) || {}; } catch (e) { drawings = {}; } }
+    function saveDrawings() { try { localStorage.setItem(DRAW_KEY, JSON.stringify(drawings)); } catch (e) {} }
+
+    // 每秒報價（Bid）併入 1 分鐘 K 線
+    function feedCandle(sym, price, now) {
+        const arr = m1[sym] || (m1[sym] = []);
+        const t = Math.floor(now / 60000) * 60000;
+        const last = arr[arr.length - 1];
+        if (last && last[0] === t) {
+            if (price > last[2]) last[2] = price;
+            if (price < last[3]) last[3] = price;
+            last[4] = price; last[5] = 0;
+        } else {
+            arr.push([t, price, price, price, price, 0]);
+            if (arr.length > M1_MAX) arr.splice(0, arr.length - M1_MAX);
+        }
+    }
+
+    // 歷史唔夠就向前補齊（模擬走勢，圖上用半透明顯示）
+    function ensureHistory(sym) {
+        const arr = m1[sym] || (m1[sym] = []);
+        if (arr.length >= M1_SEED) return;
+        const q = quotesData.find(x => x.symbol === sym);
+        if (!q) return;
+        let t = arr.length ? arr[0][0] : Math.floor(Date.now() / 60000) * 60000;
+        let price = arr.length ? arr[0][1] : q.bid;
+        const volMin = 0.00004 / Math.sqrt(12) * Math.sqrt(60) * (q.vol || 1); // 同模擬 tick 一致嘅每分鐘波幅
+        const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 0.5;
+        const out = [];
+        for (let i = arr.length; i < M1_SEED; i++) {
+            t -= 60000;
+            const c = price;
+            const o = c * (1 + volMin * gauss());
+            const hi = Math.max(o, c) * (1 + Math.abs(gauss()) * volMin * 0.4);
+            const lo = Math.min(o, c) * (1 - Math.abs(gauss()) * volMin * 0.4);
+            out.push([t, o, hi, lo, c, 1]);
+            price = o;
+        }
+        out.reverse();
+        m1[sym] = out.concat(arr);
+    }
+
+    // BTC / ETH：用 Coinbase 公開 K 線補真實歷史
+    async function chartLoadRealHistory(sym) {
+        if (sym !== 'BTCUSD' && sym !== 'ETHUSD') return;
+        try {
+            const res = await fj(`https://api.exchange.coinbase.com/products/${sym.slice(0, 3)}-USD/candles?granularity=60`);
+            if (!res.ok) return;
+            const rows = await res.json();
+            if (!Array.isArray(rows) || rows.length < 10) return;
+            const real = rows.map(r => [r[0] * 1000, +r[3], +r[2], +r[1], +r[4], 0])
+                             .filter(c => c.every(v => isFinite(v)) && c[1] > 0).sort((a, b) => a[0] - b[0]);
+            if (real.length < 10) return;
+            const q = quotesData.find(x => x.symbol === sym);
+            const mid = q ? (q.bid + q.ask) / 2 : real[real.length - 1][4];
+            if (Math.abs(real[real.length - 1][4] - mid) / mid > 0.03) return; // 同現價差太遠就唔用
+            const lastT = real[real.length - 1][0];
+            const cur = (m1[sym] || []).filter(c => !c[5] && c[0] > lastT);
+            m1[sym] = real.concat(cur);
+            chartRender();
+        } catch (e) {}
+    }
+
+    function aggregate(sym, tfMin) {
+        const arr = m1[sym] || [];
+        if (tfMin === 1) return arr;
+        const step = tfMin * 60000, out = [];
+        let cur = null;
+        for (const c of arr) {
+            const b = Math.floor(c[0] / step) * step;
+            if (!cur || cur[0] !== b) { cur = [b, c[1], c[2], c[3], c[4], c[5]]; out.push(cur); }
+            else {
+                if (c[2] > cur[2]) cur[2] = c[2];
+                if (c[3] < cur[3]) cur[3] = c[3];
+                cur[4] = c[4];
+                cur[5] = (cur[5] && c[5]) ? 1 : 0;
+            }
+        }
+        return out;
+    }
+
+    function niceStep(x) {
+        const pw = Math.pow(10, Math.floor(Math.log10(x)));
+        const r = x / pw;
+        return (r < 1.5 ? 1 : r < 3.5 ? 2 : r < 7.5 ? 5 : 10) * pw;
+    }
+    const fmtHM = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Shanghai', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' });
+    const fmtMD = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit' });
+    function chartTimeLabel(t, withDate) { return (withDate ? fmtMD.format(t).replace('/', '-') + ' ' : '') + fmtHM.format(t); }
+
+    function chartCalc() {
+        const wrap = document.getElementById('chart-wrap');
+        const W = wrap.clientWidth, H = wrap.clientHeight;
+        if (!W || !H) return null;
+        const axisW = 66, botH = 20, plotW = W - axisW, plotH = H - botH;
+        const cs = aggregate(chartSym, chartTf), n = cs.length, barW = chartBarW;
+        const stepMs = chartTf * 60000;
+        chartOffset = Math.min(Math.max(chartOffset, -Math.floor(plotW / barW * 0.4)), Math.max(0, n - 5));
+        const rightIdx = n - 1 - chartOffset;
+        const xOfIdx = i => plotW - 8 - (rightIdx - i) * barW - barW / 2;
+        const idxOfX = x => rightIdx - (plotW - 8 - barW / 2 - x) / barW;
+        const lo = Math.max(0, Math.floor(idxOfX(0)) - 1), hi = Math.min(n - 1, Math.ceil(idxOfX(plotW)) + 1);
+        let min = Infinity, max = -Infinity;
+        for (let i = lo; i <= hi; i++) { if (cs[i][3] < min) min = cs[i][3]; if (cs[i][2] > max) max = cs[i][2]; }
+        const q = quotesData.find(x => x.symbol === chartSym);
+        if (!(min < max)) { const pr = q ? q.bid : 1; min = pr * 0.999; max = pr * 1.001; }
+        const pad = (max - min) * 0.08; min -= pad; max += pad;
+        const yOfP = p => (max - p) / (max - min) * plotH;
+        const pOfY = y => max - y / plotH * (max - min);
+        const idxOfT = t => {
+            if (!n) return 0;
+            if (t <= cs[0][0]) return (t - cs[0][0]) / stepMs;
+            if (t >= cs[n - 1][0]) return n - 1 + (t - cs[n - 1][0]) / stepMs;
+            let a = 0, b = n - 1;
+            while (b - a > 1) { const m = (a + b) >> 1; if (cs[m][0] <= t) a = m; else b = m; }
+            return a + (t - cs[a][0]) / (cs[b][0] - cs[a][0]);
+        };
+        const tOfIdx = i => {
+            if (!n) return Date.now();
+            if (i <= 0) return cs[0][0] + i * stepMs;
+            if (i >= n - 1) return cs[n - 1][0] + (i - (n - 1)) * stepMs;
+            const a = Math.floor(i);
+            return cs[a][0] + (i - a) * (cs[a + 1][0] - cs[a][0]);
+        };
+        return { W, H, axisW, botH, plotW, plotH, cs, n, barW, rightIdx, xOfIdx, idxOfX, lo, hi, min, max, yOfP, pOfY, idxOfT, tOfIdx, q };
+    }
+
+    function chartPx(g, pt) { return { x: g.xOfIdx(g.idxOfT(pt.t)), y: g.yOfP(pt.p) }; }
+    function chartToPoint(g, pos) { return { t: Math.round(g.tOfIdx(g.idxOfX(pos.x))), p: g.pOfY(pos.y) }; }
+    function chartList() { return drawings[chartSym] || (drawings[chartSym] = []); }
+    const FIB_LEVELS = [0, 0.236, 0.382, 0.5, 0.618, 0.786, 1];
+
+    function segDist(px, py, ax, ay, bx, by) {
+        const dx = bx - ax, dy = by - ay, l2 = dx * dx + dy * dy;
+        let t = l2 ? ((px - ax) * dx + (py - ay) * dy) / l2 : 0;
+        t = Math.max(0, Math.min(1, t));
+        return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
+    }
+
+    function chartHandles(o, g) {
+        const a = chartPx(g, o.p1);
+        if (o.type === 'h') return [{ key: 'p1', x: g.plotW / 2, y: a.y }];
+        if (o.type === 'v') return [{ key: 'p1', x: a.x, y: 24 }];
+        const b = chartPx(g, o.p2);
+        return [{ key: 'p1', x: a.x, y: a.y }, { key: 'p2', x: b.x, y: b.y }];
+    }
+
+    function chartHit(g, pos) {
+        const list = chartList(), TH = 10;
+        for (let k = list.length - 1; k >= 0; k--) {
+            const o = list[k], a = chartPx(g, o.p1);
+            if (o.type === 'h') { if (Math.abs(pos.y - a.y) <= TH) return o; continue; }
+            if (o.type === 'v') { if (Math.abs(pos.x - a.x) <= TH) return o; continue; }
+            const b = chartPx(g, o.p2);
+            if (o.type === 'trend') { if (segDist(pos.x, pos.y, a.x, a.y, b.x, b.y) <= TH) return o; }
+            else if (o.type === 'rect') {
+                const x1 = Math.min(a.x, b.x) - 6, x2 = Math.max(a.x, b.x) + 6, y1 = Math.min(a.y, b.y) - 6, y2 = Math.max(a.y, b.y) + 6;
+                if (pos.x >= x1 && pos.x <= x2 && pos.y >= y1 && pos.y <= y2) return o;
+            } else if (o.type === 'fib') {
+                const xs = Math.min(a.x, b.x) - TH;
+                if (pos.x >= xs) for (const lv of FIB_LEVELS) {
+                    if (Math.abs(pos.y - g.yOfP(o.p1.p + (o.p2.p - o.p1.p) * lv)) <= TH) return o;
+                }
+            }
+        }
+        return null;
+    }
+
+    function drawObj(ctx, g, o, selected) {
+        const a = chartPx(g, o.p1);
+        const digits = getDigits(chartSym);
+        ctx.lineWidth = selected ? 2 : 1.3;
+        ctx.setLineDash([]);
+        ctx.strokeStyle = '#ffd60a';
+        ctx.fillStyle = '#ffd60a';
+        if (o.type === 'h') {
+            ctx.beginPath(); ctx.moveTo(0, a.y); ctx.lineTo(g.plotW, a.y); ctx.stroke();
+            ctx.fillText(o.p1.p.toFixed(digits), 4, a.y - 3);
+        } else if (o.type === 'v') {
+            ctx.beginPath(); ctx.moveTo(a.x, 0); ctx.lineTo(a.x, g.plotH); ctx.stroke();
+        } else {
+            const b = chartPx(g, o.p2);
+            if (o.type === 'trend') {
+                ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+            } else if (o.type === 'rect') {
+                ctx.fillStyle = 'rgba(10,132,255,0.16)'; ctx.strokeStyle = '#0a84ff';
+                ctx.fillRect(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.abs(b.x - a.x), Math.abs(b.y - a.y));
+                ctx.strokeRect(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.abs(b.x - a.x), Math.abs(b.y - a.y));
+            } else if (o.type === 'fib') {
+                const xs = Math.min(a.x, b.x);
+                ctx.strokeStyle = 'rgba(255,214,10,0.9)';
+                FIB_LEVELS.forEach(lv => {
+                    const pr = o.p1.p + (o.p2.p - o.p1.p) * lv, y = g.yOfP(pr);
+                    ctx.beginPath(); ctx.moveTo(xs, y); ctx.lineTo(g.plotW, y); ctx.stroke();
+                    ctx.fillStyle = '#ffd60a';
+                    ctx.fillText((lv * 100).toFixed(1) + '%  ' + pr.toFixed(digits), xs + 4, y - 3);
+                });
+                ctx.setLineDash([4, 4]); ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+                ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); ctx.setLineDash([]);
+            }
+        }
+        if (selected) {
+            chartHandles(o, g).forEach(h => {
+                ctx.fillStyle = '#fff'; ctx.strokeStyle = '#0a84ff'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(h.x, h.y, 5, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+            });
+        }
+    }
+
+    function chartLabel(ctx, g, y, text, color) {
+        const yy = Math.max(8, Math.min(g.plotH - 8, y));
+        ctx.fillStyle = color;
+        ctx.fillRect(g.plotW, yy - 8, g.axisW, 16);
+        ctx.fillStyle = '#fff';
+        ctx.fillText(text, g.plotW + 4, yy + 3.5);
+    }
+
+    function chartDraw() {
+        chartRaf = 0;
+        const g = chartCalc();
+        if (!g) return;
+        chartGeo = g;
+        const cv = document.getElementById('chart-canvas');
+        const dpr = window.devicePixelRatio || 1;
+        if (cv.width !== Math.round(g.W * dpr) || cv.height !== Math.round(g.H * dpr)) {
+            cv.width = Math.round(g.W * dpr); cv.height = Math.round(g.H * dpr);
+        }
+        const ctx = cv.getContext('2d');
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.fillStyle = '#000'; ctx.fillRect(0, 0, g.W, g.H);
+        ctx.font = '10px -apple-system, BlinkMacSystemFont, sans-serif';
+        const digits = getDigits(chartSym), q = g.q;
+
+        if (!g.n) {
+            ctx.fillStyle = '#8E8E93'; ctx.fillText('K 線載入中…', 12, 24);
+            return;
+        }
+
+        // 格線 + 價格軸
+        const step = niceStep((g.max - g.min) / 6);
+        ctx.lineWidth = 1; ctx.strokeStyle = '#1c1c1e'; ctx.fillStyle = '#8E8E93';
+        for (let p = Math.ceil(g.min / step) * step; p < g.max; p += step) {
+            const y = Math.round(g.yOfP(p)) + 0.5;
+            ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(g.plotW, y); ctx.stroke();
+            ctx.fillText(p.toFixed(digits), g.plotW + 4, y + 3.5);
+        }
+        // 時間軸
+        const everyBars = Math.max(1, Math.ceil(90 / g.barW));
+        for (let i = g.lo; i <= g.hi; i++) {
+            if (i % everyBars !== 0) continue;
+            const x = Math.round(g.xOfIdx(i)) + 0.5;
+            ctx.strokeStyle = '#1c1c1e'; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, g.plotH); ctx.stroke();
+            ctx.fillStyle = '#8E8E93';
+            ctx.fillText(chartTimeLabel(g.cs[i][0], chartTf >= 60), Math.max(0, Math.min(g.plotW - 60, x - 14)), g.H - 6);
+        }
+
+        ctx.save();
+        ctx.beginPath(); ctx.rect(0, 0, g.plotW, g.plotH); ctx.clip();
+
+        // K 線
+        const bw = Math.max(1, Math.floor(g.barW * 0.7));
+        for (let i = g.lo; i <= g.hi; i++) {
+            const c = g.cs[i], x = g.xOfIdx(i), up = c[4] >= c[1];
+            ctx.globalAlpha = c[5] ? 0.45 : 1;
+            ctx.strokeStyle = ctx.fillStyle = up ? '#34C759' : '#FF3B30';
+            const xw = Math.round(x) + 0.5;
+            ctx.beginPath(); ctx.moveTo(xw, g.yOfP(c[2])); ctx.lineTo(xw, g.yOfP(c[3])); ctx.stroke();
+            const y1 = g.yOfP(Math.max(c[1], c[4])), y2 = g.yOfP(Math.min(c[1], c[4]));
+            ctx.fillRect(Math.round(x - bw / 2), y1, bw, Math.max(1, y2 - y1));
+        }
+        ctx.globalAlpha = 1;
+
+        // Bid / Ask 線
+        if (q) {
+            ctx.setLineDash([3, 3]); ctx.lineWidth = 1;
+            ctx.strokeStyle = '#4da3ff';
+            let y = g.yOfP(q.bid); ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(g.plotW, y); ctx.stroke();
+            ctx.strokeStyle = '#ff6b60';
+            y = g.yOfP(q.ask); ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(g.plotW, y); ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // 持倉線（開倉價 / 止蝕 / 止賺）
+        accountState.positions.filter(p => p.symbol === chartSym).forEach(pos => {
+            const col = pos.type === 'BUY' ? '#0a84ff' : '#ff453a';
+            const line = (price, color, text) => {
+                const y = g.yOfP(price);
+                ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = 1; ctx.setLineDash([6, 3]);
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(g.plotW, y); ctx.stroke(); ctx.setLineDash([]);
+                ctx.fillText(text, 4, y - 3);
+            };
+            line(pos.openPrice, col, `${pos.type.toLowerCase()} ${pos.lots.toFixed(2)}`);
+            if (pos.sl) line(pos.sl, '#ff9f0a', 'SL');
+            if (pos.tp) line(pos.tp, '#30d158', 'TP');
+        });
+
+        // 畫線物件
+        chartList().forEach(o => drawObj(ctx, g, o, o.id === chartSel));
+        if (chartDraft) drawObj(ctx, g, { id: 'draft', type: chartDraft.type, p1: chartDraft.p1, p2: chartDraft.p2 }, false);
+
+        // 十字線
+        let crossCandle = null;
+        if (chartCross) {
+            ctx.strokeStyle = 'rgba(255,255,255,0.45)'; ctx.setLineDash([4, 4]); ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(chartCross.x, 0); ctx.lineTo(chartCross.x, g.plotH); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, chartCross.y); ctx.lineTo(g.plotW, chartCross.y); ctx.stroke();
+            ctx.setLineDash([]);
+            const ci = Math.max(0, Math.min(g.n - 1, Math.round(g.idxOfX(chartCross.x))));
+            crossCandle = g.cs[ci];
+        }
+        ctx.restore();
+
+        // 價格軸標籤
+        if (q) {
+            chartLabel(ctx, g, g.yOfP(q.ask), q.ask.toFixed(digits), '#c0392b');
+            chartLabel(ctx, g, g.yOfP(q.bid), q.bid.toFixed(digits), '#1f6fd1');
+        }
+        if (chartCross) chartLabel(ctx, g, chartCross.y, g.pOfY(chartCross.y).toFixed(digits), '#555');
+
+        // OHLC 讀數
+        const c = crossCandle || g.cs[g.n - 1];
+        const tfName = (TFS.find(t => t[1] === chartTf) || ['', 0])[0];
+        const el = document.getElementById('chart-ohlc');
+        if (el) el.textContent = `${chartSym},${tfName}  O ${c[1].toFixed(digits)}  H ${c[2].toFixed(digits)}  L ${c[3].toFixed(digits)}  C ${c[4].toFixed(digits)}` + (c[5] ? '  （模擬補齊）' : '');
+    }
+
+    function chartRender() { if (!chartRaf) chartRaf = requestAnimationFrame(chartDraw); }
+    function chartTick() {
+        const pg = document.getElementById('page-chart');
+        if (pg && pg.classList.contains('active')) chartRender();
+    }
+
+    function chartSetTool(t) {
+        chartTool = t;
+        chartDraft = null;
+        if (t !== 'cross') chartCross = null;
+        document.querySelectorAll('#chart-tools .tool-btn[data-tool]').forEach(b => b.classList.toggle('active', b.dataset.tool === t));
+        const cv = document.getElementById('chart-canvas');
+        cv.style.cursor = t === 'cursor' ? 'grab' : 'crosshair';
+        chartRender();
+    }
+    function chartSetSymbol(sym) {
+        chartSym = sym; chartSel = null; chartDraft = null; chartCross = null; chartOffset = 0;
+        document.getElementById('chart-symbol').value = sym;
+        ensureHistory(sym);
+        chartRender();
+    }
+    function chartSetTf(tf) {
+        chartTf = tf; chartOffset = 0;
+        document.querySelectorAll('#chart-tfs .tf-btn').forEach(b => b.classList.toggle('active', +b.dataset.tf === tf));
+        chartRender();
+    }
+    function chartZoom(f) { chartBarW = Math.max(2, Math.min(40, chartBarW * f)); chartRender(); }
+    function chartScrollEnd() { chartOffset = 0; chartRender(); }
+    function chartDeleteSel() {
+        const list = chartList();
+        if (chartSel) {
+            const k = list.findIndex(o => o.id === chartSel);
+            if (k >= 0) list.splice(k, 1);
+            chartSel = null;
+            saveDrawings();
+        } else if (list.length && confirm('清除呢個品種所有畫線？')) {
+            drawings[chartSym] = [];
+            saveDrawings();
+        }
+        chartRender();
+    }
+    function chartCommit() {
+        const d = chartDraft;
+        chartDraft = null;
+        if (!d) return;
+        const o = { id: Date.now() + '' + Math.floor(Math.random() * 1000), type: d.type, p1: d.p1, p2: d.p2 };
+        chartList().push(o);
+        chartSel = o.id;
+        saveDrawings();
+        chartSetTool('cursor');
+    }
+    function chartOpen(sym) {
+        chartSym = sym; chartOffset = 0;
+        document.querySelectorAll('.nav-item')[1].click();
+    }
+    function chartEnter() {
+        const sel = document.getElementById('chart-symbol');
+        if (sel) sel.value = chartSym;
+        ensureHistory(chartSym);
+        document.querySelectorAll('#chart-tfs .tf-btn').forEach(b => b.classList.toggle('active', +b.dataset.tf === chartTf));
+        chartRender();
+    }
+
+    function chartInit() {
+        const sel = document.getElementById('chart-symbol');
+        sel.innerHTML = quotesData.map(q => `<option value="${q.symbol}">${q.symbol}</option>`).join('');
+        sel.value = chartSym;
+        document.getElementById('chart-tfs').innerHTML = TFS.map(t => `<div class="tf-btn${t[1] === chartTf ? ' active' : ''}" data-tf="${t[1]}" onclick="chartSetTf(${t[1]})">${t[0]}</div>`).join('');
+
+        const cv = document.getElementById('chart-canvas');
+        const posOf = e => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+        const isDrawTool = () => chartTool === 'trend' || chartTool === 'rect' || chartTool === 'fib';
+
+        cv.addEventListener('pointerdown', e => {
+            const g = chartGeo;
+            if (!g) return;
+            try { cv.setPointerCapture(e.pointerId); } catch (err) {}
+            const pt = posOf(e);
+            chartPtrs.set(e.pointerId, { x: pt.x, y: pt.y });
+            if (chartPtrs.size === 2) {
+                const v = [...chartPtrs.values()];
+                chartPinch = { d: Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y) || 1, bw: chartBarW };
+                chartDrag = null;
+                return;
+            }
+            if (chartTool === 'cross') { chartCross = pt; chartRender(); return; }
+            if (isDrawTool()) {
+                const pp = chartToPoint(g, pt);
+                if (chartDraft && chartDraft.waiting) { chartDraft.p2 = pp; chartCommit(); return; }
+                chartDraft = { type: chartTool, p1: pp, p2: pp, waiting: false, start: pt };
+                chartRender();
+                return;
+            }
+            if (chartTool === 'h' || chartTool === 'v') {
+                chartDraft = { type: chartTool, p1: chartToPoint(g, pt), p2: chartToPoint(g, pt) };
+                chartCommit();
+                return;
+            }
+            const sel = chartSel && chartList().find(o => o.id === chartSel);
+            if (sel) {
+                const h = chartHandles(sel, g).find(h => Math.hypot(h.x - pt.x, h.y - pt.y) < 16);
+                if (h) { chartDrag = { kind: 'handle', key: h.key, id: sel.id }; return; }
+            }
+            chartDrag = { kind: 'pan', startX: pt.x, startOffset: chartOffset, moved: false };
+            cv.style.cursor = 'grabbing';
+        });
+
+        cv.addEventListener('pointermove', e => {
+            const g = chartGeo;
+            if (!g) return;
+            const pt = posOf(e), rec = chartPtrs.get(e.pointerId);
+            if (!rec) {
+                if (e.pointerType === 'mouse') {
+                    if (chartTool === 'cross') { chartCross = pt; chartRender(); }
+                    else if (chartDraft && chartDraft.waiting) { chartDraft.p2 = chartToPoint(g, pt); chartRender(); }
+                }
+                return;
+            }
+            rec.x = pt.x; rec.y = pt.y;
+            if (chartPtrs.size === 2 && chartPinch) {
+                const v = [...chartPtrs.values()];
+                const d = Math.hypot(v[0].x - v[1].x, v[0].y - v[1].y) || 1;
+                chartBarW = Math.max(2, Math.min(40, chartPinch.bw * d / chartPinch.d));
+                chartRender();
+                return;
+            }
+            if (chartTool === 'cross') { chartCross = pt; chartRender(); return; }
+            if (chartDraft && !chartDraft.waiting) { chartDraft.p2 = chartToPoint(g, pt); chartRender(); return; }
+            if (!chartDrag) return;
+            if (chartDrag.kind === 'pan') {
+                const dx = pt.x - chartDrag.startX;
+                if (Math.abs(dx) > 3) chartDrag.moved = true;
+                chartOffset = chartDrag.startOffset + dx / chartBarW;
+            } else if (chartDrag.kind === 'handle') {
+                const o = chartList().find(x => x.id === chartDrag.id);
+                if (o) {
+                    const pp = chartToPoint(g, pt);
+                    if (o.type === 'h') o.p1.p = pp.p;
+                    else if (o.type === 'v') o.p1.t = pp.t;
+                    else o[chartDrag.key] = pp;
+                }
+            }
+            chartRender();
+        });
+
+        const up = e => {
+            const rec = chartPtrs.get(e.pointerId);
+            if (!rec) return;
+            chartPtrs.delete(e.pointerId);
+            if (chartPtrs.size < 2) chartPinch = null;
+            const g = chartGeo, pt = posOf(e);
+            if (chartDraft && !chartDraft.waiting) {
+                if (Math.hypot(pt.x - chartDraft.start.x, pt.y - chartDraft.start.y) > 8) chartCommit();
+                else chartDraft.waiting = true;       // 輕點一下：等第二點
+            } else if (chartDrag) {
+                if (chartDrag.kind === 'pan' && !chartDrag.moved && g) {
+                    const hit = chartHit(g, pt);
+                    chartSel = hit ? hit.id : null;
+                }
+                if (chartDrag.kind === 'handle') saveDrawings();
+                chartDrag = null;
+                cv.style.cursor = chartTool === 'cursor' ? 'grab' : 'crosshair';
+            }
+            chartRender();
+        };
+        cv.addEventListener('pointerup', up);
+        cv.addEventListener('pointercancel', up);
+        cv.addEventListener('wheel', e => { e.preventDefault(); chartZoom(e.deltaY < 0 ? 1.15 : 0.87); }, { passive: false });
+        if (typeof ResizeObserver !== 'undefined') new ResizeObserver(() => chartRender()).observe(document.getElementById('chart-wrap'));
+        cv.style.cursor = 'grab';
+        chartReady = true;
+    }
+
     // --- 9. 初始化 ---
     function init() {
         loadState();
         if (!stateLoaded) { accountState.balance = 10000; accountState.deposit = 10000; saveState(); }
         loadSageSettings();
+        loadQuotes();
+        loadCandles();
+        loadDrawings();
         renderQuotes();
         updateTime();
         initBattery();
@@ -1417,6 +2152,9 @@
         setInterval(updatePrices, 1000);
         fetchLiveRates();
         setInterval(fetchLiveRates, 30 * 1000);
+        chartInit();
+        setInterval(() => { saveQuotes(); saveCandles(); }, 20000);
+        window.addEventListener('beforeunload', () => { saveQuotes(); saveCandles(); });
     }
     init();
 </script>
