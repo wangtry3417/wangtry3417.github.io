@@ -1,0 +1,1498 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src data:; script-src 'unsafe-inline'; connect-src 'none';">
+<title>Financial Simulation</title>
+<style>
+  /* Luminous / Miro Widget Design System Font Loading */
+  @font-face {
+    font-family: 'Google Sans';
+    src: url('https://fonts.gstatic.com/s/googlesans/v58/4UaRrENHsxJlGDuGo1OIlJfC6l_24rlCK1Yo_Iq2vgCI.woff2') format('woff2');
+    font-weight: 400; font-style: normal; font-display: swap;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght,ROND@100..900,0..100&display=swap');
+
+  /* Design System Tokens */
+  :root {
+    --ff-sans: 'Google Sans Flex', 'Google Sans', 'Open Sans', sans-serif;
+    --ff-mono: 'SF Mono', 'Menlo', monospace;
+    --fw-normal: 400;
+    --fw-medium: 500;
+    --fw-semibold: 440;
+
+    --primary: #3186ff;
+    --on-primary: #ffffff;
+    --primary-container: #dcf1ff;
+    --on-primary-container: #192967;
+    --secondary: #969dff;
+    --on-secondary: #ffffff;
+    --secondary-container: #dce4ff;
+    --tertiary: #0ebc5f;
+    --on-tertiary: #ffffff;
+    --tertiary-container: #daf9d4;
+
+    --surface: #FAF9F9;
+    --surface-bright: #ffffff;
+    --surface-dim: #f2f0f0;
+    --surface-container: #f2f0f0;
+    --surface-container-high: #e6e6e6;
+    --surface-container-highest: #e0e0e0;
+    --surface-container-low: #f2f0f0;
+    --surface-container-lowest: #ffffff;
+    --on-surface-default: #1f1f1f;
+    --on-surface-de-emphasis: #444746;
+    --on-surface-primary: #3186ff;
+
+    --outline: #727676;
+    --outline-variant: #c4c7c5;
+    --stroke-default: #e3e3e3;
+    --stroke-emphasis: #808080;
+    --positive: #008052;
+    --negative: #de2d29;
+    --warning: #ffdb0f;
+
+    --chart-1: #3186ff;
+    --chart-2: #60d673;
+    --chart-3: #ffdb0f;
+    --chart-4: #ff8585;
+    --chart-5: #969dff;
+    --chart-6: #ff88d3;
+
+    --black: #000000;
+    --white: #ffffff;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --surface: #0f0f0f;
+      --surface-bright: #1f1f1f;
+      --surface-dim: #141414;
+      --surface-container: #141414;
+      --surface-container-high: #1c1c1c;
+      --surface-container-highest: #171717;
+      --surface-container-low: #0f0f0f;
+      --surface-container-lowest: #0f0f0f;
+      --on-surface-default: #ffffff;
+      --on-surface-de-emphasis: #ababab;
+      --on-surface-primary: #9dd2ff;
+      --primary: #9dd2ff;
+      --on-primary: #192967;
+      --primary-container: #1f3b9b;
+      --on-primary-container: #dce4ff;
+      --outline: #9a9b9c;
+      --outline-variant: #4a5050;
+      --stroke-default: #2d2f38;
+      --stroke-emphasis: #808080;
+      --positive: #0ebc5f;
+      --negative: #ff4c45;
+      --warning: #ffdb0f;
+      --chart-1: #9dd2ff;
+      --chart-2: #60d673;
+      --chart-3: #ffdb0f;
+      --chart-4: #ff9999;
+      --chart-5: #969dff;
+      --chart-6: #ff88d3;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { overflow: hidden; }
+
+  body {
+    font-family: var(--ff-sans);
+    background: var(--surface);
+    color: var(--on-surface-default);
+    padding: 0; margin: 0;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .widget {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 24px 20px 32px;
+  }
+  @media (min-width: 768px) {
+    .widget { max-width: 708px; padding: 32px 28px 40px; }
+  }
+
+  /* Summary Section (3-column inline header matching uploaded design) */
+  .summary-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 12px;
+    margin-bottom: 28px;
+  }
+  .summary-item {
+    text-align: center;
+    flex: 1;
+    max-width: 200px;
+  }
+  .summary-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--stroke-default);
+    flex-shrink: 0;
+  }
+  .summary-val {
+    font-family: 'Google Sans Flex', var(--ff-sans);
+    font-weight: var(--fw-medium);
+    letter-spacing: -0.5px;
+    font-variant-numeric: tabular-nums;
+    transition: color 0.3s;
+    font-size: 24px;
+    line-height: 30px;
+  }
+  .summary-val.positive { color: var(--positive); }
+  .summary-val.negative { color: var(--negative); }
+  .summary-sub {
+    font-size: 13px;
+    color: var(--on-surface-de-emphasis);
+    margin-top: 2px;
+  }
+
+  /* Chart */
+  .chart-section {
+    margin: 0;
+    width: 100%;
+    overflow-x: hidden;
+  }
+  .chart-section svg {
+    display: block; width: 100%; height: auto;
+  }
+
+  /* Legend */
+  .legend-section {
+    display: flex; gap: 20px; justify-content: center;
+    margin-top: 16px; flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--on-surface-de-emphasis);
+    font-family: var(--ff-sans);
+  }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    position: absolute;
+    background: var(--surface-bright);
+    border: 1px solid var(--outline-variant);
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-family: var(--ff-sans);
+    font-size: 13px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 100;
+    white-space: nowrap;
+    color: var(--on-surface-default);
+    line-height: 1.6;
+  }
+  .tooltip-value { font-weight: var(--fw-medium); margin-left: 6px; font-variant-numeric: tabular-nums; }
+
+  /* SVG text */
+  .axis-label {
+    font-family: var(--ff-sans);
+    fill: var(--on-surface-default);
+  }
+  .axis-tick {
+    font-family: var(--ff-sans);
+    fill: var(--on-surface-default);
+  }
+
+  /* Animations */
+  #pathLayer path {
+    transition: d 0.4s cubic-bezier(0.2, 0, 0, 1), stroke 0.4s ease, fill 0.4s ease;
+  }
+
+  /* Slider Sections */
+  .sliders-section { margin-top: 28px; }
+  .breakdown-title {
+    font-size: 18px; font-weight: var(--fw-medium); margin-bottom: 16px;
+  }
+  .category { border-bottom: none; }
+  .category-header {
+    display: flex; justify-content: space-between; align-items: center;
+    cursor: pointer; padding: 8px 0; user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .category-title { font-size: 15px; font-weight: var(--fw-medium); }
+  .category-chevron {
+    width: 20px; height: 20px; transition: transform 0.2s ease;
+    color: var(--on-surface-de-emphasis);
+  }
+  .category.open .category-chevron { transform: rotate(180deg); }
+  .category-body {
+    max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+  }
+  .category.open .category-body {
+    max-height: 600px;
+    padding-bottom: 12px;
+  }
+  .slider-grid {
+    display: grid; grid-template-columns: 1fr; gap: 16px 24px;
+    padding-bottom: 4px;
+  }
+  @media (min-width: 540px) {
+    .slider-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  }
+  .slider-row { margin-bottom: 20px; }
+  .slider-grid .slider-row { margin-bottom: 0; }
+  .slider-label {
+    font-size: 13px; color: var(--on-surface-de-emphasis); margin-bottom: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .slider-control { display: flex; align-items: center; gap: 12px; }
+
+  /* Luminous Slider Styling */
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    flex: 1; height: 32px; margin: 0; background: transparent;
+    border-radius: 999px; outline: none; cursor: pointer;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 3px;
+    background: linear-gradient(
+      to right,
+      var(--on-surface-default) 0%, var(--on-surface-default) var(--progress, 50%),
+      rgba(128,128,128,0.3) var(--progress, 50%), rgba(128,128,128,0.3) 100%
+    );
+    border-radius: 999px; border: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 12px; height: 24px; border-radius: 999px;
+    background: var(--surface); border: 3px solid var(--on-surface-default);
+    box-sizing: border-box; margin-top: -10.5px; cursor: pointer; box-shadow: none;
+  }
+  input[type="range"]::-moz-range-track {
+    height: 3px;
+    background: linear-gradient(
+      to right,
+      var(--on-surface-default) 0%, var(--on-surface-default) var(--progress, 50%),
+      rgba(128,128,128,0.3) var(--progress, 50%), rgba(128,128,128,0.3) 100%
+    );
+    border-radius: 999px; border: none;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 12px; height: 24px; border-radius: 999px;
+    background: var(--surface); border: 3px solid var(--on-surface-default);
+    box-sizing: border-box; cursor: pointer; box-shadow: none;
+  }
+  @media (max-width: 600px) {
+    input[type="range"] { height: 36px; }
+    input[type="range"]::-webkit-slider-thumb { width: 14px; height: 26px; margin-top: -11.5px; }
+    input[type="range"]::-moz-range-thumb { width: 14px; height: 26px; }
+  }
+
+  .slider-value {
+    font-size: 14px; font-weight: var(--fw-medium);
+    font-family: var(--ff-sans); min-width: 64px; width: 80px; flex-shrink: 0; text-align: right;
+    white-space: nowrap; font-variant-numeric: tabular-nums;
+    background: var(--surface-container); color: var(--on-surface-default);
+    padding: 6px 10px; border-radius: 8px;
+    border: 1px solid var(--stroke-default, rgba(128,128,128,0.2));
+    outline: none; box-sizing: border-box;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+  }
+  .slider-value:focus {
+    border-color: var(--primary, #1a73e8);
+    background: var(--surface);
+  }
+
+  /* Footer */
+  .footer-note {
+    margin-top: 24px; font-size: 12px;
+    color: var(--on-surface-de-emphasis); line-height: 1.6;
+  }
+
+  @media (max-width: 480px) {
+    .widget { padding: 16px 14px 24px; }
+    .summary-section { gap: 8px; }
+    .summary-val, .side-val { font-size: 17px; line-height: 22px; }
+    .center-val { font-size: 21px; line-height: 26px; }
+    .summary-sub { font-size: 11px; }
+    .breakdown-title { font-size: 16px; }
+    .widget-title { font-size: 16px; }
+    .widget-subtitle { font-size: 12px; }
+    .legend-item { font-size: 11px; }
+    .slider-label { white-space: normal; }
+    .slider-value { width: 72px; padding: 4px 8px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="widget" id="simWidget">
+  <div class="summary-section" id="summarySection"></div>
+
+  <div class="chart-section">
+    <svg id="simChart" xmlns="http://www.w3.org/2000/svg"></svg>
+  </div>
+
+  <div class="legend-section" id="legendSection"></div>
+
+  <div class="sliders-section">
+    <div class="breakdown-title" id="slidersTitle">Adjust parameters</div>
+    <div id="slidersContainer"></div>
+  </div>
+
+  <div class="footer-note" id="footerNote">
+    Drag sliders to project different scenarios.
+  </div>
+</div>
+
+<div class="tooltip" id="chartTooltip"></div>
+
+<script id="injected-widget-data" type="application/json">{
+  "labels": {
+    "currencySymbol": "$",
+    "title": "Sage 2年資產增長模擬",
+    "xAxis": "月數",
+    "yAxis": "戶口總資產 (HKD)",
+    "slidersTitle": "調整量化策略參數",
+    "footerNote": "*假設每月固定投入 $1,000 HKD 本金，對比保守型（1.5%月回報）與高頻動能型（5%月回報）。"
+  },
+  "xParam": "years",
+  "params": [
+    { "key": "initial", "label": "起始底倉 (HKD)", "value": 0, "min": 0, "max": 10000, "step": 500, "format": "currency" },
+    { "key": "monthly", "label": "每月投入 (HKD)", "value": 1000, "min": 500, "max": 3000, "step": 500, "format": "currency" },
+    { "key": "rate", "label": "保守月回報 (%)", "value": 1.5, "min": 0.5, "max": 5, "step": 0.5, "format": "percent" },
+    { "key": "years", "label": "時間週期 (年)", "value": 2, "min": 1, "max": 5, "step": 1, "format": "years" }
+  ],
+  "series": [
+    {
+      "key": "conservative",
+      "label": "APR 保守型 (1.5%/月)",
+      "colorVar": "--chart-1",
+      "fill": true,
+      "formula": "initial * Math.pow(1 + rate/100, t*12) + monthly * ((Math.pow(1 + rate/100, t*12) - 1) / (rate/100))"
+    },
+    {
+      "key": "aggressive",
+      "label": "高頻動能型 (5.0%/月)",
+      "colorVar": "--chart-2",
+      "fill": false,
+      "formula": "initial * Math.pow(1 + 0.05, t*12) + monthly * ((Math.pow(1 + 0.05, t*12) - 1) / 0.05)"
+    }
+  ],
+  "summary": [
+    { "label": "總投入本金", "value": "monthly * years * 12", "format": "currency" },
+    { "label": "保守型預估總額", "value": "conservative", "format": "currency" },
+    { "label": "動能型預估總額", "value": "aggressive", "format": "currency", "colorClass": "positive" }
+  ]
+}</script>
+<script>
+  // ===================================================================
+  // DEFAULT DATA (local preview fallback)
+  // ===================================================================
+  const defaultParams = [
+    { key: 'initial', label: 'Starting amount', value: 10000, min: 0, max: 500000, step: 1000, format: 'currency' },
+    { key: 'monthly', label: 'Monthly contribution', value: 500, min: 0, max: 5000, step: 50, format: 'currency' },
+    { key: 'rate', label: 'Annual return (%)', value: 7, min: 0, max: 25, step: 0.5, format: 'percent' },
+    { key: 'years', label: 'Time horizon', value: 30, min: 1, max: 50, step: 1, format: 'years' },
+  ];
+
+  const defaultSeries = [
+    { key: 'total', label: 'Total Value', colorVar: '--chart-1', fill: true,
+      formula: 'rate > 0 ? initial * Math.pow(1 + rate/100/12, t*12) + monthly * ((Math.pow(1 + rate/100/12, t*12) - 1) / (rate/100/12)) : initial + monthly * 12 * t' },
+    { key: 'contributions', label: 'Total Contributed', colorVar: '--chart-2', fill: true,
+      formula: 'initial + monthly * 12 * t' },
+  ];
+
+  const defaultSummary = [
+    { label: 'Final Value', value: 'total', format: 'currency' },
+    { label: 'Total Contributed', value: 'contributions', format: 'currency' },
+    { label: 'Interest Earned', value: 'total - contributions', format: 'currency', colorClass: 'positive' },
+  ];
+
+  const defaultLabels = {
+    xAxis: 'Years',
+    yAxis: 'Portfolio Value',
+    slidersTitle: 'Adjust parameters',
+    footerNote: 'Drag sliders to project different scenarios.',
+    currencySymbol: '',
+    currencyLocale: 'en-US',
+  };
+
+  // ===================================================================
+  // DATA INJECTION & DEFENSIVE SCHEMA NORMALIZER (Tier 1 Anti-Hallucination)
+  // ===================================================================
+  function loadInjectedData() {
+    const el = document.getElementById('injected-widget-data');
+    if (!el) return null;
+    const raw = (el.textContent || '').trim();
+    const sentinel = '/*' + 'INJECT_USER_DATA' + '*/';
+    if (!raw || raw === sentinel) return null;
+    try {
+      return JSON.parse(raw);
+    } catch (e) {
+      try {
+        return JSON.parse(raw.replace(/\\'/g, "'"));
+      } catch (e2) {
+        return null;
+      }
+    }
+  }
+  let injectedData = loadInjectedData();
+
+  function normalizeSimulationData(data) {
+    if (!data || typeof data !== 'object') {
+      return {
+        labels: { ...defaultLabels },
+        params: defaultParams,
+        series: defaultSeries,
+        summary: defaultSummary,
+        xParam: 'years'
+      };
+    }
+
+    // 1. Labels Normalization (Hoist top-level titles/axes/currencies if not in `labels`)
+    const rawLabels = data.labels || {};
+    let currencySym = rawLabels.currencySymbol || data.currencySymbol || '';
+    if (!currencySym) {
+      if (data.unit === 'EUR' || data.xUnit === 'EUR' || data.currency === 'EUR') currencySym = '€';
+      else if (data.unit === 'USD' || data.currency === 'USD') currencySym = '$';
+      else if (data.unit === 'GBP' || data.currency === 'GBP') currencySym = '£';
+      else if (data.unit === 'JPY' || data.unit === 'CNY' || data.currency === 'JPY' || data.currency === 'CNY') currencySym = '¥';
+    }
+
+    const labels = {
+      currencySymbol: currencySym,
+      currencyLocale: rawLabels.currencyLocale || data.currencyLocale || 'en-US',
+      xAxis: rawLabels.xAxis || data.xAxis || data.xLabel || (data.xUnit ? `Tiempo (${data.xUnit})` : 'Years'),
+      yAxis: rawLabels.yAxis || data.yAxis || data.yLabel || data.title || 'Portfolio Value',
+      slidersTitle: rawLabels.slidersTitle || data.slidersTitle || data.title || 'Adjust parameters',
+      footerNote: rawLabels.footerNote || data.footerNote || 'Drag sliders to project different scenarios.',
+    };
+
+    // 2. Params Normalization (Tolerate `controls`, `sliders`, `parameters`, and `id` as `key`)
+    const rawParams = Array.isArray(data.params) ? data.params :
+                      (Array.isArray(data.controls) ? data.controls :
+                      (Array.isArray(data.sliders) ? data.sliders : defaultParams));
+
+    const params = rawParams.map((p, idx) => {
+      const key = p.key || p.id || p.name || `param_${idx}`;
+      const label = p.label || p.title || p.name || key;
+      const val = Number(p.value !== undefined ? p.value : (p.default !== undefined ? p.default : 0)) || 0;
+      const min = p.min !== undefined ? Number(p.min) : 0;
+      const max = p.max !== undefined ? Number(p.max) : Math.max(100, Math.ceil((val * 2.5) / 10) * 10);
+      const step = p.step !== undefined ? Number(p.step) : (max > 1000 ? 50 : 1);
+      
+      let format = p.format;
+      if (!format) {
+        if (p.unit === 'EUR' || p.unit === 'USD' || p.unit === '$' || p.unit === '€' || p.unit === 'currency') format = 'currency';
+        else if (p.unit === '%' || p.unit === 'percent' || key.toLowerCase().includes('rate') || key.toLowerCase().includes('return')) format = 'percent';
+        else if (p.unit === 'years' || p.unit === 'años' || p.unit === 'ans' || key.toLowerCase().includes('year') || key.toLowerCase().includes('horizon')) format = 'years';
+        else format = 'number';
+      }
+      return { key, label, value: val, min, max, step, format };
+    });
+
+    // Determine xParam or discover/synthesize time slider from xMax if missing
+    let xParam = data.xParam;
+    if (!xParam || !params.some(p => p.key === xParam)) {
+      const timeParam = params.find(p => p.format === 'years' || ['years', 'duration', 'time', 'horizon', 'xMax', 'tenure'].includes(p.key.toLowerCase()));
+      if (timeParam) {
+        xParam = timeParam.key;
+      } else if (typeof data.xMax === 'number' && data.xMax > 0) {
+        const xStep = typeof data.xStep === 'number' ? data.xStep : 1;
+        const xMin = typeof data.xMin === 'number' ? data.xMin : 1;
+        const xLabel = data.xUnit ? `Time Horizon (${data.xUnit})` : 'Time Horizon';
+        params.push({ key: 'years', label: xLabel, value: data.xMax, min: xMin, max: data.xMax * 2, step: xStep, format: 'years' });
+        xParam = 'years';
+      } else {
+        xParam = params[params.length - 1]?.key || 'years';
+      }
+    }
+
+    // 3. Series Normalization (Tolerate `id`, `color`, and auto-replace `years`/`duration`/`xParam` with `t` in formulas)
+    const rawSeries = Array.isArray(data.series) ? data.series : defaultSeries;
+    const series = rawSeries.map((s, idx) => {
+      const key = s.key || s.id || `series_${idx}`;
+      const label = s.label || s.title || key;
+      const colorVar = s.colorVar || (s.color && s.color.startsWith('--') ? s.color : `--chart-${(idx % 6) + 1}`);
+      const fill = s.fill !== undefined ? !!s.fill : (idx === 0);
+      let formula = s.formula || '0';
+
+      // Auto-rewrite formula: If formula does NOT use `t` as a standalone token, rewrite time variable references
+      if (!/\bt\b/.test(formula)) {
+        if (/\byears\b/.test(formula)) formula = formula.replace(/\byears\b/g, 't');
+        if (xParam && new RegExp(`\\b${xParam}\\b`).test(formula)) formula = formula.replace(new RegExp(`\\b${xParam}\\b`, 'g'), 't');
+        if (/\bduration\b/.test(formula)) formula = formula.replace(/\bduration\b/g, 't');
+        if (/\bhorizon\b/.test(formula)) formula = formula.replace(/\bhorizon\b/g, 't');
+      }
+
+      return { key, label, colorVar, fill, formula };
+    });
+
+    // 4. Summary Normalization (Tolerate `summaryCards`, `cards`, `formula` as `value`, and `unit`)
+    const rawSummary = Array.isArray(data.summary) ? data.summary :
+                       (Array.isArray(data.summaryCards) ? data.summaryCards :
+                       (Array.isArray(data.cards) ? data.cards : defaultSummary));
+
+    const summary = rawSummary.map(sm => {
+      const label = sm.label || sm.title || 'Summary';
+      let val = sm.value || sm.formula || '0';
+      let format = sm.format;
+      if (!format) {
+        if (sm.unit === 'EUR' || sm.unit === 'USD' || sm.unit === '$' || sm.unit === '€' || sm.unit === 'currency') format = 'currency';
+        else if (sm.unit === '%' || sm.unit === 'percent') format = 'percent';
+        else format = 'number';
+      }
+      return {
+        label: label,
+        value: val,
+        format: format,
+        colorClass: sm.colorClass || ''
+      };
+    });
+
+    return { labels, params, series, summary, xParam };
+  }
+
+  const normalized = normalizeSimulationData(injectedData);
+  const params = normalized.params;
+  const series = normalized.series;
+  const summaryDef = normalized.summary;
+  const labels = normalized.labels;
+  const xParam = normalized.xParam;
+
+  // ===================================================================
+  // HELPERS
+  // ===================================================================
+  function getComputedColor(varName) {
+    return getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+  }
+
+  function getCurrencySymbol() {
+    if (labels.currencySymbol) return labels.currencySymbol;
+    return '';
+  }
+
+  function fmt(n, format) {
+    const sym = getCurrencySymbol();
+    const loc = labels.currencyLocale || 'en-US';
+    if (format === 'currency') {
+      const abs = Math.abs(n);
+      const sign = n < 0 ? '-' : '';
+      if (abs >= 1e6) return sign + sym + (abs / 1e6).toFixed(1) + 'M';
+      return sign + sym + Math.round(abs).toLocaleString(loc);
+    }
+    if (format === 'percent') return n + '%';
+    if (format === 'years') return n.toLocaleString(loc);
+    return n.toLocaleString(loc);
+  }
+
+  function fmtAxisY(n) {
+    const sym = getCurrencySymbol();
+    const abs = Math.abs(n);
+    if (abs >= 1e6) return sym + (n / 1e6).toFixed(1) + 'M';
+    if (abs >= 1e3) return sym + (n / 1e3).toFixed(0) + 'K';
+    return sym + n.toFixed(0);
+  }
+
+  function updateSliderProgress(el) {
+    const min = parseFloat(el.min) || 0;
+    const max = parseFloat(el.max) || 100;
+    const val = parseFloat(el.value) || 0;
+    const pct = (val - min) / (max - min) * 100;
+    el.style.setProperty('--progress', pct + '%');
+  }
+
+  // ===================================================================
+  // PARAMETER STATE
+  // ===================================================================
+  const paramValues = {};
+  params.forEach(p => { paramValues[p.key] = p.value; });
+
+  // ===================================================================
+  // SAFE ARITHMETIC EXPRESSION COMPILER (Zero dynamic code evaluation)
+  // ===================================================================
+  const SAFE_MATH_FUNCS = {
+    pow: Math.pow,
+    max: Math.max,
+    min: Math.min,
+    round: Math.round,
+    floor: Math.floor,
+    ceil: Math.ceil,
+    abs: Math.abs,
+    exp: Math.exp,
+    log: Math.log,
+    log10: Math.log10,
+    sqrt: Math.sqrt,
+    trunc: Math.trunc,
+    sign: Math.sign,
+  };
+
+  function tokenizeFormula(str) {
+    const tokens = [];
+    const s = String(str || '');
+    let i = 0;
+    while (i < s.length) {
+      const ch = s[i];
+      if (/\s/.test(ch)) { i++; continue; }
+      if (/[0-9]/.test(ch) || (ch === '.' && /[0-9]/.test(s[i + 1] || ''))) {
+        let numStr = '';
+        while (i < s.length && /[0-9.]/.test(s[i])) numStr += s[i++];
+        if (i < s.length && (s[i] === 'e' || s[i] === 'E')) {
+          numStr += s[i++];
+          if (i < s.length && (s[i] === '+' || s[i] === '-')) numStr += s[i++];
+          while (i < s.length && /[0-9]/.test(s[i])) numStr += s[i++];
+        }
+        tokens.push({ type: 'num', val: parseFloat(numStr) || 0 });
+        continue;
+      }
+      if (/[a-zA-Z_$]/.test(ch)) {
+        let id = '';
+        while (i < s.length && /[a-zA-Z0-9_$.]/.test(s[i])) id += s[i++];
+        tokens.push({ type: 'id', val: id });
+        continue;
+      }
+      const three = s.slice(i, i + 3);
+      if (three === '===' || three === '!==') {
+        tokens.push({ type: 'op', val: three });
+        i += 3;
+        continue;
+      }
+      const two = s.slice(i, i + 2);
+      if (['**', '<=', '>=', '==', '!=', '&&', '||'].includes(two)) {
+        tokens.push({ type: 'op', val: two });
+        i += 2;
+        continue;
+      }
+      if ('+-*/%^()?,:<>!'.includes(ch)) {
+        tokens.push({ type: 'op', val: ch });
+        i++;
+        continue;
+      }
+      // Unknown character: abort tokenization safely
+      return [];
+    }
+    return tokens;
+  }
+
+  function compileSafeFormula(formula) {
+    const tokens = tokenizeFormula(formula);
+    if (!tokens.length) return () => 0;
+    let pos = 0;
+    const peek = () => tokens[pos];
+    const next = () => tokens[pos++];
+
+    function parseTernary() {
+      const cond = parseOr();
+      if (peek() && peek().type === 'op' && peek().val === '?') {
+        next();
+        const ifTrue = parseTernary();
+        if (peek() && peek().type === 'op' && peek().val === ':') next();
+        const ifFalse = parseTernary();
+        return (scope) => (cond(scope) ? ifTrue(scope) : ifFalse(scope));
+      }
+      return cond;
+    }
+
+    function parseOr() {
+      let left = parseAnd();
+      while (peek() && peek().type === 'op' && peek().val === '||') {
+        next();
+        const right = parseAnd();
+        const prev = left;
+        left = (scope) => (prev(scope) || right(scope));
+      }
+      return left;
+    }
+
+    function parseAnd() {
+      let left = parseComparison();
+      while (peek() && peek().type === 'op' && peek().val === '&&') {
+        next();
+        const right = parseComparison();
+        const prev = left;
+        left = (scope) => (prev(scope) && right(scope));
+      }
+      return left;
+    }
+
+    function parseComparison() {
+      let left = parseAdditive();
+      while (peek() && peek().type === 'op' && ['<', '>', '<=', '>=', '==', '===', '!=', '!=='].includes(peek().val)) {
+        const op = next().val;
+        const right = parseAdditive();
+        const prev = left;
+        left = (scope) => {
+          const a = prev(scope), b = right(scope);
+          if (op === '<') return a < b ? 1 : 0;
+          if (op === '>') return a > b ? 1 : 0;
+          if (op === '<=') return a <= b ? 1 : 0;
+          if (op === '>=') return a >= b ? 1 : 0;
+          if (op === '==' || op === '===') return a === b ? 1 : 0;
+          if (op === '!=' || op === '!==') return a !== b ? 1 : 0;
+          return 0;
+        };
+      }
+      return left;
+    }
+
+    function parseAdditive() {
+      let left = parseMultiplicative();
+      while (peek() && peek().type === 'op' && (peek().val === '+' || peek().val === '-')) {
+        const op = next().val;
+        const right = parseMultiplicative();
+        const prev = left;
+        left = op === '+'
+          ? (scope) => (Number(prev(scope)) + Number(right(scope)))
+          : (scope) => (Number(prev(scope)) - Number(right(scope)));
+      }
+      return left;
+    }
+
+    function parseMultiplicative() {
+      let left = parsePower();
+      while (peek() && peek().type === 'op' && ['*', '/', '%'].includes(peek().val)) {
+        const op = next().val;
+        const right = parsePower();
+        const prev = left;
+        left = (scope) => {
+          const a = Number(prev(scope)), b = Number(right(scope));
+          if (op === '*') return a * b;
+          if (op === '/') return b !== 0 ? a / b : 0;
+          if (op === '%') return b !== 0 ? a % b : 0;
+          return 0;
+        };
+      }
+      return left;
+    }
+
+    function parsePower() {
+      let base = parseUnary();
+      if (peek() && peek().type === 'op' && (peek().val === '**' || peek().val === '^')) {
+        next();
+        const exp = parsePower();
+        return (scope) => Math.pow(Number(base(scope)), Number(exp(scope)));
+      }
+      return base;
+    }
+
+    function parseUnary() {
+      if (peek() && peek().type === 'op' && (peek().val === '+' || peek().val === '-' || peek().val === '!')) {
+        const op = next().val;
+        const arg = parseUnary();
+        if (op === '-') return (scope) => -Number(arg(scope));
+        if (op === '!') return (scope) => (arg(scope) ? 0 : 1);
+        return (scope) => +Number(arg(scope));
+      }
+      return parsePrimary();
+    }
+
+    function parsePrimary() {
+      const tok = peek();
+      if (!tok) return () => 0;
+      if (tok.type === 'num') {
+        next();
+        const v = tok.val;
+        return () => v;
+      }
+      if (tok.type === 'op' && tok.val === '(') {
+        next();
+        const inner = parseTernary();
+        if (peek() && peek().type === 'op' && peek().val === ')') next();
+        return inner;
+      }
+      if (tok.type === 'id') {
+        next();
+        const rawName = tok.val;
+        const fnName = rawName.startsWith('Math.') ? rawName.slice(5) : rawName;
+        if (peek() && peek().type === 'op' && peek().val === '(') {
+          next();
+          const args = [];
+          if (!(peek() && peek().type === 'op' && peek().val === ')')) {
+            args.push(parseTernary());
+            while (peek() && peek().type === 'op' && peek().val === ',') {
+              next();
+              args.push(parseTernary());
+            }
+          }
+          if (peek() && peek().type === 'op' && peek().val === ')') next();
+          const fn = SAFE_MATH_FUNCS[fnName];
+          if (!fn) return () => 0;
+          return (scope) => fn(...args.map(a => Number(a(scope))));
+        }
+        if (rawName === 'Math.PI') return () => Math.PI;
+        if (rawName === 'Math.E') return () => Math.E;
+        if (rawName === 'true') return () => 1;
+        if (rawName === 'false') return () => 0;
+        return (scope) => (Object.prototype.hasOwnProperty.call(scope, rawName) ? Number(scope[rawName]) : 0);
+      }
+      next();
+      return () => 0;
+    }
+
+    try {
+      const astFn = parseTernary();
+      return (scope) => {
+        try {
+          const val = Number(astFn(scope));
+          return isFinite(val) ? val : 0;
+        } catch (e) {
+          return 0;
+        }
+      };
+    } catch (e) {
+      return () => 0;
+    }
+  }
+
+  const formulaCache = {};
+  function evalFormula(formula, t) {
+    if (!formulaCache[formula]) {
+      formulaCache[formula] = compileSafeFormula(formula);
+    }
+    const scope = { t };
+    params.forEach(p => { scope[p.key] = paramValues[p.key]; });
+    const result = formulaCache[formula](scope);
+    return isFinite(result) ? Math.max(0, result) : 0;
+  }
+
+  // ===================================================================
+  // COMPUTE ALL DATA POINTS
+  // ===================================================================
+  let computedData = {};
+  let xValues = [];
+
+  function computeData() {
+    const xMax = Math.ceil(paramValues[xParam] || 30);
+    xValues = [];
+    for (let i = 0; i <= xMax; i++) xValues.push(i);
+
+    computedData = {};
+    series.forEach(s => {
+      computedData[s.key] = xValues.map(t => evalFormula(s.formula, t));
+    });
+  }
+
+  // ===================================================================
+  // SVG LAYOUT
+  // ===================================================================
+  let SVG_W = 1000;
+  let SVG_H = 480;
+  let PAD = { top: 58, bottom: 60, left: 90, right: 30 };
+  let fontSizeTick = 18;
+  let fontSizeLabel = 20;
+  let stickyYMax = null; // Sticky Y-axis ceiling to prevent jarring rescale
+
+  function niceMax(maxVal) {
+    if (maxVal <= 0) return 100;
+    const mag = Math.pow(10, Math.floor(Math.log10(maxVal)));
+    const res = maxVal / mag;
+    if (res <= 1.2) return 1.2 * mag;
+    if (res <= 1.5) return 1.5 * mag;
+    if (res <= 2) return 2 * mag;
+    if (res <= 3) return 3 * mag;
+    if (res <= 5) return 5 * mag;
+    if (res <= 7.5) return 7.5 * mag;
+    return 10 * mag;
+  }
+
+  // ===================================================================
+  // RENDER CHART
+  // ===================================================================
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+
+  function createSvgNode(tag, attrs, text) {
+    const el = document.createElementNS(SVG_NS, tag);
+    if (attrs) {
+      for (const [k, v] of Object.entries(attrs)) {
+        el.setAttribute(k, String(v));
+      }
+    }
+    if (text !== undefined) el.textContent = String(text);
+    return el;
+  }
+
+  function renderChart() {
+    const isMobile = window.innerWidth <= 600;
+    SVG_W = isMobile ? 420 : 1000;
+    SVG_H = isMobile ? 360 : 480;
+    PAD = isMobile
+      ? { top: 40, bottom: 45, left: 65, right: 15 }
+      : { top: 58, bottom: 60, left: 90, right: 30 };
+    fontSizeTick = isMobile ? 12 : 18;
+    fontSizeLabel = isMobile ? 14 : 20;
+
+    computeData();
+
+    const svg = document.getElementById('simChart');
+    if (!svg.querySelector('#gridLayer')) {
+      svg.replaceChildren(
+        createSvgNode('g', { id: 'gridLayer' }),
+        createSvgNode('g', { id: 'pathLayer' }),
+        createSvgNode('g', { id: 'hoverLayer' })
+      );
+    }
+    
+    const gridLayer = svg.querySelector('#gridLayer');
+    const pathLayer = svg.querySelector('#pathLayer');
+    const hoverLayer = svg.querySelector('#hoverLayer');
+
+    svg.setAttribute('viewBox', `0 0 ${SVG_W} ${SVG_H}`);
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+    // Find max Y across all series
+    let globalMax = 0;
+    series.forEach(s => {
+      const mx = Math.max(...(computedData[s.key] || [0]));
+      if (mx > globalMax) globalMax = mx;
+    });
+    const idealMax = niceMax(globalMax);
+
+    // Sticky Y-axis: only rescale if data exceeds ceiling or drops below 35%
+    if (stickyYMax === null || idealMax > stickyYMax || idealMax < stickyYMax * 0.35) {
+      stickyYMax = idealMax;
+    }
+    const yMax = stickyYMax;
+
+    const plotW = SVG_W - PAD.left - PAD.right;
+    const plotH = SVG_H - PAD.top - PAD.bottom;
+
+    function xPos(i) {
+      return PAD.left + (xValues.length > 1 ? (i / (xValues.length - 1)) * plotW : 0);
+    }
+    function yPos(v) {
+      return PAD.top + plotH - (v / yMax) * plotH;
+    }
+
+    gridLayer.replaceChildren();
+
+    // 1. Gridlines (horizontal)
+    const yTickCount = 5;
+    for (let i = 0; i <= yTickCount; i++) {
+      const val = (yMax / yTickCount) * i;
+      const y = yPos(val);
+      if (i > 0) {
+        gridLayer.appendChild(createSvgNode('line', {
+          x1: PAD.left, y1: y, x2: SVG_W - PAD.right, y2: y,
+          stroke: 'var(--stroke-default)', 'stroke-dasharray': '4 4', 'stroke-width': 1
+        }));
+      }
+      gridLayer.appendChild(createSvgNode('text', {
+        x: PAD.left - 14, y: y + 5, 'text-anchor': 'end',
+        class: 'axis-tick', 'font-size': fontSizeTick
+      }, fmtAxisY(val)));
+    }
+
+    // 2. X axis ticks
+    const xTickInterval = Math.max(1, Math.ceil(xValues.length / 10));
+    xValues.forEach((t, i) => {
+      if (i % xTickInterval === 0 || i === xValues.length - 1) {
+        const x = xPos(i);
+        gridLayer.appendChild(createSvgNode('text', {
+          x, y: PAD.top + plotH + 24, 'text-anchor': 'middle',
+          class: 'axis-tick', 'font-size': fontSizeTick
+        }, t));
+        gridLayer.appendChild(createSvgNode('line', {
+          x1: x, y1: PAD.top + plotH, x2: x, y2: PAD.top + plotH + 5,
+          stroke: 'var(--outline-variant)', 'stroke-width': 1
+        }));
+      }
+    });
+
+    // 3. Axis labels
+    gridLayer.appendChild(createSvgNode('text', {
+      x: PAD.left + plotW / 2, y: SVG_H - 5, 'text-anchor': 'middle',
+      class: 'axis-label', 'font-size': fontSizeLabel, 'font-weight': 500
+    }, labels.xAxis));
+    gridLayer.appendChild(createSvgNode('text', {
+      x: 0, y: PAD.top - 24, 'text-anchor': 'start',
+      class: 'axis-label', 'font-size': fontSizeLabel, 'font-weight': 500
+    }, labels.yAxis));
+
+    // 4. Axis lines
+    gridLayer.appendChild(createSvgNode('line', {
+      x1: PAD.left, y1: PAD.top, x2: PAD.left, y2: PAD.top + plotH,
+      stroke: 'var(--outline-variant)', 'stroke-width': 1
+    }));
+    gridLayer.appendChild(createSvgNode('line', {
+      x1: PAD.left, y1: PAD.top + plotH, x2: SVG_W - PAD.right, y2: PAD.top + plotH,
+      stroke: 'var(--outline-variant)', 'stroke-width': 1
+    }));
+
+    // 5. Draw series (areas first in reverse order, then lines)
+    const seriesReversed = [...series].reverse();
+
+    seriesReversed.forEach(s => {
+      const data = computedData[s.key];
+      if (!data || data.length === 0) return;
+      const color = s.colorVar ? getComputedColor(s.colorVar) : (s.color || '#888');
+
+      if (s.fill) {
+        let path = `M ${xPos(0)},${yPos(data[0])}`;
+        for (let i = 1; i < data.length; i++) {
+          path += ` L ${xPos(i)},${yPos(data[i])}`;
+        }
+        path += ` L ${xPos(data.length - 1)},${yPos(0)} L ${xPos(0)},${yPos(0)} Z`;
+        
+        let pathEl = pathLayer.querySelector(`#area-${s.key}`);
+        if (!pathEl) {
+          pathEl = createSvgNode('path', { id: `area-${s.key}`, opacity: '0.18' });
+          pathLayer.appendChild(pathEl);
+        }
+        pathEl.setAttribute('d', path);
+        pathEl.setAttribute('fill', color);
+      }
+    });
+
+    // Lines on top
+    series.forEach(s => {
+      const data = computedData[s.key];
+      if (!data || data.length === 0) return;
+      const color = s.colorVar ? getComputedColor(s.colorVar) : (s.color || '#888');
+
+      let linePath = `M ${xPos(0)},${yPos(data[0])}`;
+      for (let i = 1; i < data.length; i++) {
+        linePath += ` L ${xPos(i)},${yPos(data[i])}`;
+      }
+      
+      let lineEl = pathLayer.querySelector(`#line-${s.key}`);
+      if (!lineEl) {
+        lineEl = createSvgNode('path', {
+          id: `line-${s.key}`,
+          fill: 'none',
+          'stroke-width': '2.5',
+          'stroke-linejoin': 'round',
+          'stroke-linecap': 'round'
+        });
+        pathLayer.appendChild(lineEl);
+      }
+      lineEl.setAttribute('d', linePath);
+      lineEl.setAttribute('stroke', color);
+    });
+
+    // 6. Hover overlay
+    if (hoverLayer.children.length === 0) {
+      hoverLayer.appendChild(createSvgNode('rect', {
+        x: PAD.left, y: PAD.top, width: plotW, height: plotH,
+        fill: 'transparent', id: 'hoverArea', style: 'cursor:default'
+      }));
+      hoverLayer.appendChild(createSvgNode('line', {
+        id: 'hoverLine', x1: 0, y1: PAD.top, x2: 0, y2: PAD.top + plotH,
+        stroke: 'var(--outline)', 'stroke-width': 1, 'stroke-dasharray': '4 4', opacity: 0
+      }));
+      series.forEach(s => {
+        const color = s.colorVar ? getComputedColor(s.colorVar) : (s.color || '#888');
+        hoverLayer.appendChild(createSvgNode('circle', {
+          id: `dot-${s.key}`, cx: 0, cy: 0, r: 5,
+          fill: color, stroke: 'var(--surface)', 'stroke-width': 2, opacity: 0
+        }));
+      });
+    }
+
+    // Always reattach hover handlers to capture new closures (like yMax)
+    attachHoverHandlers(svg, plotW, plotH, yMax);
+  }
+
+  function attachHoverHandlers(svg, plotW, plotH, yMax) {
+    const hoverArea = document.getElementById('hoverArea');
+    const hoverLine = document.getElementById('hoverLine');
+    const tooltip = document.getElementById('chartTooltip');
+    if (!hoverArea) return;
+
+    function xPos(i) {
+      return PAD.left + (xValues.length > 1 ? (i / (xValues.length - 1)) * plotW : 0);
+    }
+    function yPos(v) {
+      return PAD.top + plotH - (v / yMax) * plotH;
+    }
+
+    hoverArea.onmousemove = (e) => {
+      const rect = svg.getBoundingClientRect();
+      const svgX = ((e.clientX - rect.left) / rect.width) * SVG_W;
+
+      const idx = Math.round(((svgX - PAD.left) / plotW) * (xValues.length - 1));
+      const ci = Math.max(0, Math.min(xValues.length - 1, idx));
+      const x = xPos(ci);
+
+      hoverLine.setAttribute('x1', x);
+      hoverLine.setAttribute('x2', x);
+      hoverLine.setAttribute('opacity', '1');
+
+      tooltip.replaceChildren();
+      const headerDiv = document.createElement('div');
+      headerDiv.style.fontWeight = '500';
+      headerDiv.style.marginBottom = '4px';
+      headerDiv.textContent = `${labels.xAxis}: ${xValues[ci]}`;
+      tooltip.appendChild(headerDiv);
+
+      series.forEach(s => {
+        const val = computedData[s.key]?.[ci] || 0;
+        const color = s.colorVar ? getComputedColor(s.colorVar) : (s.color || '#888');
+        const dot = document.getElementById(`dot-${s.key}`);
+        if (dot) {
+          dot.setAttribute('cx', x);
+          dot.setAttribute('cy', yPos(val));
+          dot.setAttribute('opacity', '1');
+        }
+        const rowDiv = document.createElement('div');
+        const dotSpan = document.createElement('span');
+        dotSpan.style.color = color;
+        dotSpan.textContent = '●';
+        const valSpan = document.createElement('span');
+        valSpan.className = 'tooltip-value';
+        valSpan.textContent = fmt(val, 'currency');
+        rowDiv.append(dotSpan, document.createTextNode(` ${s.label}: `), valSpan);
+        tooltip.appendChild(rowDiv);
+      });
+
+      tooltip.style.opacity = '1';
+      const ttWidth = tooltip.offsetWidth || 230;
+      let left = e.pageX + 15;
+      if (e.clientX + 15 + ttWidth > window.innerWidth - 12) {
+        left = e.pageX - ttWidth - 15;
+      }
+      const ttHeight = tooltip.offsetHeight || 90;
+      let top = e.pageY + 15;
+      if (e.clientY + 15 + ttHeight > window.innerHeight - 12) {
+        top = e.pageY - ttHeight - 15;
+      }
+      tooltip.style.left = Math.max(8, left) + 'px';
+      tooltip.style.top = Math.max(8, top) + 'px';
+    };
+
+    hoverArea.onmouseleave = () => {
+      hoverLine.setAttribute('opacity', '0');
+      series.forEach(s => {
+        const dot = document.getElementById(`dot-${s.key}`);
+        if (dot) dot.setAttribute('opacity', '0');
+      });
+      tooltip.style.opacity = '0';
+    };
+  }
+
+  // ===================================================================
+  // SUMMARY
+  // ===================================================================
+  function updateSummary() {
+    const container = document.getElementById('summarySection');
+    container.replaceChildren();
+    const lastIdx = xValues.length - 1;
+
+    // Build map of series final values
+    const finalValues = {};
+    series.forEach(s => {
+      finalValues[s.key] = computedData[s.key]?.[lastIdx] || 0;
+    });
+
+    summaryDef.forEach((item, i) => {
+      if (i > 0) {
+        const divEl = document.createElement('div');
+        divEl.className = 'summary-divider';
+        container.appendChild(divEl);
+      }
+
+      let val = 0;
+      try {
+        const evalScope = { ...finalValues };
+        params.forEach(p => { evalScope[p.key] = p.value; });
+        const expr = String(item.value || '');
+        if (!formulaCache[expr]) {
+          formulaCache[expr] = compileSafeFormula(expr);
+        }
+        val = formulaCache[expr](evalScope);
+      } catch (e) {}
+
+      const cls = item.colorClass && /^[a-zA-Z0-9_-]+$/.test(item.colorClass) ? ` ${item.colorClass}` : '';
+      const sizeCls = (summaryDef.length === 3 && i === 1) ? ' center-val' : ' side-val';
+      const itemCls = (i === 1) ? ' center-item' : ' side-item';
+
+      const itemDiv = document.createElement('div');
+      itemDiv.className = `summary-item${itemCls}`;
+      const valDiv = document.createElement('div');
+      valDiv.className = `summary-val${sizeCls}${cls}`;
+      valDiv.textContent = fmt(val, item.format || 'currency');
+      const subDiv = document.createElement('div');
+      subDiv.className = 'summary-sub';
+      subDiv.textContent = String(item.label || '');
+      itemDiv.append(valDiv, subDiv);
+      container.appendChild(itemDiv);
+    });
+  }
+
+  // ===================================================================
+  // LEGEND
+  // ===================================================================
+  function renderLegend() {
+    const container = document.getElementById('legendSection');
+    container.replaceChildren();
+    series.forEach(s => {
+      const color = s.colorVar ? getComputedColor(s.colorVar) : (s.color || '#888');
+      const itemDiv = document.createElement('div');
+      itemDiv.className = 'legend-item';
+      const dotDiv = document.createElement('div');
+      dotDiv.className = 'legend-dot';
+      dotDiv.style.background = color;
+      const spanEl = document.createElement('span');
+      spanEl.textContent = String(s.label || '');
+      itemDiv.append(dotDiv, spanEl);
+      container.appendChild(itemDiv);
+    });
+  }
+
+  // ===================================================================
+  // SLIDERS
+  // ===================================================================
+  function renderSliders() {
+    const container = document.getElementById('slidersContainer');
+    container.replaceChildren();
+
+    const gridDiv = document.createElement('div');
+    gridDiv.className = 'slider-grid';
+
+    params.forEach(p => {
+      const rowDiv = document.createElement('div');
+      rowDiv.className = 'slider-row';
+
+      const labelDiv = document.createElement('div');
+      labelDiv.className = 'slider-label';
+      labelDiv.textContent = String(p.label || '');
+
+      const ctrlDiv = document.createElement('div');
+      ctrlDiv.className = 'slider-control';
+
+      const rangeInput = document.createElement('input');
+      rangeInput.type = 'range';
+      rangeInput.min = String(p.min);
+      rangeInput.max = String(p.max);
+      rangeInput.step = String(p.step);
+      rangeInput.value = String(paramValues[p.key]);
+      rangeInput.dataset.param = p.key;
+      rangeInput.dataset.origMax = String(p.max);
+      rangeInput.dataset.format = p.format || 'number';
+      rangeInput.addEventListener('input', () => handleSlider(rangeInput));
+
+      const textInput = document.createElement('input');
+      textInput.type = 'text';
+      textInput.className = 'slider-value';
+      textInput.dataset.display = p.key;
+      textInput.dataset.format = p.format || 'number';
+      textInput.value = fmt(paramValues[p.key], p.format);
+      textInput.setAttribute('inputmode', (p.format === 'percent' || (p.step && p.step < 1)) ? 'decimal' : 'numeric');
+      textInput.addEventListener('input', () => handleInput(textInput));
+      textInput.addEventListener('focus', () => handleInputFocus(textInput));
+      textInput.addEventListener('blur', () => handleInputBlur(textInput));
+      textInput.addEventListener('keydown', (ev) => handleInputKeydown(ev, textInput));
+
+      ctrlDiv.append(rangeInput, textInput);
+      rowDiv.append(labelDiv, ctrlDiv);
+      gridDiv.appendChild(rowDiv);
+    });
+
+    container.appendChild(gridDiv);
+
+    // Initialize slider progress
+    document.querySelectorAll('input[type="range"]').forEach(updateSliderProgress);
+  }
+
+  function toggleCategory(header) {
+    header.closest('.category').classList.toggle('open');
+  }
+
+  function handleSlider(el) {
+    const key = el.dataset.param;
+    const format = el.dataset.format;
+    const val = parseFloat(el.value) || 0;
+    updateSliderProgress(el);
+
+    const disp = document.querySelector(`[data-display="${key}"]`);
+    if (disp) {
+      if (disp.tagName === 'INPUT') {
+        if (document.activeElement !== disp) disp.value = fmt(val, format);
+      } else {
+        disp.textContent = fmt(val, format);
+      }
+    }
+
+    paramValues[key] = val;
+    recalculate(true);
+  }
+
+  function handleInput(el) {
+    const key = el.dataset.display || el.dataset.param;
+    const raw = el.value.replace(/[^0-9.]/g, '');
+    let val = parseFloat(raw);
+    if (isNaN(val)) val = 0;
+
+    const slider = document.querySelector(`input[type="range"][data-param="${key}"]`);
+    if (slider) {
+      const min = parseFloat(slider.min) || 0;
+      const origMax = parseFloat(slider.dataset.origMax) || parseFloat(slider.max) || 1000000;
+      if (val > origMax) {
+        slider.max = Math.max(origMax, val * 1.25);
+      } else {
+        slider.max = origMax;
+      }
+      slider.value = Math.max(min, val);
+      updateSliderProgress(slider);
+    }
+
+    paramValues[key] = val;
+    recalculate(true);
+  }
+
+  function handleInputFocus(el) {
+    const key = el.dataset.display || el.dataset.param;
+    const val = paramValues[key] !== undefined ? paramValues[key] : (parseFloat(el.value.replace(/[^0-9.]/g, '')) || 0);
+    el.value = val;
+    setTimeout(() => el.select(), 0);
+  }
+
+  function handleInputBlur(el) {
+    const key = el.dataset.display || el.dataset.param;
+    const format = el.dataset.format;
+    const slider = document.querySelector(`input[type="range"][data-param="${key}"]`);
+    const raw = el.value.replace(/[^0-9.]/g, '');
+    let val = parseFloat(raw);
+    if (isNaN(val)) val = 0;
+    if (slider) {
+      const min = parseFloat(slider.min) || 0;
+      const origMax = parseFloat(slider.dataset.origMax) || parseFloat(slider.max) || 1000000;
+      if (val > origMax) {
+        slider.max = Math.max(origMax, val * 1.25);
+      } else {
+        slider.max = origMax;
+      }
+      val = Math.max(min, val);
+      slider.value = val;
+      updateSliderProgress(slider);
+    }
+    paramValues[key] = val;
+    el.value = fmt(val, format);
+    recalculate(true);
+  }
+
+  function handleInputKeydown(e, el) {
+    if (e.key === 'Enter') {
+      el.blur();
+    }
+  }
+
+  // ===================================================================
+  // RECALCULATE
+  // ===================================================================
+  function recalculate(userInitiated = false) {
+    renderChart();
+    updateSummary();
+    if (userInitiated) {
+      broadcastState();
+    }
+  }
+
+  // ===================================================================
+  // STATE BROADCAST
+  // ===================================================================
+  function broadcastState() {
+    const state = { params: { ...paramValues } };
+    window.parent.postMessage({
+      type: 'WIDGET_STATE_UPDATE',
+      widgetType: 'finance-simulation',
+      payload: JSON.stringify(state)
+    }, '*');
+  }
+
+  window.addEventListener('message', (event) => {
+    if (event.data?.type === 'RESTORE_STATE') {
+      let raw = event.data.state !== undefined ? event.data.state : (event.data.payload !== undefined ? event.data.payload : event.data.stateJson);
+      if (!raw) return;
+      let state = raw;
+      if (typeof raw === 'string') {
+        try { state = JSON.parse(raw); } catch (e) { return; }
+      }
+      if (state.custom) state = state.custom;
+      const paramsObj = (state.params && typeof state.params === 'object') ? state.params : state;
+      if (paramsObj && typeof paramsObj === 'object') {
+        Object.entries(paramsObj).forEach(([key, val]) => {
+          if (typeof val === 'number') {
+            paramValues[key] = val;
+            const slider = document.querySelector(`input[type="range"][data-param="${key}"]`);
+            if (slider) {
+              const origMax = parseFloat(slider.dataset.origMax) || parseFloat(slider.max) || 1000000;
+              if (val > origMax) {
+                slider.max = Math.max(origMax, val * 1.25);
+              }
+              slider.value = val;
+              updateSliderProgress(slider);
+              const disp = document.querySelector(`[data-display="${key}"]`);
+              const param = params.find(p => p.key === key);
+              if (disp && param) {
+                if (disp.tagName === 'INPUT') {
+                  disp.value = fmt(val, param.format);
+                } else {
+                  disp.textContent = fmt(val, param.format);
+                }
+              }
+            }
+          }
+        });
+        recalculate();
+      }
+    }
+  });
+
+  // ===================================================================
+  // LABELS
+  // ===================================================================
+  function applyLabels() {
+    const map = {
+      slidersTitle: 'slidersTitle',
+      footerNote: 'footerNote',
+    };
+    for (const [key, id] of Object.entries(map)) {
+      const el = document.getElementById(id);
+      if (el && labels[key]) el.textContent = labels[key];
+    }
+  }
+
+  // ===================================================================
+  // DARK MODE LISTENER
+  // ===================================================================
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+    renderChart();
+    renderLegend();
+  });
+
+  window.addEventListener('resize', () => {
+    renderChart();
+    updateSummary();
+  });
+
+  // ===================================================================
+  // AUTO-RESIZE
+  // ===================================================================
+  const resizeObserver = new ResizeObserver(() => {
+    window.parent.postMessage({
+      type: 'widget-resize',
+      height: document.body.scrollHeight
+    }, '*');
+  });
+  resizeObserver.observe(document.body);
+
+  // ===================================================================
+  // INIT
+  // ===================================================================
+  applyLabels();
+  renderSliders();
+  renderLegend();
+  recalculate();
+</script>
+</body>
+</html>
