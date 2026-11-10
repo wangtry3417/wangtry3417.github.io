@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-HK">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAGE Terminal v0.1</title>
+<title>SAGE 量化終端</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     :root {
-        --bg: #050505;
-        --panel-bg: #111111;
-        --border: #222222;
+        --bg: #000000;
+        --panel-bg: #0a0a0a;
+        --border: #333333;
         --text-main: #e0e0e0;
-        --text-muted: #666666;
-        --accent-green: #00ff00;
-        --accent-red: #ff3333;
-        --accent-yellow: #ffcc00;
-        --accent-blue: #3399ff;
+        --text-muted: #888888;
+        --color-bull: #00ff00;
+        --color-bear: #ff3333;
+        --color-flat: #ffcc00;
+        --color-blue: #3399ff;
     }
     
     * { box-sizing: border-box; }
@@ -23,7 +23,8 @@
     body {
         background-color: var(--bg);
         color: var(--text-main);
-        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        /* 使用系統等寬字體，去除 AI 感 */
+        font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
         margin: 0;
         padding: 15px;
         font-size: 13px;
@@ -33,16 +34,16 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 2px solid var(--border);
         padding-bottom: 10px;
         margin-bottom: 15px;
     }
 
     .header h1 {
-        font-size: 16px;
+        font-size: 18px;
         margin: 0;
-        font-weight: normal;
-        letter-spacing: 1px;
+        font-weight: bold;
+        letter-spacing: 2px;
     }
 
     .controls {
@@ -51,12 +52,12 @@
     }
 
     select, button {
-        background-color: var(--panel-bg);
+        background-color: var(--bg);
         color: var(--text-main);
         border: 1px solid var(--border);
         padding: 6px 12px;
         font-family: inherit;
-        font-size: 12px;
+        font-size: 13px;
         cursor: pointer;
         outline: none;
     }
@@ -78,14 +79,13 @@
     }
 
     .panel-title {
-        font-size: 10px;
+        font-size: 12px;
         color: var(--text-muted);
         margin-bottom: 8px;
-        text-transform: uppercase;
     }
 
     .data-value {
-        font-size: 20px;
+        font-size: 18px;
         font-weight: bold;
     }
 
@@ -107,15 +107,15 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 10px;
+        font-size: 12px;
         color: #000;
         font-weight: bold;
         transition: width 0.3s ease;
     }
 
-    .prob-down { background-color: var(--accent-red); color: #fff; }
-    .prob-flat { background-color: var(--text-muted); color: #fff; }
-    .prob-up { background-color: var(--accent-green); }
+    .prob-bear { background-color: var(--color-bear); color: #fff; }
+    .prob-flat { background-color: var(--color-flat); }
+    .prob-bull { background-color: var(--color-bull); }
 
     .data-table {
         width: 100%;
@@ -123,7 +123,7 @@
     }
 
     .data-table td {
-        padding: 6px 0;
+        padding: 8px 0;
         border-bottom: 1px dashed var(--border);
     }
     
@@ -133,23 +133,23 @@
     }
 
     .chart-container {
-        height: 300px;
+        height: 350px;
         width: 100%;
         position: relative;
     }
 
-    .text-green { color: var(--accent-green); }
-    .text-red { color: var(--accent-red); }
-    .text-yellow { color: var(--accent-yellow); }
-    .text-blue { color: var(--accent-blue); }
+    .text-bull { color: var(--color-bull); }
+    .text-bear { color: var(--color-bear); }
+    .text-flat { color: var(--color-flat); }
 
     #status-bar {
         margin-top: 10px;
-        font-size: 11px;
+        font-size: 12px;
         color: var(--text-muted);
+        border-top: 1px solid var(--border);
+        padding-top: 10px;
     }
 
-    /* 手機適配 */
     @media (max-width: 768px) {
         .grid-top { grid-template-columns: 1fr 1fr; }
         .grid-mid { grid-template-columns: 1fr; }
@@ -160,87 +160,90 @@
 <body>
 
 <div class="header">
-    <h1>SAGE TERMINAL // V0.1</h1>
+    <h1>SAGE 量化終端系統</h1>
     <div class="controls">
         <select id="asset">
-            <optgroup label="Crypto">
-                <option value="BTCUSDT">BTC/USDT</option>
-                <option value="ETHUSDT">ETH/USDT</option>
-                <option value="SOLUSDT">SOL/USDT</option>
+            <optgroup label="加密貨幣 (24小時)">
+                <option value="BTC-USD">比特幣 (BTC)</option>
+                <option value="ETH-USD">以太坊 (ETH)</option>
             </optgroup>
-            <optgroup label="Commodities">
-                <option value="PAXGUSDT">XAU/USD (Gold Proxy)</option>
+            <optgroup label="商品 (黃金)">
+                <option value="GC=F">黃金現貨 (XAU)</option>
             </optgroup>
-            <optgroup label="Forex">
-                <option value="EURUSD">EUR/USD</option>
-                <option value="GBPUSD">GBP/USD</option>
-                <option value="USDJPY">USD/JPY</option>
+            <optgroup label="外匯">
+                <option value="EURUSD=X">歐元/美元 (EURUSD)</option>
+                <option value="JPY=X">美元/日圓 (USDJPY)</option>
+            </optgroup>
+            <optgroup label="美股指數">
+                <option value="^GSPC">標普500 (S&P 500)</option>
+                <option value="^IXIC">納斯達克 (NASDAQ)</option>
+                <option value="NVDA">輝達 (NVDA)</option>
+            </optgroup>
+            <optgroup label="港股及恒指">
+                <option value="^HSI">恒生指數 (HSI)</option>
+                <option value="0700.HK">騰訊控股 (0700)</option>
+                <option value="9988.HK">阿里巴巴 (9988)</option>
             </optgroup>
         </select>
         <select id="interval">
-            <option value="15m">15m</option>
-            <option value="1h" selected>1H</option>
-            <option value="4h">4H</option>
-            <option value="1d">1D</option>
+            <option value="15m">15 分鐘</option>
+            <option value="1h" selected>1 小時</option>
+            <option value="1d">1 日</option>
         </select>
-        <button onclick="executeAnalysis()">[ RUN_ANALYSIS ]</button>
+        <button onclick="executeAnalysis()">[ 執行分析 ]</button>
     </div>
 </div>
 
 <div class="grid-top">
     <div class="panel">
-        <div class="panel-title">Last Price</div>
+        <div class="panel-title">最新價格</div>
         <div class="data-value" id="val-price">--</div>
     </div>
     <div class="panel">
-        <div class="panel-title">Momentum (1st Deriv)</div>
+        <div class="panel-title">一階導數 (速度/動量)</div>
         <div class="data-value" id="val-d1">--</div>
     </div>
     <div class="panel">
-        <div class="panel-title">Acceleration (2nd Deriv)</div>
+        <div class="panel-title">二階導數 (加速度)</div>
         <div class="data-value" id="val-d2">--</div>
     </div>
     <div class="panel">
-        <div class="panel-title">SAGE Signal</div>
-        <div class="data-value" id="val-signal" style="font-size: 16px;">--</div>
+        <div class="panel-title">SAGE 建議信號</div>
+        <div class="data-value" id="val-signal" style="font-size: 18px;">--</div>
     </div>
 </div>
 
 <div class="grid-mid">
     <div class="panel">
-        <div class="panel-title">Price Action</div>
+        <div class="panel-title">資產價格走勢</div>
         <div class="chart-container">
             <canvas id="priceChart"></canvas>
         </div>
     </div>
     <div class="panel">
-        <div class="panel-title">Bayesian State Probabilities</div>
+        <div class="panel-title">貝氏平滑：市場狀態概率</div>
         <div class="prob-container">
-            <div class="prob-seg prob-down" id="bar-down" style="width: 33.3%;">BEAR</div>
-            <div class="prob-seg prob-flat" id="bar-flat" style="width: 33.3%;">RANGE</div>
-            <div class="prob-seg prob-up" id="bar-up" style="width: 33.3%;">BULL</div>
+            <div class="prob-seg prob-bear" id="bar-bear" style="width: 33.3%;">熊市</div>
+            <div class="prob-seg prob-flat" id="bar-flat" style="width: 33.3%;">橫行</div>
+            <div class="prob-seg prob-bull" id="bar-bull" style="width: 33.3%;">牛市</div>
         </div>
         <table class="data-table" style="margin-top: 15px;">
             <tr>
-                <td>Volatility (%)</td>
-                <td id="val-vol" class="text-yellow">--</td>
+                <td>波動率估算 (%)</td>
+                <td id="val-vol" class="text-flat">--</td>
             </tr>
             <tr>
-                <td>Trend Strength</td>
-                <td id="val-trend">--</td>
-            </tr>
-            <tr>
-                <td>Sample Size</td>
+                <td>樣本數量 (K線)</td>
                 <td id="val-samples">--</td>
             </tr>
         </table>
-        <div style="margin-top: 15px; font-size: 11px; color: var(--text-muted); line-height: 1.5;">
-            SAGE quant engine utilizes Bayesian inference on high-order derivatives to calculate regime probabilities.
+        <div style="margin-top: 15px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+            * 本系統基於高階導數與貝氏推論進行純分析。數據來源：Yahoo Finance。不構成投資建議。
         </div>
     </div>
 </div>
 
-<div id="status-bar">Status: IDLE | Waiting for execution...</div>
+<div id="status-bar">狀態：待機中...</div>
 
 <script>
     let chartInstance = null;
@@ -268,32 +271,30 @@
 
     async function fetchData(symbol, interval) {
         const statusBar = document.getElementById('status-bar');
-        statusBar.innerText = `Status: FETCHING DATA FOR ${symbol}...`;
+        statusBar.innerText = `狀態：正在獲取 ${symbol} 歷史數據...`;
 
-        // 判斷是否為外匯
-        if (['EURUSD', 'GBPUSD', 'USDJPY'].includes(symbol)) {
-            // 使用 Frankfurter API 獲取外匯
-            const res = await fetch('https://api.frankfurter.app/latest?from=' + symbol.slice(0,3) + '&to=' + symbol.slice(3));
+        // 使用代理伺服器繞過 CORS 限制，抓取 Yahoo Finance 數據
+        const proxyUrl = 'https://corsproxy.io/?';
+        // 獲取過去 3 個月的 1 小時線，或 1 年的日線
+        const range = interval === '1d' ? '1y' : '3mo';
+        const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${interval}&range=${range}`;
+        
+        try {
+            const res = await fetch(proxyUrl + encodeURIComponent(yahooUrl));
             const data = await res.json();
-            const rate = data.rates[symbol.slice(3)];
             
-            // 因為免費外匯 API 通常只給即時報價，無歷史 K 線。
-            // 為咗純前端能運作，我哋生成一組基於當前匯率嘅模擬微觀波動數據進行分析示範。
-            // 真實應用中，你必須接駁有 CORS 允許嘅付費歷史數據源。
-            let mockPrices = [rate];
-            for (let i = 1; i < 200; i++) {
-                let change = (Math.random() - 0.5) * 0.002 * rate;
-                mockPrices.push(mockPrices[mockPrices.length - 1] + change);
+            if (!data.chart || !data.chart.result || data.chart.result.length === 0) {
+                throw new Error("無法獲取該資產數據");
             }
-            return { prices: mockPrices, isMock: true };
-        } else {
-            // Binance API 獲取 Crypto 及 PAXG (黃金)
-            const binanceInterval = interval === '15m' ? '15m' : (interval === '1h' ? '1h' : (interval === '4h' ? '4h' : '1d'));
-            const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${binanceInterval}&limit=200`;
-            const res = await fetch(url);
-            const data = await res.json();
-            const prices = data.map(d => parseFloat(d[4]));
-            return { prices, isMock: false };
+
+            const result = data.chart.result[0];
+            const prices = result.indicators.quote[0].close.filter(p => p !== null);
+            
+            if (prices.length < 50) throw new Error("歷史數據太少，無法分析");
+
+            return { prices };
+        } catch (error) {
+            throw new Error(`數據獲取失敗: ${error.message}`);
         }
     }
 
@@ -301,17 +302,23 @@
         const symbol = document.getElementById('asset').value;
         const interval = document.getElementById('interval').value;
         const statusBar = document.getElementById('status-bar');
+        
+        statusBar.style.color = 'var(--text-main)';
+        document.getElementById('val-signal').innerText = "分析中...";
+        document.getElementById('val-signal').style.color = 'var(--text-main)';
 
         try {
-            const { prices, isMock } = await fetchData(symbol, interval);
+            const { prices } = await fetchData(symbol, interval);
             
-            statusBar.innerText = `Status: CALCULATING DERIVATIVES...`;
+            statusBar.innerText = `狀態：正在計算微積分與貝氏概率...`;
             
+            // 計算對數收益率
             const logRets = [];
             for (let i = 1; i < prices.length; i++) {
                 logRets.push(Math.log(prices[i] / prices[i - 1]));
             }
 
+            // 計算一階與二階導數
             const { d1, d2 } = calcDerivatives(logRets);
             const lastD1 = d1[d1.length - 1];
             const lastD2 = d2[d2.length - 1];
@@ -320,9 +327,9 @@
             // 波動率計算
             const mean = logRets.reduce((a,b)=>a+b, 0) / logRets.length;
             const variance = logRets.reduce((a,b)=>a+Math.pow(b-mean, 2), 0) / logRets.length;
-            const vol = Math.sqrt(variance) * Math.sqrt(100) * 100; // 簡化年化波動率估算
+            const vol = Math.sqrt(variance) * Math.sqrt(252) * 100; // 簡化年化波動率
 
-            // 貝氏概率計算
+            // 貝氏概率計算 (跌、平、升)
             const threshold = Math.abs(mean) * 0.5 + 0.0001;
             let up = 0, down = 0, flat = 0;
             logRets.forEach(r => {
@@ -333,67 +340,68 @@
             const rawProbs = [down / logRets.length, flat / logRets.length, up / logRets.length];
             const probs = bayesianSmoothing(rawProbs);
 
-            // 信號生成
-            let signalText = "NEUTRAL";
+            // 信號生成邏輯
+            let signalText = "觀望";
             let signalColor = "var(--text-main)";
             
             if (lastD1 > 0 && lastD2 > 0 && probs[2] > 0.4) {
-                signalText = "LONG BIAS";
-                signalColor = "var(--accent-green)";
+                signalText = "偏多 (做多)";
+                signalColor = "var(--color-bull)";
             } else if (lastD1 < 0 && lastD2 < 0 && probs[0] > 0.4) {
-                signalText = "SHORT BIAS";
-                signalColor = "var(--accent-red)";
+                signalText = "偏空 (做空)";
+                signalColor = "var(--color-bear)";
             } else if (Math.abs(lastD1) < 0.0001) {
-                signalText = "RANGEBOUND";
-                signalColor = "var(--accent-yellow)";
+                signalText = "區間震盪";
+                signalColor = "var(--color-flat)";
             }
 
-            // 更新 UI
-            document.getElementById('val-price').innerText = latestPrice.toFixed(symbol.includes('USD') && !symbol.includes('BTC') ? 4 : 2);
+            // 更新介面
+            document.getElementById('val-price').innerText = latestPrice.toFixed(latestPrice > 1000 ? 2 : 4);
             
             const d1El = document.getElementById('val-d1');
             d1El.innerText = lastD1.toFixed(6);
-            d1El.className = `data-value ${lastD1 > 0 ? 'text-green' : 'text-red'}`;
+            d1El.className = `data-value ${lastD1 > 0 ? 'text-bull' : 'text-bear'}`;
 
             const d2El = document.getElementById('val-d2');
             d2El.innerText = lastD2.toFixed(6);
-            d2El.className = `data-value ${lastD2 > 0 ? 'text-green' : 'text-red'}`;
+            d2El.className = `data-value ${lastD2 > 0 ? 'text-bull' : 'text-bear'}`;
 
             const sigEl = document.getElementById('val-signal');
             sigEl.innerText = signalText;
             sigEl.style.color = signalColor;
 
             // 更新概率條
-            const barDown = document.getElementById('bar-down');
+            const barBear = document.getElementById('bar-bear');
             const barFlat = document.getElementById('bar-flat');
-            const barUp = document.getElementById('bar-up');
+            const barBull = document.getElementById('bar-bull');
             
-            barDown.style.width = (probs[0] * 100) + '%';
+            barBear.style.width = (probs[0] * 100) + '%';
             barFlat.style.width = (probs[1] * 100) + '%';
-            barUp.style.width = (probs[2] * 100) + '%';
+            barBull.style.width = (probs[2] * 100) + '%';
 
-            barDown.innerText = (probs[0]*100).toFixed(0) + '%';
-            barFlat.innerText = (probs[1]*100).toFixed(0) + '%';
-            barUp.innerText = (probs[2]*100).toFixed(0) + '%';
+            barBear.innerText = `熊市 ${(probs[0]*100).toFixed(0)}%`;
+            barFlat.innerText = `橫行 ${(probs[1]*100).toFixed(0)}%`;
+            barBull.innerText = `牛市 ${(probs[2]*100).toFixed(0)}%`;
 
             // 更新表格
             document.getElementById('val-vol').innerText = vol.toFixed(2) + '%';
-            document.getElementById('val-trend').innerText = lastD1 > 0 ? "UP" : "DOWN";
             document.getElementById('val-samples').innerText = logRets.length;
 
-            // 畫圖
-            renderChart(prices, isMock);
+            // 繪製圖表
+            renderChart(prices);
 
-            statusBar.innerText = `Status: ANALYSIS COMPLETE ${isMock ? '(MOCK DATA FOR FOREX)' : ''} | ${new Date().toLocaleTimeString()}`;
+            statusBar.innerText = `狀態：分析完成 | 時間：${new Date().toLocaleTimeString('zh-HK')}`;
 
         } catch (error) {
             console.error(error);
-            statusBar.innerText = `Status: ERROR - ${error.message}`;
-            statusBar.style.color = 'var(--accent-red)';
+            statusBar.innerText = `狀態：錯誤 - ${error.message}`;
+            statusBar.style.color = 'var(--color-bear)';
+            document.getElementById('val-signal').innerText = "分析失敗";
+            document.getElementById('val-signal').style.color = 'var(--color-bear)';
         }
     }
 
-    function renderChart(prices, isMock) {
+    function renderChart(prices) {
         const ctx = document.getElementById('priceChart').getContext('2d');
         
         if (chartInstance) {
@@ -408,7 +416,7 @@
                 labels: labels,
                 datasets: [{
                     data: prices,
-                    borderColor: isMock ? '#ffcc00' : '#e0e0e0',
+                    borderColor: '#3399ff', // 專業藍色
                     borderWidth: 1,
                     pointRadius: 0,
                     fill: false,
@@ -419,14 +427,16 @@
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false },
-                    tooltip: { enabled: false }
+                    legend: { display: false }
                 },
                 scales: {
                     x: { display: false },
                     y: {
                         grid: { color: '#222' },
-                        ticks: { color: '#666', font: { family: 'monospace', size: 10 } }
+                        ticks: { 
+                            color: '#888', 
+                            font: { family: 'Courier New, monospace', size: 12 }
+                        }
                     }
                 },
                 animation: false
