@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAGE Terminal v0.1</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    :root {
+        --bg: #050505;
+        --panel-bg: #111111;
+        --border: #222222;
+        --text-main: #e0e0e0;
+        --text-muted: #666666;
+        --accent-green: #00ff00;
+        --accent-red: #ff3333;
+        --accent-yellow: #ffcc00;
+        --accent-blue: #3399ff;
+    }
+    
+    * { box-sizing: border-box; }
+    
+    body {
+        background-color: var(--bg);
+        color: var(--text-main);
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        margin: 0;
+        padding: 15px;
+        font-size: 13px;
+    }
+
+    .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+
+    .header h1 {
+        font-size: 16px;
+        margin: 0;
+        font-weight: normal;
+        letter-spacing: 1px;
+    }
+
+    .controls {
+        display: flex;
+        gap: 10px;
+    }
+
+    select, button {
+        background-color: var(--panel-bg);
+        color: var(--text-main);
+        border: 1px solid var(--border);
+        padding: 6px 12px;
+        font-family: inherit;
+        font-size: 12px;
+        cursor: pointer;
+        outline: none;
+    }
+
+    select:hover, button:hover { border-color: var(--text-muted); }
+    button:active { background-color: #222; }
+
+    .grid-top {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .panel {
+        background-color: var(--panel-bg);
+        border: 1px solid var(--border);
+        padding: 12px;
+    }
+
+    .panel-title {
+        font-size: 10px;
+        color: var(--text-muted);
+        margin-bottom: 8px;
+        text-transform: uppercase;
+    }
+
+    .data-value {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .grid-mid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .prob-container {
+        display: flex;
+        height: 24px;
+        border: 1px solid var(--border);
+        margin-bottom: 10px;
+    }
+
+    .prob-seg {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: #000;
+        font-weight: bold;
+        transition: width 0.3s ease;
+    }
+
+    .prob-down { background-color: var(--accent-red); color: #fff; }
+    .prob-flat { background-color: var(--text-muted); color: #fff; }
+    .prob-up { background-color: var(--accent-green); }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table td {
+        padding: 6px 0;
+        border-bottom: 1px dashed var(--border);
+    }
+    
+    .data-table td:last-child {
+        text-align: right;
+        font-weight: bold;
+    }
+
+    .chart-container {
+        height: 300px;
+        width: 100%;
+        position: relative;
+    }
+
+    .text-green { color: var(--accent-green); }
+    .text-red { color: var(--accent-red); }
+    .text-yellow { color: var(--accent-yellow); }
+    .text-blue { color: var(--accent-blue); }
+
+    #status-bar {
+        margin-top: 10px;
+        font-size: 11px;
+        color: var(--text-muted);
+    }
+
+    /* 手機適配 */
+    @media (max-width: 768px) {
+        .grid-top { grid-template-columns: 1fr 1fr; }
+        .grid-mid { grid-template-columns: 1fr; }
+        .header { flex-direction: column; align-items: flex-start; gap: 10px; }
+    }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>SAGE TERMINAL // V0.1</h1>
+    <div class="controls">
+        <select id="asset">
+            <optgroup label="Crypto">
+                <option value="BTCUSDT">BTC/USDT</option>
+                <option value="ETHUSDT">ETH/USDT</option>
+                <option value="SOLUSDT">SOL/USDT</option>
+            </optgroup>
+            <optgroup label="Commodities">
+                <option value="PAXGUSDT">XAU/USD (Gold Proxy)</option>
+            </optgroup>
+            <optgroup label="Forex">
+                <option value="EURUSD">EUR/USD</option>
+                <option value="GBPUSD">GBP/USD</option>
+                <option value="USDJPY">USD/JPY</option>
+            </optgroup>
+        </select>
+        <select id="interval">
+            <option value="15m">15m</option>
+            <option value="1h" selected>1H</option>
+            <option value="4h">4H</option>
+            <option value="1d">1D</option>
+        </select>
+        <button onclick="executeAnalysis()">[ RUN_ANALYSIS ]</button>
+    </div>
+</div>
+
+<div class="grid-top">
+    <div class="panel">
+        <div class="panel-title">Last Price</div>
+        <div class="data-value" id="val-price">--</div>
+    </div>
+    <div class="panel">
+        <div class="panel-title">Momentum (1st Deriv)</div>
+        <div class="data-value" id="val-d1">--</div>
+    </div>
+    <div class="panel">
+        <div class="panel-title">Acceleration (2nd Deriv)</div>
+        <div class="data-value" id="val-d2">--</div>
+    </div>
+    <div class="panel">
+        <div class="panel-title">SAGE Signal</div>
+        <div class="data-value" id="val-signal" style="font-size: 16px;">--</div>
+    </div>
+</div>
+
+<div class="grid-mid">
+    <div class="panel">
+        <div class="panel-title">Price Action</div>
+        <div class="chart-container">
+            <canvas id="priceChart"></canvas>
+        </div>
+    </div>
+    <div class="panel">
+        <div class="panel-title">Bayesian State Probabilities</div>
+        <div class="prob-container">
+            <div class="prob-seg prob-down" id="bar-down" style="width: 33.3%;">BEAR</div>
+            <div class="prob-seg prob-flat" id="bar-flat" style="width: 33.3%;">RANGE</div>
+            <div class="prob-seg prob-up" id="bar-up" style="width: 33.3%;">BULL</div>
+        </div>
+        <table class="data-table" style="margin-top: 15px;">
+            <tr>
+                <td>Volatility (%)</td>
+                <td id="val-vol" class="text-yellow">--</td>
+            </tr>
+            <tr>
+                <td>Trend Strength</td>
+                <td id="val-trend">--</td>
+            </tr>
+            <tr>
+                <td>Sample Size</td>
+                <td id="val-samples">--</td>
+            </tr>
+        </table>
+        <div style="margin-top: 15px; font-size: 11px; color: var(--text-muted); line-height: 1.5;">
+            SAGE quant engine utilizes Bayesian inference on high-order derivatives to calculate regime probabilities.
+        </div>
+    </div>
+</div>
+
+<div id="status-bar">Status: IDLE | Waiting for execution...</div>
+
+<script>
+    let chartInstance = null;
+
+    // 貝氏平滑 (Dirichlet Prior)
+    function bayesianSmoothing(probs, eta = 0.01) {
+        const n = probs.length;
+        const prior = eta / n;
+        const total = probs.reduce((a, b) => a + b, 0) + prior * n;
+        return probs.map(p => (p + prior) / total);
+    }
+
+    // 計算導數 (有限差分)
+    function calcDerivatives(arr) {
+        const d1 = new Array(arr.length).fill(0);
+        const d2 = new Array(arr.length).fill(0);
+        for (let i = 1; i < arr.length; i++) {
+            d1[i] = arr[i] - arr[i - 1];
+        }
+        for (let i = 1; i < d1.length; i++) {
+            d2[i] = d1[i] - d1[i - 1];
+        }
+        return { d1, d2 };
+    }
+
+    async function fetchData(symbol, interval) {
+        const statusBar = document.getElementById('status-bar');
+        statusBar.innerText = `Status: FETCHING DATA FOR ${symbol}...`;
+
+        // 判斷是否為外匯
+        if (['EURUSD', 'GBPUSD', 'USDJPY'].includes(symbol)) {
+            // 使用 Frankfurter API 獲取外匯
+            const res = await fetch('https://api.frankfurter.app/latest?from=' + symbol.slice(0,3) + '&to=' + symbol.slice(3));
+            const data = await res.json();
+            const rate = data.rates[symbol.slice(3)];
+            
+            // 因為免費外匯 API 通常只給即時報價，無歷史 K 線。
+            // 為咗純前端能運作，我哋生成一組基於當前匯率嘅模擬微觀波動數據進行分析示範。
+            // 真實應用中，你必須接駁有 CORS 允許嘅付費歷史數據源。
+            let mockPrices = [rate];
+            for (let i = 1; i < 200; i++) {
+                let change = (Math.random() - 0.5) * 0.002 * rate;
+                mockPrices.push(mockPrices[mockPrices.length - 1] + change);
+            }
+            return { prices: mockPrices, isMock: true };
+        } else {
+            // Binance API 獲取 Crypto 及 PAXG (黃金)
+            const binanceInterval = interval === '15m' ? '15m' : (interval === '1h' ? '1h' : (interval === '4h' ? '4h' : '1d'));
+            const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${binanceInterval}&limit=200`;
+            const res = await fetch(url);
+            const data = await res.json();
+            const prices = data.map(d => parseFloat(d[4]));
+            return { prices, isMock: false };
+        }
+    }
+
+    async function executeAnalysis() {
+        const symbol = document.getElementById('asset').value;
+        const interval = document.getElementById('interval').value;
+        const statusBar = document.getElementById('status-bar');
+
+        try {
+            const { prices, isMock } = await fetchData(symbol, interval);
+            
+            statusBar.innerText = `Status: CALCULATING DERIVATIVES...`;
+            
+            const logRets = [];
+            for (let i = 1; i < prices.length; i++) {
+                logRets.push(Math.log(prices[i] / prices[i - 1]));
+            }
+
+            const { d1, d2 } = calcDerivatives(logRets);
+            const lastD1 = d1[d1.length - 1];
+            const lastD2 = d2[d2.length - 1];
+            const latestPrice = prices[prices.length - 1];
+
+            // 波動率計算
+            const mean = logRets.reduce((a,b)=>a+b, 0) / logRets.length;
+            const variance = logRets.reduce((a,b)=>a+Math.pow(b-mean, 2), 0) / logRets.length;
+            const vol = Math.sqrt(variance) * Math.sqrt(100) * 100; // 簡化年化波動率估算
+
+            // 貝氏概率計算
+            const threshold = Math.abs(mean) * 0.5 + 0.0001;
+            let up = 0, down = 0, flat = 0;
+            logRets.forEach(r => {
+                if (r > threshold) up++;
+                else if (r < -threshold) down++;
+                else flat++;
+            });
+            const rawProbs = [down / logRets.length, flat / logRets.length, up / logRets.length];
+            const probs = bayesianSmoothing(rawProbs);
+
+            // 信號生成
+            let signalText = "NEUTRAL";
+            let signalColor = "var(--text-main)";
+            
+            if (lastD1 > 0 && lastD2 > 0 && probs[2] > 0.4) {
+                signalText = "LONG BIAS";
+                signalColor = "var(--accent-green)";
+            } else if (lastD1 < 0 && lastD2 < 0 && probs[0] > 0.4) {
+                signalText = "SHORT BIAS";
+                signalColor = "var(--accent-red)";
+            } else if (Math.abs(lastD1) < 0.0001) {
+                signalText = "RANGEBOUND";
+                signalColor = "var(--accent-yellow)";
+            }
+
+            // 更新 UI
+            document.getElementById('val-price').innerText = latestPrice.toFixed(symbol.includes('USD') && !symbol.includes('BTC') ? 4 : 2);
+            
+            const d1El = document.getElementById('val-d1');
+            d1El.innerText = lastD1.toFixed(6);
+            d1El.className = `data-value ${lastD1 > 0 ? 'text-green' : 'text-red'}`;
+
+            const d2El = document.getElementById('val-d2');
+            d2El.innerText = lastD2.toFixed(6);
+            d2El.className = `data-value ${lastD2 > 0 ? 'text-green' : 'text-red'}`;
+
+            const sigEl = document.getElementById('val-signal');
+            sigEl.innerText = signalText;
+            sigEl.style.color = signalColor;
+
+            // 更新概率條
+            const barDown = document.getElementById('bar-down');
+            const barFlat = document.getElementById('bar-flat');
+            const barUp = document.getElementById('bar-up');
+            
+            barDown.style.width = (probs[0] * 100) + '%';
+            barFlat.style.width = (probs[1] * 100) + '%';
+            barUp.style.width = (probs[2] * 100) + '%';
+
+            barDown.innerText = (probs[0]*100).toFixed(0) + '%';
+            barFlat.innerText = (probs[1]*100).toFixed(0) + '%';
+            barUp.innerText = (probs[2]*100).toFixed(0) + '%';
+
+            // 更新表格
+            document.getElementById('val-vol').innerText = vol.toFixed(2) + '%';
+            document.getElementById('val-trend').innerText = lastD1 > 0 ? "UP" : "DOWN";
+            document.getElementById('val-samples').innerText = logRets.length;
+
+            // 畫圖
+            renderChart(prices, isMock);
+
+            statusBar.innerText = `Status: ANALYSIS COMPLETE ${isMock ? '(MOCK DATA FOR FOREX)' : ''} | ${new Date().toLocaleTimeString()}`;
+
+        } catch (error) {
+            console.error(error);
+            statusBar.innerText = `Status: ERROR - ${error.message}`;
+            statusBar.style.color = 'var(--accent-red)';
+        }
+    }
+
+    function renderChart(prices, isMock) {
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+
+        const labels = Array.from({length: prices.length}, (_, i) => i);
+
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: prices,
+                    borderColor: isMock ? '#ffcc00' : '#e0e0e0',
+                    borderWidth: 1,
+                    pointRadius: 0,
+                    fill: false,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                },
+                scales: {
+                    x: { display: false },
+                    y: {
+                        grid: { color: '#222' },
+                        ticks: { color: '#666', font: { family: 'monospace', size: 10 } }
+                    }
+                },
+                animation: false
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
