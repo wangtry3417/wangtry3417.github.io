@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SAGE 量化終端</title>
+<title>SAGE 量化終端 - Binance 直連版</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     :root {
@@ -15,7 +15,6 @@
         --color-bull: #00ff00;
         --color-bear: #ff3333;
         --color-flat: #ffcc00;
-        --color-blue: #3399ff;
     }
     
     * { box-sizing: border-box; }
@@ -23,7 +22,7 @@
     body {
         background-color: var(--bg);
         color: var(--text-main);
-        font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
+        font-family: "Courier New", Courier, "Lucida Sans Typewriter", monospace;
         margin: 0;
         padding: 15px;
         font-size: 13px;
@@ -45,10 +44,7 @@
         letter-spacing: 2px;
     }
 
-    .controls {
-        display: flex;
-        gap: 10px;
-    }
+    .controls { display: flex; gap: 10px; }
 
     select, button {
         background-color: var(--bg);
@@ -83,10 +79,7 @@
         margin-bottom: 8px;
     }
 
-    .data-value {
-        font-size: 18px;
-        font-weight: bold;
-    }
+    .data-value { font-size: 18px; font-weight: bold; }
 
     .grid-mid {
         display: grid;
@@ -116,26 +109,11 @@
     .prob-flat { background-color: var(--color-flat); }
     .prob-bull { background-color: var(--color-bull); }
 
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table td { padding: 8px 0; border-bottom: 1px dashed var(--border); }
+    .data-table td:last-child { text-align: right; font-weight: bold; }
 
-    .data-table td {
-        padding: 8px 0;
-        border-bottom: 1px dashed var(--border);
-    }
-    
-    .data-table td:last-child {
-        text-align: right;
-        font-weight: bold;
-    }
-
-    .chart-container {
-        height: 350px;
-        width: 100%;
-        position: relative;
-    }
+    .chart-container { height: 350px; width: 100%; position: relative; }
 
     .text-bull { color: var(--color-bull); }
     .text-bear { color: var(--color-bear); }
@@ -162,62 +140,40 @@
     <h1>SAGE 量化終端系統</h1>
     <div class="controls">
         <select id="asset">
-            <optgroup label="加密貨幣 (24小時)">
-                <option value="BTC-USD">比特幣 (BTC)</option>
-                <option value="ETH-USD">以太坊 (ETH)</option>
+            <optgroup label="主流加密貨幣">
+                <option value="BTCUSDT">比特幣 (BTC/USDT)</option>
+                <option value="ETHUSDT">以太坊 (ETH/USDT)</option>
+                <option value="SOLUSDT">Solana (SOL/USDT)</option>
+                <option value="BNBUSDT">幣安幣 (BNB/USDT)</option>
             </optgroup>
-            <optgroup label="商品 (黃金)">
-                <option value="GC=F">黃金現貨 (XAU)</option>
+            <optgroup label="大宗商品 (黃金)">
+                <option value="PAXGUSDT">黃金代幣 (PAXG/USDT - 模擬金價)</option>
             </optgroup>
-            <optgroup label="外匯">
-                <option value="EURUSD=X">歐元/美元 (EURUSD)</option>
-                <option value="JPY=X">美元/日圓 (USDJPY)</option>
-            </optgroup>
-            <optgroup label="美股指數">
-                <option value="^GSPC">標普500 (S&P 500)</option>
-                <option value="^IXIC">納斯達克 (NASDAQ)</option>
-                <option value="NVDA">輝達 (NVDA)</option>
-            </optgroup>
-            <optgroup label="港股及恒指">
-                <option value="^HSI">恒生指數 (HSI)</option>
-                <option value="0700.HK">騰訊控股 (0700)</option>
-                <option value="9988.HK">阿里巴巴 (9988)</option>
+            <optgroup label="外匯模擬">
+                <option value="EURUSDT">歐元/美元 (EUR/USDT)</option>
             </optgroup>
         </select>
         <select id="interval">
             <option value="15m">15 分鐘</option>
             <option value="1h" selected>1 小時</option>
+            <option value="4h">4 小時</option>
             <option value="1d">1 日</option>
         </select>
-        <button onclick="executeAnalysis()">[ 執行分析 ]</button>
+        <button onclick="executeAnalysis()" id="runBtn">[ 執行分析 ]</button>
     </div>
 </div>
 
 <div class="grid-top">
-    <div class="panel">
-        <div class="panel-title">最新價格</div>
-        <div class="data-value" id="val-price">--</div>
-    </div>
-    <div class="panel">
-        <div class="panel-title">一階導數 (速度/動量)</div>
-        <div class="data-value" id="val-d1">--</div>
-    </div>
-    <div class="panel">
-        <div class="panel-title">二階導數 (加速度)</div>
-        <div class="data-value" id="val-d2">--</div>
-    </div>
-    <div class="panel">
-        <div class="panel-title">SAGE 建議信號</div>
-        <div class="data-value" id="val-signal" style="font-size: 18px;">--</div>
-    </div>
+    <div class="panel"><div class="panel-title">最新價格</div><div class="data-value" id="val-price">--</div></div>
+    <div class="panel"><div class="panel-title">一階導數 (速度/動量)</div><div class="data-value" id="val-d1">--</div></div>
+    <div class="panel"><div class="panel-title">二階導數 (加速度)</div><div class="data-value" id="val-d2">--</div></div>
+    <div class="panel"><div class="panel-title">SAGE 建議信號</div><div class="data-value" id="val-signal" style="font-size: 18px;">--</div></div>
 </div>
 
 <div class="grid-mid">
     <div class="panel">
         <div class="panel-title">資產價格走勢</div>
-        <div class="chart-container">
-            <canvas id="priceChart"></canvas>
-        </div>
+        <div class="chart-container"><canvas id="priceChart"></canvas></div>
     </div>
     <div class="panel">
         <div class="panel-title">貝氏平滑：市場狀態概率</div>
@@ -227,17 +183,13 @@
             <div class="prob-seg prob-bull" id="bar-bull" style="width: 33.3%;">牛市</div>
         </div>
         <table class="data-table" style="margin-top: 15px;">
-            <tr>
-                <td>波動率估算 (%)</td>
-                <td id="val-vol" class="text-flat">--</td>
-            </tr>
-            <tr>
-                <td>樣本數量 (K線)</td>
-                <td id="val-samples">--</td>
-            </tr>
+            <tr><td>波動率估算 (%)</td><td id="val-vol" class="text-flat">--</td></tr>
+            <tr><td>樣本數量 (K線)</td><td id="val-samples">--</td></tr>
         </table>
         <div style="margin-top: 15px; font-size: 12px; color: var(--text-muted); line-height: 1.5;">
-            * 本系統基於高階導數與貝氏推論進行純分析。數據來源：Yahoo Finance。不構成投資建議。
+            * 本系統基於高階導數與貝氏推論進行純分析。<br>
+            * 數據源：Binance 開放 API (免代理直連)。<br>
+            * 不構成任何投資建議。
         </div>
     </div>
 </div>
@@ -259,67 +211,41 @@
     function calcDerivatives(arr) {
         const d1 = new Array(arr.length).fill(0);
         const d2 = new Array(arr.length).fill(0);
-        for (let i = 1; i < arr.length; i++) {
-            d1[i] = arr[i] - arr[i - 1];
-        }
-        for (let i = 1; i < d1.length; i++) {
-            d2[i] = d1[i] - d1[i - 1];
-        }
+        for (let i = 1; i < arr.length; i++) d1[i] = arr[i] - arr[i - 1];
+        for (let i = 1; i < d1.length; i++) d2[i] = d1[i] - d1[i - 1];
         return { d1, d2 };
-    }
-
-    async function fetchData(symbol, interval) {
-        const statusBar = document.getElementById('status-bar');
-        statusBar.innerText = `狀態：正在獲取 ${symbol} 歷史數據...`;
-        statusBar.style.color = 'var(--text-main)';
-
-        // 改用 AllOrigins 代理，比 corsproxy 穩定得多
-        const proxyUrl = 'https://api.allorigins.win/raw?url=';
-        
-        // 設定時間範圍
-        let range = '3mo';
-        if (interval === '1d') range = '1y';
-        
-        // Yahoo Finance 的 API 端點
-        const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${interval}&range=${range}`;
-        
-        try {
-            const res = await fetch(proxyUrl + encodeURIComponent(yahooUrl));
-            
-            if (!res.ok) throw new Error("代理伺服器無回應");
-            
-            const data = await res.json();
-            
-            // 檢查數據完整性
-            if (!data.chart || !data.chart.result || data.chart.result.length === 0) {
-                throw new Error("Yahoo API 返回空數據 (該資產可能暫時停牌或 API 限制)");
-            }
-
-            const result = data.chart.result[0];
-            // 過濾 null 值 (週末或停牌日)
-            const prices = result.indicators.quote[0].close.filter(p => p !== null);
-            
-            if (prices.length < 50) throw new Error("歷史數據太少，無法計算微積分");
-
-            return { prices };
-        } catch (error) {
-            throw new Error(`數據獲取失敗: ${error.message}`);
-        }
     }
 
     async function executeAnalysis() {
         const symbol = document.getElementById('asset').value;
         const interval = document.getElementById('interval').value;
         const statusBar = document.getElementById('status-bar');
+        const runBtn = document.getElementById('runBtn');
         
         document.getElementById('val-signal').innerText = "分析中...";
         document.getElementById('val-signal').style.color = 'var(--text-main)';
+        runBtn.disabled = true;
+        runBtn.innerText = "[ 運算中... ]";
 
         try {
-            const { prices } = await fetchData(symbol, interval);
+            statusBar.innerText = `狀態：正在從 Binance 獲取 ${symbol} 數據...`;
+            statusBar.style.color = 'var(--text-main)';
+
+            // 直接請求 Binance API，完全無 CORS 問題
+            const url = `https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=200`;
+            const res = await fetch(url);
             
+            if (!res.ok) throw new Error("Binance API 請求失敗");
+            
+            const data = await res.json();
+            if (!Array.isArray(data)) throw new Error("API 返回格式錯誤");
+
+            // 提取收盤價 (第 5 個元素)
+            const prices = data.map(d => parseFloat(d[4]));
+            const latestPrice = prices[prices.length - 1];
+
             statusBar.innerText = `狀態：正在計算微積分與貝氏概率...`;
-            
+
             // 計算對數收益率
             const logRets = [];
             for (let i = 1; i < prices.length; i++) {
@@ -330,7 +256,6 @@
             const { d1, d2 } = calcDerivatives(logRets);
             const lastD1 = d1[d1.length - 1];
             const lastD2 = d2[d2.length - 1];
-            const latestPrice = prices[prices.length - 1];
 
             // 波動率計算
             const mean = logRets.reduce((a,b)=>a+b, 0) / logRets.length;
@@ -358,7 +283,7 @@
             } else if (lastD1 < 0 && lastD2 < 0 && probs[0] > 0.4) {
                 signalText = "偏空 (做空)";
                 signalColor = "var(--color-bear)";
-            } else if (Math.abs(lastD1) < 0.0001) {
+            } else if (Math.abs(lastD1) < 0.00001) {
                 signalText = "區間震盪";
                 signalColor = "var(--color-flat)";
             }
@@ -399,7 +324,7 @@
             renderChart(prices);
 
             statusBar.innerText = `狀態：分析完成 | 時間：${new Date().toLocaleTimeString('zh-HK')}`;
-            statusBar.style.color = 'var(--color-bull)'; // 成功時變成綠色
+            statusBar.style.color = 'var(--color-bull)';
 
         } catch (error) {
             console.error(error);
@@ -407,22 +332,20 @@
             statusBar.style.color = 'var(--color-bear)';
             document.getElementById('val-signal').innerText = "分析失敗";
             document.getElementById('val-signal').style.color = 'var(--color-bear)';
+        } finally {
+            runBtn.disabled = false;
+            runBtn.innerText = "[ 執行分析 ]";
         }
     }
 
     function renderChart(prices) {
         const ctx = document.getElementById('priceChart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
         
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
-
-        const labels = Array.from({length: prices.length}, (_, i) => i);
-
         chartInstance = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: labels,
+                labels: Array.from({length: prices.length}, (_, i) => i),
                 datasets: [{
                     data: prices,
                     borderColor: '#3399ff',
@@ -435,17 +358,12 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
                     x: { display: false },
-                    y: {
-                        grid: { color: '#222' },
-                        ticks: { 
-                            color: '#888', 
-                            font: { family: 'Courier New, monospace', size: 12 }
-                        }
+                    y: { 
+                        grid: { color: '#222' }, 
+                        ticks: { color: '#888', font: { family: 'Courier New, monospace', size: 12 } } 
                     }
                 },
                 animation: false
