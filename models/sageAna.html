@@ -23,7 +23,6 @@
     body {
         background-color: var(--bg);
         color: var(--text-main);
-        /* 使用系統等寬字體，去除 AI 感 */
         font-family: "Courier New", Courier, "Lucida Sans Typewriter", "Lucida Typewriter", monospace;
         margin: 0;
         padding: 15px;
@@ -272,25 +271,35 @@
     async function fetchData(symbol, interval) {
         const statusBar = document.getElementById('status-bar');
         statusBar.innerText = `狀態：正在獲取 ${symbol} 歷史數據...`;
+        statusBar.style.color = 'var(--text-main)';
 
-        // 使用代理伺服器繞過 CORS 限制，抓取 Yahoo Finance 數據
-        const proxyUrl = 'https://corsproxy.io/?';
-        // 獲取過去 3 個月的 1 小時線，或 1 年的日線
-        const range = interval === '1d' ? '1y' : '3mo';
+        // 改用 AllOrigins 代理，比 corsproxy 穩定得多
+        const proxyUrl = 'https://api.allorigins.win/raw?url=';
+        
+        // 設定時間範圍
+        let range = '3mo';
+        if (interval === '1d') range = '1y';
+        
+        // Yahoo Finance 的 API 端點
         const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${symbol}?interval=${interval}&range=${range}`;
         
         try {
             const res = await fetch(proxyUrl + encodeURIComponent(yahooUrl));
+            
+            if (!res.ok) throw new Error("代理伺服器無回應");
+            
             const data = await res.json();
             
+            // 檢查數據完整性
             if (!data.chart || !data.chart.result || data.chart.result.length === 0) {
-                throw new Error("無法獲取該資產數據");
+                throw new Error("Yahoo API 返回空數據 (該資產可能暫時停牌或 API 限制)");
             }
 
             const result = data.chart.result[0];
+            // 過濾 null 值 (週末或停牌日)
             const prices = result.indicators.quote[0].close.filter(p => p !== null);
             
-            if (prices.length < 50) throw new Error("歷史數據太少，無法分析");
+            if (prices.length < 50) throw new Error("歷史數據太少，無法計算微積分");
 
             return { prices };
         } catch (error) {
@@ -303,7 +312,6 @@
         const interval = document.getElementById('interval').value;
         const statusBar = document.getElementById('status-bar');
         
-        statusBar.style.color = 'var(--text-main)';
         document.getElementById('val-signal').innerText = "分析中...";
         document.getElementById('val-signal').style.color = 'var(--text-main)';
 
@@ -327,7 +335,7 @@
             // 波動率計算
             const mean = logRets.reduce((a,b)=>a+b, 0) / logRets.length;
             const variance = logRets.reduce((a,b)=>a+Math.pow(b-mean, 2), 0) / logRets.length;
-            const vol = Math.sqrt(variance) * Math.sqrt(252) * 100; // 簡化年化波動率
+            const vol = Math.sqrt(variance) * Math.sqrt(252) * 100;
 
             // 貝氏概率計算 (跌、平、升)
             const threshold = Math.abs(mean) * 0.5 + 0.0001;
@@ -391,6 +399,7 @@
             renderChart(prices);
 
             statusBar.innerText = `狀態：分析完成 | 時間：${new Date().toLocaleTimeString('zh-HK')}`;
+            statusBar.style.color = 'var(--color-bull)'; // 成功時變成綠色
 
         } catch (error) {
             console.error(error);
@@ -416,7 +425,7 @@
                 labels: labels,
                 datasets: [{
                     data: prices,
-                    borderColor: '#3399ff', // 專業藍色
+                    borderColor: '#3399ff',
                     borderWidth: 1,
                     pointRadius: 0,
                     fill: false,
